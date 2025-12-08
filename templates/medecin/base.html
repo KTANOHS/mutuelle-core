@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Espace Médecin - Cabinet Médical{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+        }
+        .sidebar .nav-link {
+            color: white;
+            padding: 12px 20px;
+            margin: 5px 0;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        .sidebar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+        .sidebar .nav-link.active {
+            background-color: #e74c3c;
+        }
+        .main-content {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .medecin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 10px;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+        }
+        .badge-notification {
+            font-size: 0.7em;
+            margin-left: 5px;
+        }
+        /* Style pour le widget de messagerie dans la sidebar */
+        .communication-widget-sidebar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px;
+        }
+        .communication-widget-sidebar .nav-link {
+            padding: 8px 12px;
+            margin: 2px 0;
+        }
+        .communication-widget-sidebar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(3px);
+        }
+        /* Header avec informations utilisateur et notifications */
+        .user-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-0 d-flex flex-column">
+                <!-- En-tête médecin amélioré -->
+                <div class="user-header">
+                    <div class="text-center">
+                        <div class="mb-3">
+                            <i class="bi bi-heart-pulse fs-2"></i>
+                        </div>
+                        <h6 class="mb-1">Espace Médecin</h6>
+                        <p class="mb-1 small opacity-75">
+                            {% if user.is_authenticated and medecin %}
+                                Dr. {{ medecin.nom_complet|default:user.get_full_name|default:user.username }}
+                            {% elif user.is_authenticated %}
+                                {{ user.get_full_name|default:user.username }}
+                            {% else %}
+                                Non connecté
+                            {% endif %}
+                        </p>
+                        {% if medecin and medecin.specialite %}
+                        <small class="opacity-75">{{ medecin.specialite.nom }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <nav class="nav flex-column flex-grow-1 p-3">
+                    <!-- Tableau de Bord -->
+                    <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' or request.resolver_match.url_name == 'dashboard_medecin' %}active{% endif %}" 
+                       href="{% url 'medecin:dashboard' %}">
+                        <i class="bi bi-speedometer2 me-2"></i> Tableau de Bord
+                    </a>
+                    
+                    <!-- Rendez-vous -->
+                    <a class="nav-link {% if request.resolver_match.url_name == 'mes_rendez_vous' or request.resolver_match.url_name == 'liste_consultations' %}active{% endif %}" 
+                       href="{% url 'medecin:mes_rendez_vous' %}">
+                        <i class="bi bi-calendar-check me-2"></i> Mes Rendez-vous
+                    </a>
+                    
+                    <!-- Bons de Soin -->
+                    <a class="nav-link {% if 'bons' in request.resolver_match.url_name %}active{% endif %}" 
+                       href="{% url 'medecin:liste_bons' %}">
+                        <i class="bi bi-file-medical me-2"></i> Bons de Soin
+                        {% if bons_attente_count and bons_attente_count > 0 %}
+                            <span class="badge bg-danger badge-notification">{{ bons_attente_count }}</span>
+                        {% endif %}
+                    </a>
+                    
+                    <!-- Ordonnances -->
+                    <div class="dropdown">
+                        <a class="nav-link dropdown-toggle {% if 'ordonnance' in request.resolver_match.url_name %}active{% endif %}" 
+                           href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-prescription2 me-2"></i> Ordonnances
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item {% if request.resolver_match.url_name == 'creer_ordonnance' %}active{% endif %}" 
+                                   href="{% url 'medecin:creer_ordonnance' %}">
+                                    <i class="bi bi-plus-circle me-2"></i> Créer Ordonnance
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {% if request.resolver_match.url_name == 'mes_ordonnances' or request.resolver_match.url_name == 'historique_ordonnances' %}active{% endif %}" 
+                                   href="{% url 'medecin:mes_ordonnances' %}">
+                                    <i class="bi bi-clock-history me-2"></i> Historique
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Suivi Chronique -->
+                    <div class="dropdown">
+                        <a class="nav-link dropdown-toggle {% if 'accompagnement' in request.resolver_match.url_name or 'suivi' in request.resolver_match.url_name %}active{% endif %}" 
+                           href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-heartbeat me-2"></i> Suivi Chronique
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item {% if request.resolver_match.url_name == 'tableau_bord_suivi' %}active{% endif %}" 
+                                   href="{% url 'medecin:tableau_bord_suivi' %}">
+                                    <i class="bi bi-speedometer2 me-2"></i> Tableau de Bord
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {% if request.resolver_match.url_name == 'liste_accompagnements' %}active{% endif %}" 
+                                   href="{% url 'medecin:liste_accompagnements' %}">
+                                    <i class="bi bi-list-ul me-2"></i> Programmes d'Accompagnement
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Statistiques -->
+                    <a class="nav-link {% if request.resolver_match.url_name == 'statistiques' %}active{% endif %}" 
+                       href="{% url 'medecin:statistiques' %}">
+                        <i class="bi bi-graph-up me-2"></i> Statistiques
+                    </a>
+                    
+                    <!-- Profil -->
+                    <a class="nav-link {% if request.resolver_match.url_name == 'profil_medecin' %}active{% endif %}" 
+                       href="{% url 'medecin:profil_medecin' %}">
+                        <i class="bi bi-person-circle me-2"></i> Mon Profil
+                    </a>
+
+                    <!-- ✅ SECTION COMMUNICATION INTÉGRÉE -->
+                    <div class="communication-widget-sidebar mt-3">
+                        <h6 class="text-white mb-2 small text-uppercase">
+                            <i class="bi bi-chat-left-text me-1"></i>Communication
+                        </h6>
+                        
+                        <!-- Messagerie -->
+                        <a class="nav-link d-flex justify-content-between align-items-center position-relative" 
+                           href="{% url 'communication:messagerie_medecin' %}">
+                            <span>
+                                <i class="bi bi-inbox me-2"></i>Messagerie
+                            </span>
+                            {% if request.user.notifications_unread %}
+                                <span class="badge bg-danger">{{ request.user.notifications_unread.count }}</span>
+                            {% endif %}
+                        </a>
+                        
+                        <!-- Nouveau Message -->
+                        <a class="nav-link" href="{% url 'communication:nouveau_message' %}">
+                            <i class="bi bi-pencil-square me-2"></i>Nouveau message
+                        </a>
+                        
+                        <!-- Notifications -->
+                        <a class="nav-link d-flex justify-content-between align-items-center" 
+                           href="{% url 'communication:liste_notifications' %}">
+                            <span>
+                                <i class="bi bi-bell me-2"></i>Notifications
+                            </span>
+                            {% if request.user.notifications_unread %}
+                                <span class="badge bg-warning">{{ request.user.notifications_unread.count }}</span>
+                            {% endif %}
+                        </a>
+                        
+                        <!-- Conversations -->
+                        <a class="nav-link" href="{% url 'communication:conversations' %}">
+                            <i class="bi bi-chat-dots me-2"></i>Conversations
+                        </a>
+                    </div>
+                    
+                    <!-- Déconnexion -->
+                    <div class="mt-auto">
+                        <a class="nav-link text-warning" href="{% url 'logout' %}">
+                            <i class="bi bi-box-arrow-right me-2"></i> Déconnexion
+                        </a>
+                    </div>
+                </nav>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content">
+                <!-- Barre d'outils supérieure -->
+                <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-white rounded shadow-sm">
+                    <div>
+                        <h2 class="text-primary mb-0">{% block page_title %}{% endblock %}</h2>
+                        {% block page_subtitle %}
+                        <small class="text-muted">
+                            {% if medecin and medecin.specialite %}
+                                {{ medecin.specialite.nom }} - {{ medecin.etablissement.nom|default:"Établissement" }}
+                            {% endif %}
+                        </small>
+                        {% endblock %}
+                    </div>
+                    
+                    <div class="d-flex align-items-center">
+                        <!-- Indicateur de statut -->
+                        {% if medecin %}
+                        <div class="me-3">
+                            <span class="badge {% if medecin.disponible %}bg-success{% else %}bg-secondary{% endif %}">
+                                <i class="bi bi-circle-fill me-1"></i>
+                                {% if medecin.disponible %}Disponible{% else %}Non disponible{% endif %}
+                            </span>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Actions de page -->
+                        <div class="text-muted">
+                            {% block page_actions %}{% endblock %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages système -->
+                {% if messages %}
+                <div class="messages mb-4">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="bi 
+                                {% if message.tags == 'success' %}bi-check-circle-fill
+                                {% elif message.tags == 'error' or message.tags == 'danger' %}bi-exclamation-triangle-fill
+                                {% elif message.tags == 'warning' %}bi-exclamation-circle-fill
+                                {% else %}bi-info-circle-fill
+                                {% endif %} me-2"></i>
+                            <div class="flex-grow-1">
+                                {{ message }}
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- Contenu principal -->
+                {% block content %}
+                <!-- Le contenu spécifique à chaque page viendra ici -->
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Scripts communs -->
+    <script>
+        // Activer les tooltips Bootstrap
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+            
+            // Auto-dismiss alerts après 5 secondes
+            setTimeout(function() {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+
+            // Gestion des dropdowns actifs
+            var currentUrl = window.location.pathname;
+            var dropdownLinks = document.querySelectorAll('.dropdown-item');
+            dropdownLinks.forEach(function(link) {
+                if (link.href && currentUrl.includes(link.getAttribute('href').split('/').filter(Boolean).pop())) {
+                    link.classList.add('active');
+                    // Remonter pour activer le parent dropdown-toggle aussi
+                    var dropdownToggle = link.closest('.dropdown').querySelector('.dropdown-toggle');
+                    if (dropdownToggle) {
+                        dropdownToggle.classList.add('active');
+                    }
+                }
+            });
+
+            // Mise à jour en temps réel des notifications
+            function updateNotificationCount() {
+                fetch('{% url "communication:notifications_count" %}')
+                    .then(response => response.json())
+                    .then(data => {
+                        const notificationBadges = document.querySelectorAll('.badge.bg-danger, .badge.bg-warning');
+                        notificationBadges.forEach(badge => {
+                            if (badge.closest('a[href*="messagerie"]') || badge.closest('a[href*="notifications"]')) {
+                                badge.textContent = data.unread_count || '0';
+                                if (data.unread_count > 0) {
+                                    badge.style.display = 'inline-block';
+                                } else {
+                                    badge.style.display = 'none';
+                                }
+                            }
+                        });
+                    })
+                    .catch(error => console.error('Error fetching notifications:', error));
+            }
+
+            // Mettre à jour toutes les 30 secondes
+            setInterval(updateNotificationCount, 30000);
+
+            // Animation des cartes au chargement
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'all 0.5s ease';
+                
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+
+        // Fonction pour basculer la disponibilité
+        function toggleDisponibilite() {
+            fetch('{% url "medecin:api_toggle_disponibilite" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Fonction utilitaire pour récupérer le cookie CSRF
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

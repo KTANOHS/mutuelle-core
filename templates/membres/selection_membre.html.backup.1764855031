@@ -1,0 +1,62 @@
+{% extends 'assureur/base_assureur.html' %}
+
+{% block title %}Sélectionner un Membre{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">Sélectionner un Membre</h1>
+                <a href="{% url 'assureur:dashboard' %}" class="btn btn-outline-secondary">Retour</a>
+            </div>
+
+            <!-- Recherche -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-10">
+                            <input type="text" name="q" class="form-control" 
+                                   placeholder="Rechercher par nom, prénom, numéro..." value="{{ query }}">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">Rechercher</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Liste des membres -->
+            <div class="card">
+                <div class="card-body">
+                    {% if membres %}
+                        <div class="row">
+                            {% for membre in membres %}
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">{{ membre.nom_complet }}</h5>
+                                        <p class="text-muted">#{{ membre.numero_unique }}</p>
+                                        <a href="{% url 'assureur:creer_bon' membre.id %}" 
+                                           class="btn btn-primary w-100">
+                                            Sélectionner
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <p class="text-muted">Aucun membre trouvé</p>
+                            <a href="{% url 'assureur:creer_membre' %}" class="btn btn-primary">
+                                Créer un nouveau membre
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

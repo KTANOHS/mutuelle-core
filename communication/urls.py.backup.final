@@ -1,0 +1,44 @@
+# communication/urls.py - VERSION COMPLÈTE CORRIGÉE
+from django.urls import path,include
+from . import views
+from .urls_api import urlpatterns as api_urls
+
+app_name = 'communication'
+
+urlpatterns = [
+    # Pages principales
+    path('', views.messagerie, name='messagerie'),
+    path('messages/', views.MessageListView.as_view(), name='message_list'),
+    path('messages/nouveau/', views.MessageCreateView.as_view(), name='message_create'),
+    path('messages/<int:pk>/', views.MessageDetailView.as_view(), name='message_detail'),
+    
+    # API et actions
+    path('envoyer-message/', views.envoyer_message, name='envoyer_message'),
+    path('messages/<int:message_id>/marquer-lu/', views.marquer_message_lu, name='marquer_message_lu'),
+    
+    # Notifications
+    path('notifications/', views.NotificationListView.as_view(), name='notification_list'),
+    path('notifications/<int:notification_id>/marquer-lue/', views.marquer_notification_lue, name='marquer_notification_lue'),
+    path('notifications/marquer-toutes-lues/', views.marquer_toutes_notifications_lues, name='marquer_toutes_notifications_lues'),
+    
+    # Fichiers
+    path('fichiers/', views.liste_fichiers, name='liste_fichiers'),
+    path('fichiers/upload/', views.upload_fichier, name='upload_fichier'),
+    path('fichiers/<int:fichier_id>/telecharger/', views.telecharger_fichier, name='telecharger_fichier'),
+    
+    # Groupes - CORRECTION : AJOUT DES URLS MANQUANTES
+    path('groupes/', views.liste_groupes, name='liste_groupes'),
+    path('groupes/creer/', views.creer_groupe, name='creer_groupe'),  # ⬅️ AJOUTÉ
+    path('groupes/<int:groupe_id>/', views.detail_groupe, name='detail_groupe'),
+    path('groupes/<int:groupe_id>/envoyer-message/', views.envoyer_message_groupe, name='envoyer_message_groupe'),
+    
+    # API JSON
+    path('api/conversations/', views.api_conversations, name='api_conversations'),
+    path('api/messages/<int:destinataire_id>/', views.api_messages, name='api_messages'),
+    path('api/notifications/count/', views.notification_non_lue_count, name='notification_count'),
+    
+    # Utilitaires
+    path('recherche/', views.search_messages, name='search_messages'),
+    path('statistiques/', views.stats_communication, name='stats_communication'),
+    path('', include((api_urls, 'communication_api'))),
+]

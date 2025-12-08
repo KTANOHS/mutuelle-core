@@ -1,0 +1,74 @@
+
+{% load humanize %}
+<div class="preview-content">
+    <h3 class="mb-4">Prévisualisation des cotisations à générer</h3>
+    
+    {% if membres_a_generer %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            {{ membres_a_generer|length }} membre(s) seront affectés pour la période {{ periode }}
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Numéro Membre</th>
+                        <th>Nom Complet</th>
+                        <th>Type</th>
+                        <th>Employeur</th>
+                        <th>Taux</th>
+                        <th>Montant</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for membre in membres_a_generer %}
+                    <tr>
+                        <td>{{ membre.numero_membre }}</td>
+                        <td>{{ membre.nom_complet }}</td>
+                        <td>{{ membre.get_type_membre_display }}</td>
+                        <td>{{ membre.employeur.nom|default:"Indépendant" }}</td>
+                        <td>{{ membre.taux }}%</td>
+                        <td>{{ membre.calculer_montant_cotisation|floatformat:2|intcomma }} FCFA</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="table-primary">
+                        <td colspan="5" class="text-end"><strong>Total à générer :</strong></td>
+                        <td><strong>{{ total_montant|floatformat:2|intcomma }} FCFA</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        
+        <div class="mt-4">
+            <button type="button" class="btn btn-success" id="confirmer-generation">
+                <i class="fas fa-check"></i> Confirmer la génération
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <i class="fas fa-times"></i> Annuler
+            </button>
+        </div>
+    {% else %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            Aucune cotisation à générer pour la période {{ periode }}.
+        </div>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times"></i> Fermer
+        </button>
+    {% endif %}
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#confirmer-generation').click(function() {
+        // Désactiver le bouton pour éviter les doubles clics
+        $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Génération en cours...');
+        
+        // Soumettre le formulaire principal
+        $('#form-generation').submit();
+    });
+});
+</script>

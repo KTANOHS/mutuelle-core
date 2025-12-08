@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Messages</h2>
+<div class="messages-list">
+    {% for message in messages %}
+    <div class="message-item">
+        <strong>De:</strong> {{ message.expediteur.username }}<br>
+        <strong>Date:</strong> {{ message.date_envoi }}<br>
+        <p>{{ message.contenu }}</p>
+    </div>
+    {% empty %}
+    <p>Aucun message.</p>
+    {% endfor %}
+</div>
+{% endblock %}

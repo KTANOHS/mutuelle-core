@@ -1,0 +1,29 @@
+{
+  "timestamp": "2025-11-27T10:38:11.742628",
+  "periode": "hebdomadaire",
+  "statistiques": {
+    "utilisateurs_totaux": 43,
+    "membres_totaux": 22,
+    "taux_synchronisation": 100.0,
+    "nouveaux_membres_semaine": 15,
+    "date_debut_periode": "2025-11-20T10:38:11.749346",
+    "date_fin_periode": "2025-11-27T10:38:11.757316",
+    "temps_reponse_moyen": 0.00053
+  },
+  "alertes": [],
+  "tendances": {
+    "membres_4_dernieres_semaines": [
+      15,
+      2,
+      0,
+      5
+    ],
+    "croissance_membres": -10
+  },
+  "recommandations": [
+    "Forte croissance détectée - Vérifier la capacité du système",
+    "Sauvegarder la base de données",
+    "Vérifier l'espace disque disponible",
+    "Mettre à jour les dépendances si nécessaire"
+  ]
+}

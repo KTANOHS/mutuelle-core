@@ -1,0 +1,548 @@
+{% extends 'assureur/base_assureur.html' %}
+
+{% block title %}Dashboard Assureur - Mutuelle{% endblock %}
+
+{% block page_title %}Dashboard Assureur{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Cartes de statistiques PRINCIPALES -->
+    <div class="col-12 mb-4">
+        <div class="row">
+            <!-- Membres Actifs -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card stat-card border-start border-primary border-4">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="text-xs fw-bold text-primary text-uppercase mb-1">
+                                    Membres Actifs
+                                </div>
+                                <div class="h5 mb-0 fw-bold text-gray-800">{{ stats.membres_actifs }}</div>
+                                <div class="small text-muted">
+                                    <i class="fas fa-arrow-up text-success me-1"></i>
+                                    +{{ stats.nouveaux_membres_mois }} ce mois
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <div class="stat-icon bg-primary text-white">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cotisations du Mois (NOUVEAU) -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card stat-card border-start border-success border-4">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="text-xs fw-bold text-success text-uppercase mb-1">
+                                    Cotisations Mois
+                                </div>
+                                <div class="h5 mb-0 fw-bold text-gray-800">{{ stats.montant_cotisations_mois|floatformat:0 }} FCFA</div>
+                                <div class="small text-muted">
+                                    <i class="fas fa-receipt text-success me-1"></i>
+                                    {{ stats.cotisations_payees_mois }}/{{ stats.cotisations_mois }} payées
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <div class="stat-icon bg-success text-white">
+                                    <i class="fas fa-file-invoice-dollar"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bons en Attente -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card stat-card border-start border-warning border-4">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="text-xs fw-bold text-warning text-uppercase mb-1">
+                                    Bons en Attente
+                                </div>
+                                <div class="h5 mb-0 fw-bold text-gray-800">{{ stats.bons_attente }}</div>
+                                <div class="small text-muted">
+                                    <i class="fas fa-check-circle text-success me-1"></i>
+                                    {{ stats.bons_traites_semaine }} traités cette semaine
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <div class="stat-icon bg-warning text-white">
+                                    <i class="fas fa-file-medical"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Taux de Satisfaction -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card stat-card border-start border-info border-4">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <div class="text-xs fw-bold text-info text-uppercase mb-1">
+                                    Taux de Satisfaction
+                                </div>
+                                <div class="h5 mb-0 fw-bold text-gray-800">{{ stats.taux_satisfaction }}%</div>
+                                <div class="small text-muted">
+                                    <i class="fas fa-heart text-danger me-1"></i>
+                                    Basé sur {{ stats.soins_valides }} soins
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <div class="stat-icon bg-info text-white">
+                                    <i class="fas fa-chart-pie"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Deuxième ligne de statistiques -->
+<div class="row mb-4">
+    <!-- Taux de Recouvrement (NOUVEAU) -->
+    <div class="col-xl-2 col-md-4 col-6 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center p-3">
+                <div class="h4 mb-0">{{ stats.taux_recouvrement }}%</div>
+                <small>Taux Recouvrement</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cotisations en Retard (NOUVEAU) -->
+    <div class="col-xl-2 col-md-4 col-6 mb-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body text-center p-3">
+                <div class="h4 mb-0">{{ stats.cotisations_retard }}</div>
+                <small>Retards</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Femmes Enceintes (NOUVEAU) -->
+    <div class="col-xl-2 col-md-4 col-6 mb-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center p-3">
+                <div class="h4 mb-0">{{ stats.femmes_enceintes }}</div>
+                <small>Femmes Enceintes</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paiements du Mois -->
+    <div class="col-xl-2 col-md-4 col-6 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center p-3">
+                <div class="h4 mb-0">{{ stats.paiements_mois|floatformat:0 }}</div>
+                <small>Paiements</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Économies Réalisées -->
+    <div class="col-xl-2 col-md-4 col-6 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center p-3">
+                <div class="h4 mb-0">{{ stats.economies_realisees|floatformat:0 }}</div>
+                <small>Économies (FCFA)</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Bons -->
+    <div class="col-xl-2 col-md-4 col-6 mb-3">
+        <div class="card bg-secondary text-white">
+            <div class="card-body text-center p-3">
+                <div class="h4 mb-0">{{ stats.total_bons }}</div>
+                <small>Total Bons</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Alertes Importantes -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                    Alertes Importantes
+                </h6>
+                <span class="badge bg-warning">{{ alertes_importantes|length }}</span>
+            </div>
+            <div class="card-body p-0">
+                {% if alertes_importantes %}
+                    {% for alerte in alertes_importantes %}
+                    <div class="activity-item alert-card alert-{{ alerte.niveau }} m-3">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ alerte.titre }}</h6>
+                            <small class="text-muted">{{ alerte.date|timesince }}</small>
+                        </div>
+                        <p class="mb-1 small">{{ alerte.description }}</p>
+                        {% if alerte.lien %}
+                        <a href="{{ alerte.lien }}" class="btn btn-sm btn-{{ alerte.niveau }} mt-1">
+                            Voir <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-check-circle text-success fa-2x mb-2"></i>
+                        <p class="text-muted mb-0">Aucune alerte pour le moment</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Statistiques Cotisations (NOUVEAU) -->
+        <div class="card mt-4">
+            <div class="card-header bg-white">
+                <h6 class="mb-0">
+                    <i class="fas fa-file-invoice-dollar text-success me-2"></i>
+                    Statistiques Cotisations
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Taux de recouvrement</span>
+                        <strong>{{ stats.taux_recouvrement }}%</strong>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-success" style="width: {{ stats.taux_recouvrement }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="row text-center">
+                    <div class="col-6 mb-3">
+                        <div class="h5 text-success fw-bold">{{ stats.cotisations_payees_mois }}</div>
+                        <small class="text-muted">Payées</small>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="h5 text-danger fw-bold">{{ stats.cotisations_retard }}</div>
+                        <small class="text-muted">En retard</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="h5 text-primary fw-bold">{{ stats.cotisations_mois }}</div>
+                        <small class="text-muted">Total</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="h5 text-warning fw-bold">{{ stats.femmes_enceintes }}</div>
+                        <small class="text-muted">Femmes enceintes</small>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <a href="{% url 'assureur:liste_cotisations' %}" class="btn btn-outline-success btn-sm w-100">
+                        <i class="fas fa-chart-bar me-1"></i>Voir détails
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activités Récentes -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                    <i class="fas fa-history text-primary me-2"></i>
+                    Activités Récentes
+                </h6>
+                <div class="btn-group">
+                    <a href="{% url 'assureur:liste_bons' %}" class="btn btn-sm btn-outline-primary">Bons</a>
+                    <a href="{% url 'assureur:liste_cotisations' %}" class="btn btn-sm btn-outline-success">Cotisations</a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if recent_activities %}
+                    <div class="list-group list-group-flush">
+                        {% for activity in recent_activities %}
+                        <div class="list-group-item px-0">
+                            <div class="d-flex w-100 justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center mb-1">
+                                        <span class="badge bg-{{ activity.type }} me-2">{{ activity.categorie }}</span>
+                                        <h6 class="mb-0">{{ activity.titre }}</h6>
+                                    </div>
+                                    <p class="mb-1 text-muted small">{{ activity.description }}</p>
+                                    {% if activity.statut %}
+                                    <span class="badge bg-{% if activity.statut == 'payee' %}success{% elif activity.statut == 'en_retard' %}danger{% else %}warning{% endif %}">
+                                        {{ activity.statut }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                <small class="text-muted text-nowrap ms-2">{{ activity.date|timesince }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-info-circle text-muted fa-2x mb-2"></i>
+                        <p class="text-muted mb-0">Aucune activité récente</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Graphiques -->
+        <div class="row mt-4">
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-chart-pie text-success me-2"></i>
+                            Statut des Bons
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="bonsChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-file-invoice-dollar text-primary me-2"></i>
+                            Cotisations du Mois
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="cotisationsChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions Rapides -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h6 class="mb-0">
+                    <i class="fas fa-bolt text-warning me-2"></i>
+                    Actions Rapides
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3 col-6">
+                        <a href="{% url 'assureur:liste_bons' %}" class="btn btn-outline-primary w-100 h-100 py-3">
+                            <i class="fas fa-file-medical fa-2x mb-2"></i><br>
+                            Gérer les Bons
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <a href="{% url 'assureur:liste_membres' %}" class="btn btn-outline-success w-100 h-100 py-3">
+                            <i class="fas fa-users fa-2x mb-2"></i><br>
+                            Voir les Membres
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <a href="{% url 'assureur:liste_cotisations' %}" class="btn btn-outline-info w-100 h-100 py-3">
+                            <i class="fas fa-file-invoice-dollar fa-2x mb-2"></i><br>
+                            Cotisations
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <a href="{% url 'assureur:generer_cotisations' %}" class="btn btn-outline-warning w-100 h-100 py-3">
+                            <i class="fas fa-bolt fa-2x mb-2"></i><br>
+                            Générer Cotisations
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Graphique des statuts des bons
+    const bonsCtx = document.getElementById('bonsChart').getContext('2d');
+    const bonsChart = new Chart(bonsCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Validés', 'En Attente', 'Refusés'],
+            datasets: [{
+                data: [
+                    {{ stats.bons_valides_mois }},
+                    {{ stats.bons_attente }},
+                    {{ stats.total_bons|add:"-stats.bons_valides_mois"|add:"-stats.bons_attente" }}
+                ],
+                backgroundColor: [
+                    '#27ae60',
+                    '#f39c12',
+                    '#e74c3c'
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            let value = context.raw || 0;
+                            let total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            let percentage = Math.round((value / total) * 100);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Graphique des cotisations (NOUVEAU)
+    const cotisationsCtx = document.getElementById('cotisationsChart').getContext('2d');
+    const cotisationsChart = new Chart(cotisationsCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Payées', 'En Retard', 'Total'],
+            datasets: [{
+                label: 'Nombre de Cotisations',
+                data: [
+                    {{ stats.cotisations_payees_mois }},
+                    {{ stats.cotisations_retard }},
+                    {{ stats.cotisations_mois }}
+                ],
+                backgroundColor: [
+                    '#27ae60',
+                    '#e74c3c',
+                    '#3498db'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    // Mise à jour automatique des notifications
+    function updateNotifications() {
+        fetch('/assureur/api/statistiques/')
+            .then(response => {
+                if (!response.ok) throw new Error('Network error');
+                return response.json();
+            })
+            .then(data => {
+                // Mettre à jour les badges si nécessaire
+                if (data.bons_attente !== {{ stats.bons_attente }} || 
+                    data.cotisations_retard !== {{ stats.cotisations_retard }}) {
+                    console.log('Nouvelles données détectées, rechargement...');
+                    // On pourrait faire une mise à jour partielle ici
+                    // Pour l'instant on recharge toute la page
+                    location.reload();
+                }
+            })
+            .catch(error => console.error('Erreur vérification mises à jour:', error));
+    }
+
+    // Vérifier les mises à jour toutes les 45 secondes
+    setInterval(updateNotifications, 45000);
+
+    // Animation des cartes de statistiques
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'all 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+
+    // Tooltips pour les statistiques
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+
+<style>
+.stat-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+.alert-card {
+    border-left: 4px solid;
+    padding: 12px;
+    border-radius: 4px;
+}
+.alert-danger {
+    border-left-color: #e74c3c;
+    background-color: rgba(231, 76, 60, 0.1);
+}
+.alert-warning {
+    border-left-color: #f39c12;
+    background-color: rgba(243, 156, 18, 0.1);
+}
+.alert-info {
+    border-left-color: #3498db;
+    background-color: rgba(52, 152, 219, 0.1);
+}
+.alert-success {
+    border-left-color: #27ae60;
+    background-color: rgba(39, 174, 96, 0.1);
+}
+</style>
+{% endblock %}

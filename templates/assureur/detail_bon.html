@@ -1,0 +1,253 @@
+{% extends 'assureur/base_assureur.html' %}
+{% load static %}
+
+{% block title %}Bon {{ bon.numero_bon }} - {{ bon.membre.nom }}{% endblock %}
+
+{% block page_title %}Détail du Bon{% endblock %}
+{% block page_subtitle %}{{ bon.numero_bon }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Carte Informations du Bon -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold">
+                            <i class="fas fa-file-invoice me-2"></i>Informations du Bon
+                        </h6>
+                        <span class="badge 
+                            {% if bon.status == 'valide' %}bg-success
+                            {% elif bon.status == 'refuse' %}bg-danger
+                            {% else %}bg-warning{% endif %}">
+                            {{ bon.get_statut_display }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">Numéro:</th>
+                                    <td><strong>{{ bon.numero_bon }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>Membre:</th>
+                                    <td>
+                                        <a href="{% url 'assureur:detail_membre' bon.membre.id %}">
+                                            {{ bon.membre.nom }} {{ bon.membre.prenom }}
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Type de soin:</th>
+                                    <td>{{ bon.type_soin }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Date soins:</th>
+                                    <td>{{ bon.date_soins|date:"d/m/Y" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">Montant total:</th>
+                                    <td class="fw-bold text-primary">{{ bon.montant_total }} FCFA</td>
+                                </tr>
+                                <tr>
+                                    <th>Taux remboursement:</th>
+                                    <td>{{ bon.taux_remboursement }}%</td>
+                                </tr>
+                                <tr>
+                                    <th>Montant remboursé:</th>
+                                    <td class="fw-bold text-success">
+                                        {% if bon.montant_rembourse %}
+                                            {{ bon.montant_rembourse }} FCFA
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Date création:</th>
+                                    <td>{{ bon.date_creation|date:"d/m/Y H:i" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Informations médicales -->
+                    {% if bon.medecin_traitant or bon.diagnostic %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-stethoscope me-2"></i>Informations Médicales
+                            </h6>
+                            <div class="row">
+                                {% if bon.medecin_traitant %}
+                                <div class="col-md-6">
+                                    <strong>Médecin traitant:</strong> {{ bon.medecin_traitant }}
+                                </div>
+                                {% endif %}
+                                {% if bon.numero_ordonnance %}
+                                <div class="col-md-6">
+                                    <strong>N° ordonnance:</strong> {{ bon.numero_ordonnance }}
+                                </div>
+                                {% endif %}
+                                {% if bon.diagnostic %}
+                                <div class="col-12 mt-2">
+                                    <strong>Diagnostic:</strong>
+                                    <p class="mb-0 mt-1">{{ bon.diagnostic }}</p>
+                                </div>
+                                {% endif %}
+                                {% if bon.description %}
+                                <div class="col-12 mt-2">
+                                    <strong>Description:</strong>
+                                    <p class="mb-0 mt-1">{{ bon.description }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Motif de refus -->
+                    {% if bon.status == 'refuse' and bon.motif_refus %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="alert alert-warning">
+                                <h6 class="alert-heading">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>Motif de refus
+                                </h6>
+                                {{ bon.motif_refus }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Actions -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-info text-white py-3">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-cogs me-2"></i>Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if bon.status == 'en_attente' %}
+                        <button type="button" class="btn btn-success mb-2" data-bs-toggle="modal" data-bs-target="#validerModal">
+                            <i class="fas fa-check me-1"></i>Valider le Bon
+                        </button>
+                        <button type="button" class="btn btn-danger mb-2" data-bs-toggle="modal" data-bs-target="#refuserModal">
+                            <i class="fas fa-times me-1"></i>Refuser le Bon
+                        </button>
+                        {% endif %}
+                        
+                        <a href="{% url 'assureur:liste_bons' %}" class="btn btn-secondary mb-2">
+                            <i class="fas fa-arrow-left me-1"></i>Retour à la liste
+                        </a>
+                        <a href="{% url 'assureur:detail_membre' bon.membre.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-user me-1"></i>Voir le membre
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informations de suivi -->
+            <div class="card shadow">
+                <div class="card-header bg-light py-3">
+                    <h6 class="m-0 font-weight-bold text-dark">
+                        <i class="fas fa-history me-2"></i>Suivi
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="small">
+                        <div class="mb-2">
+                            <strong>Créé le:</strong><br>
+                            {{ bon.date_creation|date:"d/m/Y à H:i" }}
+                        </div>
+                        {% if bon.date_modification %}
+                        <div class="mb-2">
+                            <strong>Modifié le:</strong><br>
+                            {{ bon.date_modification|date:"d/m/Y à H:i" }}
+                        </div>
+                        {% endif %}
+                        {% if bon.date_validation %}
+                        <div class="mb-2">
+                            <strong>Validé le:</strong><br>
+                            {{ bon.date_validation|date:"d/m/Y à H:i" }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Validation -->
+<div class="modal fade" id="validerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-check me-2"></i>Valider le Bon
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'assureur:valider_bon' bon.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Confirmez-vous la validation du bon <strong>{{ bon.numero_bon }}</strong> ?</p>
+                    <div class="form-group">
+                        <label for="montant_rembourse" class="form-label">Montant à rembourser (FCFA)</label>
+                        <input type="number" class="form-control" id="montant_rembourse" 
+                               name="montant_rembourse" step="0.01" min="0" 
+                               value="{{ bon.montant_total }}" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success">Confirmer la validation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Refus -->
+<div class="modal fade" id="refuserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-times me-2"></i>Refuser le Bon
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'assureur:refuser_bon' bon.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Vous êtes sur le point de refuser le bon <strong>{{ bon.numero_bon }}</strong>.</p>
+                    <div class="form-group">
+                        <label for="motif_refus" class="form-label">Motif du refus</label>
+                        <textarea class="form-control" id="motif_refus" name="motif_refus" 
+                                  rows="3" placeholder="Raison du refus..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger">Confirmer le refus</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

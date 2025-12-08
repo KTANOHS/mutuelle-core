@@ -1,0 +1,515 @@
+{% extends 'pharmacien/base_pharmacien.html' %}
+{% load static %}
+{% load communication_global %}
+
+{% block title %}Dashboard Pharmacien - Mutuelle{% endblock %}
+{% block page_title %}Tableau de Bord Pharmacien{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Section Statistiques Principales -->
+    <div class="row mb-4">
+        <!-- Ordonnances en attente -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Ordonnances en attente
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ ordonnances_attente|default:0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Validées aujourd'hui -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Validées aujourd'hui
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ ordonnances_aujourdhui|default:0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages non lus -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Messages non lus
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ unread_count|default:0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-envelope fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Date du jour -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Date du jour
+                            </div>
+                            <div class="h6 mb-0 font-weight-bold text-gray-800">{{ date_aujourdhui }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-day fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section Communication -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-primary">
+                                <i class="fas fa-envelope me-2"></i>Conversations
+                            </h6>
+                            <h3 class="text-primary">{{ conversations|length|default:0 }}</h3>
+                            <small class="text-muted">Conversations actives</small>
+                        </div>
+                        <div class="text-end">
+                            <a href="{% url 'communication:messagerie' %}" class="btn btn-primary btn-sm">
+                                Voir
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-warning">
+                                <i class="fas fa-bell me-2"></i>Notifications
+                            </h6>
+                            <h3 class="text-warning">{{ unread_count|default:0 }}</h3>
+                            <small class="text-muted">Non lues</small>
+                        </div>
+                        <div class="text-end">
+                            <a href="{% url 'communication:notification_list' %}" class="btn btn-warning btn-sm">
+                                Voir
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-success">
+                                <i class="fas fa-file-prescription me-2"></i>Traitées
+                            </h6>
+                            <h3 class="text-success">{{ ordonnances_aujourdhui|default:0 }}</h3>
+                            <small class="text-muted">Aujourd'hui</small>
+                        </div>
+                        <div class="text-end">
+                            <a href="{% url 'pharmacien:historique_validation' %}" class="btn btn-success btn-sm">
+                                Historique
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Actions rapides</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <a href="{% url 'pharmacien:liste_ordonnances_attente' %}" class="btn btn-primary btn-block">
+                                <i class="fas fa-list me-2"></i>Ordonnances en attente
+                                {% if ordonnances_attente > 0 %}
+                                <span class="badge bg-danger ms-1">{{ ordonnances_attente }}</span>
+                                {% endif %}
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <a href="{% url 'pharmacien:rechercher_ordonnances' %}" class="btn btn-success btn-block">
+                                <i class="fas fa-search me-2"></i>Rechercher
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <a href="{% url 'pharmacien:stock' %}" class="btn btn-info btn-block">
+                                <i class="fas fa-boxes me-2"></i>Gestion stock
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <a href="{% url 'communication:messagerie' %}" class="btn btn-warning btn-block">
+                                <i class="fas fa-envelope me-2"></i>Messagerie
+                                {% if unread_count > 0 %}
+                                <span class="badge bg-danger ms-1">{{ unread_count }}</span>
+                                {% endif %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenu Principal en Deux Colonnes -->
+    <div class="row">
+        <!-- Colonne de gauche : Ordonnances et Communication -->
+        <div class="col-lg-8">
+            <!-- Ordonnances récentes en attente -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        Ordonnances récentes en attente
+                        {% if ordonnances_attente > 0 %}
+                        <span class="badge bg-danger ms-2">{{ ordonnances_attente }}</span>
+                        {% endif %}
+                    </h6>
+                    <a href="{% url 'pharmacien:liste_ordonnances_attente' %}" class="btn btn-sm btn-outline-primary">
+                        Voir tout
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if dernieres_ordonnances %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover" width="100%" cellspacing="0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>N° Ordonnance</th>
+                                    <th>Patient</th>
+                                    <th>Médecin</th>
+                                    <th>Date création</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ordonnance in dernieres_ordonnances %}
+                                <tr>
+                                    <td>
+                                        <strong>#{{ ordonnance.id }}</strong>
+                                        {% if ordonnance.bon_de_soin %}
+                                            <br><small class="text-muted">Bon: {{ ordonnance.bon_de_soin.numero_bon|default:"N/A" }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if ordonnance.bon_de_soin and ordonnance.bon_de_soin.patient %}
+                                            {{ ordonnance.bon_de_soin.patient.get_full_name|default:ordonnance.bon_de_soin.patient.nom }}
+                                            {% if ordonnance.bon_de_soin.patient.telephone %}
+                                                <br><small class="text-muted">{{ ordonnance.bon_de_soin.patient.telephone }}</small>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted">Patient non spécifié</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if ordonnance.bon_de_soin and ordonnance.bon_de_soin.medecin %}
+                                            {{ ordonnance.bon_de_soin.medecin.get_full_name|default:ordonnance.bon_de_soin.medecin.nom }}
+                                            {% if ordonnance.bon_de_soin.medecin.specialite %}
+                                                <br><small class="text-muted">{{ ordonnance.bon_de_soin.medecin.specialite }}</small>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted">Médecin non spécifié</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ ordonnance.date_creation|date:"d/m/Y" }}
+                                        <br><small class="text-muted">{{ ordonnance.date_creation|date:"H:i" }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-clock me-1"></i>En attente
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{% url 'pharmacien:detail_ordonnance' ordonnance.id %}" 
+                                               class="btn btn-info" 
+                                               title="Voir les détails">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'pharmacien:valider_ordonnance' ordonnance.id %}" 
+                                               class="btn btn-success" 
+                                               title="Valider l'ordonnance">
+                                                <i class="fas fa-check"></i>
+                                            </a>
+                                            <a href="{% url 'pharmacien:refuser_ordonnance' ordonnance.id %}" 
+                                               class="btn btn-danger" 
+                                               title="Refuser l'ordonnance">
+                                                <i class="fas fa-times"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                        <h5 class="text-success">Aucune ordonnance en attente</h5>
+                        <p class="text-muted">Toutes les ordonnances ont été traitées.</p>
+                        <div class="mt-3">
+                            <a href="{% url 'pharmacien:rechercher_ordonnances' %}" class="btn btn-primary me-2">
+                                <i class="fas fa-search me-1"></i>Rechercher des ordonnances
+                            </a>
+                            <a href="{% url 'pharmacien:historique_validation' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-history me-1"></i>Voir l'historique
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne de droite : Communication et Actions -->
+        <div class="col-lg-4">
+            <!-- Conversations Récentes -->
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-comments me-2"></i>
+                        Conversations Récentes
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% for conversation in conversations %}
+                    <div class="d-flex align-items-center mb-3 pb-2 border-bottom">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-user-md text-primary fa-lg"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-1">
+                                Conversation #{{ conversation.id }}
+                            </h6>
+                            <p class="mb-1 text-muted small">
+                                {{ conversation.participants.count }} participant(s)
+                            </p>
+                            <small class="text-muted">
+                                {{ conversation.date_modification|timesince }}
+                            </small>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <a href="{% url 'communication:messagerie' %}?conversation={{ conversation.id }}" 
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-reply"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-comments fa-2x text-muted mb-2"></i>
+                        <p class="text-muted mb-0">Aucune conversation</p>
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="text-center mt-3">
+                        <a href="{% url 'communication:messagerie' %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-inbox me-1"></i>Voir toute la messagerie
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Récentes -->
+            <div class="card shadow">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-bell me-2"></i>
+                        Notifications Récentes
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for notification in request.user.notifications.all %}
+                            {% if not notification.est_lue %}
+                                {% if forloop.counter <= 3 %}
+                                <div class="list-group-item">
+                                    <div class="d-flex align-items-start">
+                                        <i class="fas fa-{{ notification.type_notification|lower }} text-{{ notification.type_notification|lower }} mt-1 me-2"></i>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1 small">{{ notification.titre }}</h6>
+                                            <p class="mb-1 small text-muted">{{ notification.message|truncatewords:10 }}</p>
+                                            <small class="text-muted">{{ notification.date_creation|timesince }}</small>
+                                        </div>
+                                        <button type="button" class="btn-close btn-sm" 
+                                                onclick="markNotificationAsRead({{ notification.id }})"
+                                                title="Marquer comme lu"></button>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            {% endif %}
+                        {% empty %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-bell-slash fa-2x text-muted mb-2"></i>
+                                <p class="text-muted mb-0">Aucune notification</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if unread_count > 3 %}
+                    <div class="card-footer text-center">
+                        <a href="{% url 'communication:notification_list' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-list me-1"></i>Voir les {{ unread_count }} notifications
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Actions Rapides Secondaires -->
+            <div class="card shadow mt-4">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">Actions Rapides</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'pharmacien:profil_pharmacien' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-user me-2"></i>Mon profil
+                        </a>
+                        <a href="{% url 'pharmacien:filtrer_ordonnances' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-filter me-2"></i>Filtrer les ordonnances
+                        </a>
+                        <a href="{% url 'communication:stats_communication' %}" class="btn btn-outline-info">
+                            <i class="fas fa-chart-bar me-2"></i>Statistiques communication
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Résumé du jour -->
+    <div class="row mt-4">
+        <div class="col-lg-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Résumé du jour</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-3">
+                            <div class="border-end">
+                                <div class="h4 text-primary mb-1">{{ ordonnances_attente|default:0 }}</div>
+                                <div class="text-xs text-uppercase text-muted">En attente</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="border-end">
+                                <div class="h4 text-success mb-1">{{ ordonnances_aujourdhui|default:0 }}</div>
+                                <div class="text-xs text-uppercase text-muted">Validées</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="border-end">
+                                <div class="h4 text-warning mb-1">{{ unread_count|default:0 }}</div>
+                                <div class="text-xs text-uppercase text-muted">Messages</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div>
+                                <div class="h4 text-info mb-1">{{ conversations|length|default:0 }}</div>
+                                <div class="text-xs text-uppercase text-muted">Conversations</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Script simplifié pour le dashboard pharmacien
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Fonction pour marquer une notification comme lue (visuellement)
+    window.markNotificationAsRead = function(notificationId) {
+        const notificationElement = document.querySelector(`[onclick="markNotificationAsRead(${notificationId})"]`);
+        if (notificationElement) {
+            const listItem = notificationElement.closest('.list-group-item');
+            if (listItem) {
+                // Animation de disparition
+                listItem.style.transition = 'all 0.3s ease';
+                listItem.style.opacity = '0';
+                listItem.style.height = '0';
+                listItem.style.padding = '0';
+                listItem.style.margin = '0';
+                listItem.style.overflow = 'hidden';
+                
+                setTimeout(() => {
+                    listItem.remove();
+                    updateNotificationBadges();
+                }, 300);
+            }
+        }
+    };
+    
+    // Mettre à jour les badges de notification
+    function updateNotificationBadges() {
+        const remainingNotifications = document.querySelectorAll('.list-group-item').length;
+        const badges = document.querySelectorAll('.badge.bg-danger');
+        
+        badges.forEach(badge => {
+            if (remainingNotifications > 0) {
+                badge.textContent = remainingNotifications;
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+            }
+        });
+    }
+    
+    // Initialiser les tooltips Bootstrap
+    const tooltipTriggerList = document.querySelectorAll('[title]');
+    tooltipTriggerList.forEach(tooltipTriggerEl => {
+        new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock %}

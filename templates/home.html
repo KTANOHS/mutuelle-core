@@ -1,0 +1,1328 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Accueil - MaSante Direct - Protection Santé Complète{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Variables CSS globales */
+    :root {
+        --primary-color: #2c5aa0;
+        --secondary-color: #3a7bd5;
+        --accent-color: #4CAF50;
+        --light-color: #f8f9fa;
+        --white: #ffffff;
+        --text-muted: #6c757d;
+        --border-radius: 10px;
+        --transition: all 0.3s ease;
+        --shadow-light: 0 4px 6px rgba(0,0,0,0.1);
+        --shadow-medium: 0 8px 15px rgba(0,0,0,0.1);
+        --shadow-heavy: 0 15px 30px rgba(0,0,0,0.15);
+        --gradient-primary: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        --gradient-success: linear-gradient(135deg, #28a745, #20c997);
+    }
+
+    /* Animations spéciales pour la page d'accueil */
+    .hero-logo {
+        max-width: 200px;
+        height: auto;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
+        animation: gentlePulse 3s ease-in-out infinite;
+    }
+    
+    .hero-logo:hover {
+        transform: scale(1.05) rotate(2deg);
+        filter: drop-shadow(0 15px 30px rgba(44, 90, 160, 0.2));
+        animation-play-state: paused;
+    }
+    
+    @keyframes gentlePulse {
+        0%, 100% { 
+            transform: scale(1);
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
+        }
+        50% { 
+            transform: scale(1.03);
+            filter: drop-shadow(0 12px 25px rgba(44, 90, 160, 0.15));
+        }
+    }
+
+    /* Animations améliorées pour la page d'accueil */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    @keyframes float {
+        0% {
+            transform: translateY(0) rotate(0deg);
+        }
+        50% {
+            transform: translateY(-20px) rotate(5deg);
+        }
+        100% {
+            transform: translateY(0) rotate(0deg);
+        }
+    }
+
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+            transform: translateY(0);
+        }
+        40% {
+            transform: translateY(-10px);
+        }
+        60% {
+            transform: translateY(-5px);
+        }
+    }
+
+    .animate-fade-up {
+        animation: fadeInUp 0.8s ease forwards;
+    }
+
+    .animate-on-scroll {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .animate-on-scroll.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+
+    .bounce {
+        animation: bounce 2s infinite;
+    }
+
+    /* Section Hero avec animations */
+    .hero-section {
+        background: var(--gradient-primary);
+        color: white;
+        padding: 8rem 0 6rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-animation {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+
+    .floating-icon {
+        position: absolute;
+        font-size: 2rem;
+        opacity: 0.2;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .floating-icon:nth-child(1) {
+        top: 20%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+
+    .floating-icon:nth-child(2) {
+        top: 60%;
+        left: 5%;
+        animation-delay: 2s;
+    }
+
+    .floating-icon:nth-child(3) {
+        top: 30%;
+        right: 10%;
+        animation-delay: 4s;
+    }
+
+    .floating-icon:nth-child(4) {
+        top: 70%;
+        right: 5%;
+        animation-delay: 6s;
+    }
+
+    .floating-icon:nth-child(5) {
+        top: 40%;
+        left: 20%;
+        animation-delay: 1s;
+    }
+
+    .floating-icon:nth-child(6) {
+        top: 50%;
+        right: 20%;
+        animation-delay: 3s;
+    }
+
+    .hero-content {
+        max-width: 700px;
+        text-align: center;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-title {
+        font-size: 3.5rem;
+        margin-bottom: 1.5rem;
+        color: white;
+        line-height: 1.2;
+    }
+
+    .hero-subtitle {
+        font-size: 1.2rem;
+        margin-bottom: 2.5rem;
+        opacity: 0.9;
+    }
+
+    .cta-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    /* Section Services Rapides */
+    .quick-services {
+        background: var(--gradient-primary);
+        color: white;
+        padding: 5rem 0;
+    }
+
+    .section-title {
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 3rem;
+        color: white;
+    }
+
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .service-card {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 2.5rem 1.5rem;
+        border-radius: var(--border-radius);
+        text-align: center;
+        color: white;
+        text-decoration: none;
+        transition: var(--transition);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .service-card:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+        z-index: 0;
+    }
+
+    .service-card:hover {
+        transform: translateY(-10px);
+        background: rgba(255, 255, 255, 0.2);
+        box-shadow: var(--shadow-heavy);
+    }
+
+    .service-card.emergency {
+        background: rgba(220, 53, 69, 0.2);
+        border: 1px solid rgba(220, 53, 69, 0.4);
+    }
+
+    .service-card.partner {
+        background: rgba(40, 167, 69, 0.2);
+        border: 1px solid rgba(40, 167, 69, 0.4);
+    }
+
+    .service-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .service-card h3 {
+        margin-bottom: 1rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .service-card p {
+        position: relative;
+        z-index: 1;
+    }
+
+    .service-badge {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background: var(--accent-color);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        box-shadow: var(--shadow-light);
+    }
+
+    /* Section Avantages */
+    .features-section {
+        padding: 6rem 0;
+        background: var(--light-color);
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+    }
+
+    .feature-card {
+        background: var(--white);
+        padding: 2.5rem 2rem;
+        border-radius: var(--border-radius);
+        text-align: center;
+        box-shadow: var(--shadow-light);
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .feature-card:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: var(--gradient-primary);
+        transition: var(--transition);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--shadow-medium);
+    }
+
+    .feature-card:hover:before {
+        width: 100%;
+        opacity: 0.1;
+    }
+
+    .feature-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: var(--gradient-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .feature-icon {
+        font-size: 2rem;
+        color: white;
+    }
+
+    .feature-title {
+        margin-bottom: 1rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .feature-card p {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Section Pharmacies Partenaires */
+    .pharmacy-section {
+        background: white;
+        padding: 6rem 0;
+    }
+
+    .pharmacy-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        align-items: center;
+    }
+
+    .pharmacy-benefits {
+        list-style: none;
+        padding: 0;
+        margin: 1.5rem 0;
+    }
+
+    .pharmacy-benefits li {
+        margin: 0.5rem 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .pharmacy-benefits i {
+        color: var(--secondary-color);
+        margin-right: 0.5rem;
+    }
+
+    .pharmacy-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .pharmacy-visual {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .pharmacy-illustration {
+        position: relative;
+        width: 300px;
+        height: 300px;
+    }
+
+    .pulse-icon {
+        position: absolute;
+        font-size: 4rem;
+        color: var(--primary-color);
+        opacity: 0.7;
+        animation: pulse 3s infinite;
+    }
+
+    .pulse-icon:nth-child(1) {
+        top: 20%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+
+    .pulse-icon:nth-child(2) {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation-delay: 1s;
+    }
+
+    .pulse-icon:nth-child(3) {
+        bottom: 20%;
+        right: 10%;
+        animation-delay: 2s;
+    }
+
+    /* Section Tarifs */
+    .pricing-section {
+        background: var(--light-color);
+        padding: 6rem 0;
+    }
+
+    .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+    }
+
+    .pricing-card {
+        background: white;
+        padding: 3rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-medium);
+        text-align: center;
+        position: relative;
+        transition: var(--transition);
+    }
+
+    .pricing-card:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--shadow-heavy);
+    }
+
+    .pricing-card.featured {
+        border: 2px solid var(--secondary-color);
+        transform: scale(1.05);
+    }
+
+    .pricing-card.featured:hover {
+        transform: scale(1.05) translateY(-10px);
+    }
+
+    .pricing-badge {
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--gradient-success);
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        box-shadow: var(--shadow-medium);
+    }
+
+    .pricing-card h3 {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+    }
+
+    .price {
+        font-size: 3rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+
+    .price-period {
+        font-size: 1rem;
+        color: var(--text-muted);
+    }
+
+    .benefits-list {
+        list-style: none;
+        padding: 0;
+        margin: 2rem 0;
+        text-align: left;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .benefits-list li {
+        padding: 0.5rem 0;
+        position: relative;
+        padding-left: 1.5rem;
+    }
+
+    .benefits-list li:before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: var(--secondary-color);
+        font-weight: bold;
+    }
+
+    .pricing-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    /* Section Témoignages */
+    .testimonials-section {
+        padding: 6rem 0;
+        background: white;
+    }
+
+    .testimonials-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .testimonial-card {
+        background: var(--light-color);
+        padding: 2.5rem 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-light);
+        transition: var(--transition);
+        position: relative;
+    }
+
+    .testimonial-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-medium);
+    }
+
+    .testimonial-avatar {
+        font-size: 3rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    .testimonial-text {
+        font-style: italic;
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    .testimonial-text:before {
+        content: '"';
+        font-size: 4rem;
+        color: var(--primary-color);
+        opacity: 0.2;
+        position: absolute;
+        top: -20px;
+        left: -10px;
+    }
+
+    .testimonial-author {
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+
+    /* === NOUVEAUX STYLES POUR LA VIDÉO === */
+    .video-section {
+        padding: 6rem 0;
+        background: var(--light-color);
+    }
+
+    .video-container {
+        max-width: 800px;
+        margin: 0 auto;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-medium);
+    }
+
+    /* Styles pour la vidéo avec overlay */
+    .video-with-overlay {
+        position: relative;
+        cursor: pointer;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        transition: var(--transition);
+    }
+
+    .play-button-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: var(--primary-color);
+        transition: var(--transition);
+        box-shadow: var(--shadow-medium);
+    }
+
+    .video-with-overlay:hover .play-button-overlay {
+        background: var(--primary-color);
+        color: white;
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    /* Animation de brillance pour le poster */
+    @keyframes shine {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+
+    /* Modal vidéo */
+    .video-modal {
+        display: none;
+        position: fixed;
+        z-index: 10000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.95);
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .modal-content {
+        position: relative;
+        margin: 5% auto;
+        width: 90%;
+        max-width: 800px;
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from { 
+            opacity: 0;
+            transform: translateY(-50px);
+        }
+        to { 
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .modal-video {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+        box-shadow: var(--shadow-heavy);
+    }
+
+    .close-modal {
+        position: absolute;
+        top: -50px;
+        right: 0;
+        color: white;
+        font-size: 2.5rem;
+        cursor: pointer;
+        z-index: 10001;
+        background: rgba(0,0,0,0.7);
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .close-modal:hover {
+        color: #4CAF50;
+        background: rgba(255,255,255,0.2);
+        transform: scale(1.1);
+    }
+
+    /* Section Annonces */
+    .announcements-section {
+        padding: 6rem 0;
+        background: white;
+    }
+
+    .announcement-slider {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .announcement-card {
+        background: var(--light-color);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        transition: var(--transition);
+    }
+
+    .announcement-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-medium);
+    }
+
+    .announcement-card h3 {
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+    }
+
+    .announcement-card h3 i {
+        margin-right: 0.5rem;
+    }
+
+    .announcement-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: bold;
+        margin-top: 1rem;
+        display: inline-block;
+        transition: var(--transition);
+    }
+
+    .announcement-link:hover {
+        color: var(--secondary-color);
+        transform: translateX(5px);
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .hero-title {
+            font-size: 2.8rem;
+        }
+        
+        .pharmacy-content {
+            grid-template-columns: 1fr;
+        }
+        
+        .pricing-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .pricing-card.featured {
+            transform: scale(1);
+        }
+        
+        .pricing-card.featured:hover {
+            transform: translateY(-10px);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.2rem;
+        }
+        
+        .cta-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn {
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+        }
+        
+        .pharmacy-actions {
+            flex-direction: column;
+        }
+        
+        .pricing-actions {
+            flex-direction: column;
+        }
+        
+        .play-button-overlay {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+        
+        .modal-content {
+            margin: 10% auto;
+            width: 95%;
+        }
+        
+        .close-modal {
+            top: -40px;
+            font-size: 2rem;
+            width: 40px;
+            height: 40px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .hero-title {
+            font-size: 1.8rem;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+        }
+        
+        .pricing-card {
+            padding: 2rem 1.5rem;
+        }
+        
+        .services-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .features-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Section Hero avec Logo Animé -->
+<section class="hero-section" id="accueil">
+    <div class="hero-animation">
+        <div class="floating-icon"><i class="fas fa-heartbeat"></i></div>
+        <div class="floating-icon"><i class="fas fa-pills"></i></div>
+        <div class="floating-icon"><i class="fas fa-stethoscope"></i></div>
+        <div class="floating-icon"><i class="fas fa-clinic-medical"></i></div>
+        <div class="floating-icon"><i class="fas fa-baby"></i></div>
+        <div class="floating-icon"><i class="fas fa-user-md"></i></div>
+    </div>
+    <div class="container">
+        <div class="hero-content">
+            <!-- Logo Principal avec Animation Spéciale -->
+            <div class="mb-4">
+                <img src="{% static 'mutuelle_core/images/logo.jpg' %}" 
+                     alt="MaSante Direct" 
+                     class="hero-logo">
+            </div>
+            
+            <h1 class="hero-title animate-fade-up">Votre Santé, Notre Priorité</h1>
+            <p class="hero-subtitle animate-fade-up">
+                Une couverture santé complète pour vous et votre famille. 
+                Bénéficiez de soins gratuits, d'une prise en charge optimale 
+                et d'un réseau de pharmacies partenaires.
+            </p>
+            <div class="cta-buttons animate-fade-up">
+                {% if not user.is_authenticated %}
+                <a href="{% url 'inscription:inscription_membre' %}" class="btn btn-primary-custom pulse">
+                    <i class="fas fa-user-plus me-2"></i>Devenir Membre
+                </a>
+                {% endif %}
+                <a href="/pharmacie-public/pharmacies/" class="btn btn-success-custom">
+                    <i class="fas fa-clinic-medical me-2"></i>Trouver une Pharmacie
+                </a>
+                <a href="#avantages" class="btn btn-outline-light">
+                    <i class="fas fa-info-circle me-2"></i>En savoir plus
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section Services Rapides -->
+<section class="quick-services">
+    <div class="container">
+        <h2 class="section-title animate-on-scroll">Services Immédiats</h2>
+        <div class="services-grid">
+            <a href="/pharmacie-public/pharmacies/garde/" class="service-card emergency animate-on-scroll">
+                <div class="service-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3>Pharmacies de Garde</h3>
+                <p>Trouvez les pharmacies ouvertes en urgence 24h/24</p>
+                <span class="service-badge">URGENT</span>
+            </a>
+            
+            <a href="/pharmacie-public/pharmacies/" class="service-card animate-on-scroll">
+                <div class="service-icon">
+                    <i class="fas fa-search-location"></i>
+                </div>
+                <h3>Recherche Pharmacie</h3>
+                <p>Trouvez une pharmacie près de chez vous</p>
+            </a>
+            
+            <a href="/pharmacie-public/inscription/" class="service-card partner animate-on-scroll">
+                <div class="service-icon">
+                    <i class="fas fa-handshake"></i>
+                </div>
+                <h3>Devenir Partenaire</h3>
+                <p>Inscrivez votre pharmacie sur notre plateforme</p>
+            </a>
+            
+            <a href="/accounts/login/" class="service-card animate-on-scroll">
+                <div class="service-icon">
+                    <i class="fas fa-prescription"></i>
+                </div>
+                <h3>Espace Membre</h3>
+                <p>Accédez à tous vos services santé</p>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Section Avantages -->
+<section class="features-section" id="avantages">
+    <div class="container">
+        <h2 class="section-title animate-on-scroll">Pourquoi Choisir MaSante Direct ?</h2>
+        <div class="features-grid">
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-stethoscope feature-icon"></i>
+                </div>
+                <h3 class="feature-title">Soins Médicaux 100% Gratuits</h3>
+                <p>Consultations, analyses médicales et soins courants entièrement pris en charge</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-procedures feature-icon"></i>
+                </div>
+                <h3 class="feature-title">Chirurgie 65% Prise en Charge</h3>
+                <p>Interventions chirurgicales couvertes à 65% pour votre tranquillité d'esprit</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-clinic-medical feature-icon"></i>
+                </div>
+                <h3 class="feature-title">Réseau Pharmacies Partenaires</h3>
+                <p>Accédez à notre réseau de pharmacies pour vos commandes de médicaments</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-shield-alt feature-icon"></i>
+                </div>
+                <h3 class="feature-title">Protection Complète</h3>
+                <p>Couverture étendue incluant les soins dentaires, optiques et hospitalisation</p>
+            </div>
+            <!-- NOUVEAU : Avantage Femmes Enceintes -->
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-baby feature-icon"></i>
+                </div>
+                <h3 class="feature-title">Forfait Femmes Enceintes</h3>
+                <p>Cotisation spéciale à 7.500 FCFA avec prise en charge complète : examens de sang, urines, échographie et accompagnement pédiatre</p>
+            </div>
+            <!-- NOUVEAU : Avantage Maladies Chroniques -->
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-heartbeat feature-icon"></i>
+                </div>
+                <h3 class="feature-title">Prise en Charge Maladies Chroniques</h3>
+                <p>Accompagnement personnalisé et prise en charge adaptée pour les maladies chroniques (voir avec notre pharmacien)</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section Pharmacies Partenaires -->
+<section class="pharmacy-section">
+    <div class="container">
+        <div class="pharmacy-content">
+            <div class="pharmacy-text animate-on-scroll">
+                <h2>Réseau de Pharmacies Partenaires</h2>
+                <p>
+                    Bénéficiez de notre réseau étendu de pharmacies partenaires. 
+                    Commandez vos médicaments en ligne et retirez-les dans la pharmacie de votre choix.
+                </p>
+                <ul class="pharmacy-benefits">
+                    <li><i class="fas fa-check-circle"></i> Commandes en ligne simplifiées</li>
+                    <li><i class="fas fa-check-circle"></i> Retrait en pharmacie en 1h</li>
+                    <li><i class="fas fa-check-circle"></i> Pharmacies de garde 24h/24</li>
+                    <li><i class="fas fa-check-circle"></i> Prix compétitifs</li>
+                </ul>
+                <div class="pharmacy-actions">
+                    <a href="/pharmacie-public/pharmacies/" class="btn btn-primary-custom">
+                        <i class="fas fa-search me-2"></i>Trouver une Pharmacie
+                    </a>
+                    <a href="/pharmacie-public/inscription/" class="btn btn-outline-primary">
+                        <i class="fas fa-store me-2"></i>Inscrire ma Pharmacie
+                    </a>
+                </div>
+            </div>
+            <div class="pharmacy-visual animate-on-scroll">
+                <div class="pharmacy-illustration">
+                    <div class="pulse-icon"><i class="fas fa-pills"></i></div>
+                    <div class="pulse-icon"><i class="fas fa-prescription-bottle"></i></div>
+                    <div class="pulse-icon"><i class="fas fa-clinic-medical"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section Tarifs -->
+<section class="pricing-section" id="tarifs">
+    <div class="container">
+        <h2 class="section-title animate-on-scroll">Nos Offres Exclusives</h2>
+        <div class="pricing-grid">
+            <div class="pricing-card animate-on-scroll">
+                <div class="pricing-badge">OFFRE POPULAIRE</div>
+                <h3>Formule Excellence</h3>
+                <div class="price">5.000 FCFA<span class="price-period">/mois</span></div>
+                <p>La protection santé la plus complète à prix accessible</p>
+                <ul class="benefits-list">
+                    <li>Soins médicaux gratuits à 100%</li>
+                    <li>Chirurgie prise en charge à 65%</li>
+                    <li>Médecine générale illimitée</li>
+                    <li>Soins dentaires de base</li>
+                    <li>Consultations spécialisées</li>
+                    <li>Analyses médicales incluses</li>
+                    <li>Accès au réseau pharmacies</li>
+                    <li>Urgences 24h/24</li>
+                </ul>
+                <div class="pricing-actions">
+                    <a href="{% url 'inscription:inscription_membre' %}" class="btn btn-primary-custom">
+                        <i class="fas fa-check me-2"></i>Souscrire Maintenant
+                    </a>
+                </div>
+            </div>
+            
+            <!-- NOUVEAU : Forfait Femmes Enceintes -->
+            <div class="pricing-card featured animate-on-scroll">
+                <div class="pricing-badge">FORFAIT SPÉCIAL</div>
+                <h3>Femmes Enceintes</h3>
+                <div class="price">7.500 FCFA<span class="price-period">/mois</span></div>
+                <p>Une prise en charge complète pendant votre grossesse</p>
+                <ul class="benefits-list">
+                    <li>Examens de sang réguliers</li>
+                    <li>Examens d'urine complets</li>
+                    <li>Échographies de suivi</li>
+                    <li>Accompagnement pédiatre après accouchement</li>
+                    <li>Consultations prénatales</li>
+                    <li>Suivi nutritionnel</li>
+                    <li>Préparation à l'accouchement</li>
+                    <li>Accès au réseau pharmacies</li>
+                </ul>
+                <div class="pricing-actions">
+                    <a href="{% url 'inscription:inscription_membre' %}" class="btn btn-primary-custom">
+                        <i class="fas fa-baby me-2"></i>Souscrire Maintenant
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section Témoignages -->
+<section class="testimonials-section" id="temoignages">
+    <div class="container">
+        <h2 class="section-title animate-on-scroll">Ils Nous Font Confiance</h2>
+        <div class="testimonials-grid">
+            <div class="testimonial-card animate-on-scroll">
+                <div class="testimonial-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <p class="testimonial-text">
+                    "Grâce à la mutuelle, j'ai pu me faire opérer sans me soucier des frais. 
+                    La prise en charge à 65% m'a vraiment sauvé !"
+                </p>
+                <p class="testimonial-author">- Marie K., Membre depuis 2 ans</p>
+            </div>
+            <div class="testimonial-card animate-on-scroll">
+                <div class="testimonial-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <p class="testimonial-text">
+                    "Service pharmacie exceptionnel ! J'ai commandé mes médicaments en ligne 
+                    et je les ai récupérés en 1h. Très pratique !"
+                </p>
+                <p class="testimonial-author">- Thomas B., Utilisateur</p>
+            </div>
+            <div class="testimonial-card animate-on-scroll">
+                <div class="testimonial-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <p class="testimonial-text">
+                    "En tant que pharmacien partenaire, la plateforme m'a permis d'élargir 
+                    ma clientèle et d'offrir un service moderne à mes patients."
+                </p>
+                <p class="testimonial-author">- Dr. Ahmed M., Pharmacien partenaire</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ======= SECTION VIDÉO FONCTIONNELLE ======= -->
+<section class="video-section">
+    <div class="container">
+        <h2 class="section-title animate-on-scroll">Découvrez Notre Engagement</h2>
+        <div class="video-container animate-on-scroll">
+            <div class="video-with-overlay" id="videoTrigger">
+                <!-- Poster attractif avec CSS -->
+                <div style="background: linear-gradient(135deg, #2c5aa0, #3a7bd5); width: 100%; height: 400px; display: flex; align-items: center; justify-content: center; color: white; border-radius: 10px; cursor: pointer; position: relative; overflow: hidden;">
+                    <!-- Effet de brillance -->
+                    <div style="position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); animation: shine 3s infinite;"></div>
+                    
+                    <div style="text-align: center; padding: 2rem; position: relative; z-index: 2;">
+                        <i class="fas fa-play-circle" style="font-size: 4rem; margin-bottom: 1rem; text-shadow: 0 4px 8px rgba(0,0,0,0.3);"></i>
+                        <h3 style="margin-bottom: 1rem; font-size: 1.8rem;">MaSante Direct</h3>
+                        <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">Votre santé, notre priorité</p>
+                        <small style="opacity: 0.9;">Cliquez pour découvrir notre vision</small>
+                    </div>
+                </div>
+                <div class="play-button-overlay">
+                    <i class="fas fa-play"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal Vidéo avec VOTRE vidéo personnelle -->
+<div class="video-modal" id="videoModal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <video controls id="mainVideo" class="modal-video" 
+               poster="https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80">
+            <!-- VOTRE VIDÉO PERSONNELLE -->
+            <source src="{% static 'mutuelle_core/videos/presentation.mp4' %}" type="video/mp4">
+            <source src="{% static 'mutuelle_core/videos/presentation.webm' %}" type="video/webm">
+            Votre navigateur ne supporte pas la lecture de vidéos.
+        </video>
+    </div>
+</div>
+<!-- ======= FIN SECTION VIDÉO ======= -->
+
+<!-- Section Annonces -->
+<section class="announcements-section">
+    <div class="container">
+        <h2 class="section-title animate-on-scroll">Annonces & Actualités</h2>
+        <div class="announcement-slider">
+            <div class="announcement-card animate-on-scroll">
+                <h3><i class="fas fa-clinic-medical"></i> Nouveau Service Pharmacie</h3>
+                <p>Commandez vos médicaments en ligne sur notre plateforme</p>
+                <a href="/pharmacie-public/pharmacies/" class="announcement-link">Découvrir →</a>
+            </div>
+            <div class="announcement-card animate-on-scroll">
+                <h3><i class="fas fa-handshake"></i> Devenir Partenaire</h3>
+                <p>Inscrivez votre pharmacie et développez votre activité</p>
+                <a href="/pharmacie-public/inscription/" class="announcement-link">S'inscrire →</a>
+            </div>
+            <div class="announcement-card animate-on-scroll">
+                <h3><i class="fas fa-clock"></i> Pharmacies de Garde</h3>
+                <p>Trouvez les pharmacies ouvertes en urgence 24h/24</p>
+                <a href="/pharmacie-public/pharmacies/garde/" class="announcement-link">Voir →</a>
+            </div>
+            <div class="announcement-card animate-on-scroll">
+                <h3><i class="fas fa-gift"></i> Offre Spéciale</h3>
+                <p>1 mois offert pour toute nouvelle inscription</p>
+                <a href="{% url 'inscription:inscription_membre' %}" class="announcement-link">Profiter →</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animation au scroll améliorée
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                
+                // Animation en cascade pour les cartes
+                if (entry.target.classList.contains('feature-card') || 
+                    entry.target.classList.contains('service-card') ||
+                    entry.target.classList.contains('testimonial-card') ||
+                    entry.target.classList.contains('announcement-card')) {
+                    const cards = entry.target.parentElement.children;
+                    Array.from(cards).forEach((card, index) => {
+                        setTimeout(() => {
+                            card.style.opacity = '1';
+                            card.style.transform = 'translateY(0)';
+                        }, index * 100);
+                    });
+                }
+            }
+        });
+    }, observerOptions);
+
+    // Observer les éléments à animer
+    document.querySelectorAll('.animate-on-scroll').forEach(el => {
+        observer.observe(el);
+    });
+
+    // Animation pour les services
+    document.querySelectorAll('.service-card').forEach((card, index) => {
+        card.style.transitionDelay = `${index * 0.1}s`;
+    });
+
+    // Animation pour les features
+    document.querySelectorAll('.feature-card').forEach((card, index) => {
+        card.style.transitionDelay = `${index * 0.1}s`;
+    });
+
+    // Animation pour les témoignages
+    document.querySelectorAll('.testimonial-card').forEach((card, index) => {
+        card.style.transitionDelay = `${index * 0.1}s`;
+    });
+
+    // Animation pour les annonces
+    document.querySelectorAll('.announcement-card').forEach((card, index) => {
+        card.style.transitionDelay = `${index * 0.1}s`;
+    });
+
+    // ======= JAVASCRIPT POUR LA VIDÉO FONCTIONNELLE =======
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🚀 Initialisation de la vidéo MaSante Direct...');
+        
+        const videoTrigger = document.getElementById('videoTrigger');
+        const videoModal = document.getElementById('videoModal');
+        const mainVideo = document.getElementById('mainVideo');
+        const closeModal = document.querySelector('.close-modal');
+
+        // Vérifier que tous les éléments existent
+        if (!videoTrigger || !videoModal || !mainVideo || !closeModal) {
+            console.error('❌ Éléments vidéo manquants');
+            return;
+        }
+
+        console.log('✅ Tous les éléments vidéo trouvés');
+        console.log('🎥 Source vidéo:', mainVideo.querySelector('source').src);
+
+        // Ouvrir la modal
+        videoTrigger.addEventListener('click', function() {
+            console.log('🎬 Ouverture de la modal vidéo');
+            videoModal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            
+            // Essayer de jouer la vidéo
+            mainVideo.play().then(() => {
+                console.log('✅ Vidéo en lecture');
+            }).catch(error => {
+                console.log('⚠️  Lecture automatique bloquée:', error);
+                // L'utilisateur devra cliquer sur play manuellement
+            });
+        });
+
+        // Fermer la modal
+        function closeVideoModal() {
+            console.log('📴 Fermeture de la modal vidéo');
+            videoModal.style.display = 'none';
+            document.body.style.overflow = '';
+            mainVideo.pause();
+            mainVideo.currentTime = 0;
+        }
+
+        closeModal.addEventListener('click', closeVideoModal);
+
+        // Fermer avec la touche Échap
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && videoModal.style.display === 'block') {
+                closeVideoModal();
+            }
+        });
+
+        // Fermer en cliquant à l'extérieur
+        videoModal.addEventListener('click', function(e) {
+            if (e.target === videoModal) {
+                closeVideoModal();
+            }
+        });
+
+        console.log('🎉 Système vidéo initialisé avec succès');
+    });
+
+    // Smooth scroll pour la navigation
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    console.log('Page d\'accueil MaSante Direct chargée avec animations spéciales');
+</script>
+{% endblock %}

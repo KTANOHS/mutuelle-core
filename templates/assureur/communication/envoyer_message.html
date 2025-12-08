@@ -1,0 +1,105 @@
+{% extends 'assureur/base_assureur.html' %}
+{% load static %}
+
+{% block title %}Envoyer un Message - Assureur{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-paper-plane me-2"></i>Envoyer un Message
+                </h6>
+            </div>
+            <div class="card-body">
+                <form method="post" id="messageForm">
+                    {% csrf_token %}
+                    
+                    <!-- Champ caché pour la conversation_id si disponible -->
+                    {% if conversation_id %}
+                    <input type="hidden" name="conversation_id" value="{{ conversation_id }}">
+                    {% endif %}
+                    
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <strong>Veuillez corriger les erreurs suivantes :</strong>
+                        <ul>
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    <li>{{ field }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <label for="destinataire" class="form-label">Destinataire *</label>
+                        <select name="destinataire" id="destinataire" class="form-control" required>
+                            <option value="">Sélectionner un destinataire</option>
+                            {% for user in users %}
+                            <option value="{{ user.id }}">{{ user.get_full_name|default:user.username }} ({{ user.groups.first.name|default:"Utilisateur" }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- SUPPRIMER le champ sujet qui n'existe pas dans le modèle Message -->
+                    
+                    <div class="mb-3">
+                        <label for="contenu" class="form-label">Message *</label>
+                        <textarea name="contenu" id="contenu" class="form-control" rows="6" 
+                                  placeholder="Tapez votre message ici..." required></textarea>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url "assureur:messagerie_assureur" %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Retour aux messages
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-paper-plane me-2"></i>Envoyer le Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control, .form-select {
+    border-radius: 0.375rem;
+    border: 1px solid #d1d3e2;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #3a7bd5;
+    box-shadow: 0 0 0 0.2rem rgba(58, 123, 213, 0.25);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('messageForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    form.addEventListener('submit', function(e) {
+        // Validation côté client
+        const destinataire = document.getElementById('destinataire').value;
+        const contenu = document.getElementById('contenu').value.trim();
+        
+        if (!destinataire || !contenu) {
+            e.preventDefault();
+            alert('Veuillez remplir tous les champs obligatoires.');
+            return;
+        }
+        
+        // Afficher l'indicateur de chargement
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Envoi en cours...';
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,261 @@
+{% extends 'agents/base_agent.html' %}
+{% load static %}
+
+{% block title %}Rapport de performance - Agent{% endblock %}
+{% block page_title %}Rapport de performance{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- KPIs Principaux -->
+    <div class="col-md-3 mb-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Bons créés</h5>
+                        <h2>{{ rapport.total_bons }}</h2>
+                        <small>Sur {{ rapport.periode }}</small>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-file-medical fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Taux utilisation</h5>
+                        <h2>{{ rapport.taux_utilisation }}%</h2>
+                        <small>Limite quotidienne</small>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-chart-line fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Vérifications</h5>
+                        <h2>{{ rapport.total_verifications }}</h2>
+                        <small>Cotisations vérifiées</small>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-check-double fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Score</h5>
+                        <h2>{{ rapport.score_performance }}/10</h2>
+                        <small>Performance globale</small>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-star fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Graphiques -->
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>Activité quotidienne (7 derniers jours)
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="activityChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Répartition par type -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-pie me-2"></i>Répartition des bons
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="typeChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Tableau détaillé -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-table me-2"></i>Détail des performances
+                </h5>
+                <button class="btn btn-sm btn-outline-primary" onclick="window.print()">
+                    <i class="fas fa-print me-1"></i>Imprimer
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Période</th>
+                                <th>Bons créés</th>
+                                <th>Vérifications</th>
+                                <th>Taux utilisation</th>
+                                <th>Score</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for periode in rapport.performance_par_periode %}
+                            <tr>
+                                <td>{{ periode.periode }}</td>
+                                <td>{{ periode.bons_crees }}</td>
+                                <td>{{ periode.verifications }}</td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar {% if periode.taux_utilisation >= 80 %}bg-success{% elif periode.taux_utilisation >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                             style="width: {{ periode.taux_utilisation }}%">
+                                            {{ periode.taux_utilisation }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{% if periode.score >= 8 %}success{% elif periode.score >= 6 %}warning{% else %}danger{% endif %}">
+                                        {{ periode.score }}/10
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if periode.score >= 8 %}
+                                    <span class="text-success"><i class="fas fa-check-circle"></i> Excellent</span>
+                                    {% elif periode.score >= 6 %}
+                                    <span class="text-warning"><i class="fas fa-minus-circle"></i> Bon</span>
+                                    {% else %}
+                                    <span class="text-danger"><i class="fas fa-exclamation-circle"></i> À améliorer</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recommandations -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>Recommandations
+                </h5>
+            </div>
+            <div class="card-body">
+                {% for recommandation in rapport.recommandations %}
+                <div class="alert alert-{{ recommandation.niveau }} d-flex align-items-center">
+                    <i class="fas fa-{{ recommandation.icone }} me-3 fa-lg"></i>
+                    <div>
+                        <h6 class="alert-heading mb-1">{{ recommandation.titre }}</h6>
+                        <p class="mb-0">{{ recommandation.description }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Données pour les graphiques (à remplacer par les données réelles)
+const activityData = {
+    labels: {{ rapport.dates_7_jours|safe }},
+    datasets: [{
+        label: 'Bons de soin',
+        data: {{ rapport.bons_7_jours|safe }},
+        borderColor: '#3498db',
+        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+        fill: true
+    }, {
+        label: 'Vérifications',
+        data: {{ rapport.verifications_7_jours|safe }},
+        borderColor: '#2ecc71',
+        backgroundColor: 'rgba(46, 204, 113, 0.1)',
+        fill: true
+    }]
+};
+
+const typeData = {
+    labels: ['Consultation', 'Urgence', 'Spécialiste', 'Analyse'],
+    datasets: [{
+        data: [40, 25, 20, 15],
+        backgroundColor: [
+            '#3498db', '#e74c3c', '#f39c12', '#9b59b6'
+        ]
+    }]
+};
+
+// Initialisation des graphiques
+document.addEventListener('DOMContentLoaded', function() {
+    // Graphique d'activité
+    const activityCtx = document.getElementById('activityChart').getContext('2d');
+    new Chart(activityCtx, {
+        type: 'line',
+        data: activityData,
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Activité quotidienne'
+                }
+            }
+        }
+    });
+
+    // Graphique circulaire
+    const typeCtx = document.getElementById('typeChart').getContext('2d');
+    new Chart(typeCtx, {
+        type: 'doughnut',
+        data: typeData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

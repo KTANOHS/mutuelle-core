@@ -1,0 +1,142 @@
+{% extends 'medecin/base.html' %}
+
+{% block title %}Détail Bon #{{ bon.id }} - Médecin{% endblock %}
+
+{% block page_title %}Détail du Bon #{{ bon.id }}{% endblock %}
+{% block page_subtitle %}Informations complètes du bon de soin{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <!-- Informations du bon -->
+        <div class="card mb-4">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-info-circle text-primary me-2"></i>
+                    Informations du Bon
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="40%">N° Bon:</th>
+                                <td><strong>#{{ bon.id }}</strong></td>
+                            </tr>
+                            <tr>
+                                <th>Statut:</th>
+                                <td>
+                                    <span class="badge bg-warning">{{ bon.get_statut_display }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Date Émission:</th>
+                                <td>{{ bon.date_emission|date:"d/m/Y H:i" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Type de soin:</th>
+                                <td>{{ bon.get_type_soin_display }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="40%">Montant:</th>
+                                <td class="text-success"><strong>{{ bon.montant_estime }} FCFA</strong></td>
+                            </tr>
+                            <tr>
+                                <th>Urgence:</th>
+                                <td>
+                                    {% if bon.urgence %}
+                                    <span class="badge bg-danger">URGENT</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Normal</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Créé par:</th>
+                                <td>{{ bon.assureur.user.get_full_name }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Détails médicaux -->
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-stethoscope text-primary me-2"></i>
+                    Détails Médicaux
+                </h5>
+            </div>
+            <div class="card-body">
+                <h6>Motif de consultation:</h6>
+                <p class="bg-light p-3 rounded">{{ bon.motif }}</p>
+                
+                {% if bon.symptomes %}
+                <h6>Symptômes décrits:</h6>
+                <p class="bg-light p-3 rounded">{{ bon.symptomes }}</p>
+                {% endif %}
+                
+                {% if bon.antecedents %}
+                <h6>Antécédents pertinents:</h6>
+                <p class="bg-light p-3 rounded">{{ bon.antecedents }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Informations patient -->
+        <div class="card mb-4">
+            <div class="card-header bg-white text-center">
+                <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
+                    <i class="fas fa-user text-white fa-2x"></i>
+                </div>
+                <h5 class="card-title mb-1">{{ bon.membre.user.get_full_name }}</h5>
+                <p class="text-muted mb-0">{{ bon.membre.numero_membre }}</p>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless table-sm">
+                    <tr>
+                        <th><i class="fas fa-venus-mars text-muted me-1"></i> Sexe:</th>
+                        <td>{{ bon.membre.get_sexe_display }}</td>
+                    </tr>
+                    <tr>
+                        <th><i class="fas fa-birthday-cake text-muted me-1"></i> Âge:</th>
+                        <td>{{ bon.membre.date_naissance|timesince }}</td>
+                    </tr>
+                    <tr>
+                        <th><i class="fas fa-phone text-muted me-1"></i> Téléphone:</th>
+                        <td>{{ bon.membre.telephone }}</td>
+                    </tr>
+                    <tr>
+                        <th><i class="fas fa-envelope text-muted me-1"></i> Email:</th>
+                        <td>{{ bon.membre.user.email }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="card">
+            <div class="card-header bg-white">
+                <h6 class="card-title mb-0">Actions</h6>
+            </div>
+            <div class="card-body">
+                <a href="{% url 'medecin:creer_ordonnance' bon.id %}" class="btn btn-success w-100 mb-2">
+                    <i class="fas fa-prescription me-2"></i>Créer Ordonnance
+                </a>
+                <a href="{% url 'medecin:liste_bons_attente' %}" class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

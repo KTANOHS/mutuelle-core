@@ -1,0 +1,46 @@
+<!-- templates/core/home.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Accueil - Mutuelle Core{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="jumbotron">
+        <h1 class="display-4">Bienvenue sur Mutuelle Core</h1>
+        <p class="lead">Plateforme de gestion médicale intégrée</p>
+        
+        {% if user.is_authenticated %}
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h5>👨‍💼 Assureur</h5>
+                            <a href="{% url 'assureur:dashboard' %}" class="btn btn-primary">Dashboard</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h5>👨‍⚕️ Médecin</h5>
+                            <a href="{% url 'medecin:dashboard' %}" class="btn btn-primary">Dashboard</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h5>💊 Pharmacien</h5>
+                            <a href="{% url 'pharmacien:dashboard_pharmacien' %}" class="btn btn-primary">Dashboard</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <p>Veuillez vous connecter pour accéder aux fonctionnalités.</p>
+            <a href="{% url 'login' %}" class="btn btn-primary btn-lg">Se connecter</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

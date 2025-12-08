@@ -1,0 +1,552 @@
+{% extends 'agents/base_agent.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- En-tête -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-1">👥 Créer un Nouveau Membre</h1>
+                    <p class="text-muted mb-0">Remplissez les informations pour inscrire un nouveau membre à la mutuelle</p>
+                </div>
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-primary me-3">
+                        <i class="fas fa-user-shield me-1"></i>
+                        Agent: {{ agent.user.get_full_name|default:agent.user.username }}
+                    </span>
+                    <a href="{% url 'membres:liste_membres_agent' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Retour
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages d'alerte -->
+    {% if messages %}
+    <div class="row mb-4">
+        <div class="col-12">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-triangle{% endif %} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Formulaire principal -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user-plus text-primary me-2"></i>
+                        Informations du nouveau membre
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" id="membreForm" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Navigation par étapes -->
+                        <div class="mb-4">
+                            <ul class="nav nav-pills nav-fill" id="formTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="compte-tab" data-bs-toggle="tab" data-bs-target="#compte" type="button" role="tab">
+                                        <i class="fas fa-key me-1"></i>Compte
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="personnel-tab" data-bs-toggle="tab" data-bs-target="#personnel" type="button" role="tab">
+                                        <i class="fas fa-user me-1"></i>Personnel
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab">
+                                        <i class="fas fa-address-book me-1"></i>Contact
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="documents-tab" data-bs-toggle="tab" data-bs-target="#documents" type="button" role="tab">
+                                        <i class="fas fa-file-alt me-1"></i>Documents
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="tab-content" id="formTabsContent">
+                            <!-- Étape 1: Compte -->
+                            <div class="tab-pane fade show active" id="compte" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.username.id_for_label }}" class="form-label">
+                                                <i class="fas fa-user-circle me-1 text-primary"></i>
+                                                {{ form.username.label }} *
+                                            </label>
+                                            {{ form.username }}
+                                            {% if form.username.help_text %}
+                                            <div class="form-text">{{ form.username.help_text }}</div>
+                                            {% endif %}
+                                            {% if form.username.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.username.errors.0 }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.password.id_for_label }}" class="form-label">
+                                                <i class="fas fa-lock me-1 text-primary"></i>
+                                                {{ form.password.label }} *
+                                            </label>
+                                            <div class="input-group">
+                                                {{ form.password }}
+                                                <button class="btn btn-outline-secondary" type="button" id="generatePassword">
+                                                    <i class="fas fa-sync-alt"></i>
+                                                </button>
+                                            </div>
+                                            {% if form.password.help_text %}
+                                            <div class="form-text">{{ form.password.help_text }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <label for="{{ form.email.id_for_label }}" class="form-label">
+                                                <i class="fas fa-envelope me-1 text-primary"></i>
+                                                {{ form.email.label }}
+                                            </label>
+                                            {{ form.email }}
+                                            {% if form.email.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.email.errors.0 }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Étape 2: Informations personnelles -->
+                            <div class="tab-pane fade" id="personnel" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.nom.id_for_label }}" class="form-label">
+                                                <i class="fas fa-signature me-1 text-primary"></i>
+                                                {{ form.nom.label }} *
+                                            </label>
+                                            {{ form.nom }}
+                                            {% if form.nom.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.nom.errors.0 }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.prenom.id_for_label }}" class="form-label">
+                                                <i class="fas fa-signature me-1 text-primary"></i>
+                                                {{ form.prenom.label }} *
+                                            </label>
+                                            {{ form.prenom }}
+                                            {% if form.prenom.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.prenom.errors.0 }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.date_naissance.id_for_label }}" class="form-label">
+                                                <i class="fas fa-birthday-cake me-1 text-primary"></i>
+                                                Date de naissance
+                                            </label>
+                                            {{ form.date_naissance }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.profession.id_for_label }}" class="form-label">
+                                                <i class="fas fa-briefcase me-1 text-primary"></i>
+                                                Profession
+                                            </label>
+                                            {{ form.profession }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Étape 3: Contact -->
+                            <div class="tab-pane fade" id="contact" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.telephone.id_for_label }}" class="form-label">
+                                                <i class="fas fa-phone me-1 text-primary"></i>
+                                                Téléphone
+                                            </label>
+                                            {{ form.telephone }}
+                                            {% if form.telephone.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.telephone.errors.0 }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.numero_urgence.id_for_label }}" class="form-label">
+                                                <i class="fas fa-phone-alt me-1 text-primary"></i>
+                                                Numéro d'urgence
+                                            </label>
+                                            {{ form.numero_urgence }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <label for="{{ form.adresse.id_for_label }}" class="form-label">
+                                                <i class="fas fa-map-marker-alt me-1 text-primary"></i>
+                                                Adresse
+                                            </label>
+                                            {{ form.adresse }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Étape 4: Documents et catégorie -->
+                            <div class="tab-pane fade" id="documents" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.categorie.id_for_label }}" class="form-label">
+                                                <i class="fas fa-tag me-1 text-primary"></i>
+                                                Catégorie *
+                                            </label>
+                                            {{ form.categorie }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.type_piece_identite.id_for_label }}" class="form-label">
+                                                <i class="fas fa-id-card me-1 text-primary"></i>
+                                                Type de pièce *
+                                            </label>
+                                            {{ form.type_piece_identite }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.numero_piece_identite.id_for_label }}" class="form-label">
+                                                <i class="fas fa-id-card me-1 text-primary"></i>
+                                                Numéro de pièce
+                                            </label>
+                                            {{ form.numero_piece_identite }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.date_expiration_piece.id_for_label }}" class="form-label">
+                                                <i class="fas fa-calendar-alt me-1 text-primary"></i>
+                                                Expiration pièce
+                                            </label>
+                                            {{ form.date_expiration_piece }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="mb-3 form-check form-switch">
+                                            {{ form.cmu_option }}
+                                            <label class="form-check-label" for="{{ form.cmu_option.id_for_label }}">
+                                                <i class="fas fa-heartbeat me-1 text-primary"></i>
+                                                Option CMU
+                                            </label>
+                                            <div class="form-text">Cochez si le membre bénéficie de la CMU</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Navigation entre les étapes -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-outline-primary" id="prevStep" style="display: none;">
+                                <i class="fas fa-arrow-left me-1"></i>Précédent
+                            </button>
+                            <button type="button" class="btn btn-primary" id="nextStep">
+                                Suivant <i class="fas fa-arrow-right ms-1"></i>
+                            </button>
+                            <button type="submit" class="btn btn-success" id="submitForm" style="display: none;">
+                                <i class="fas fa-check me-1"></i>Créer le membre
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar d'information -->
+        <div class="col-lg-4">
+            <!-- Carte informations agent -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-1"></i>Informations Agent
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-user-tie fa-2x text-primary"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0">{{ agent.user.get_full_name|default:agent.user.username }}</h6>
+                            <small class="text-muted">Matricule: {{ agent.matricule }}</small>
+                        </div>
+                    </div>
+                    <div class="border-top pt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-shield-alt me-1"></i>
+                            Toutes les actions sont tracées et sécurisées
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carte aide -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white py-3">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-question-circle me-1"></i>Aide & Instructions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-light border">
+                        <h6 class="alert-heading">💡 Instructions</h6>
+                        <ul class="small mb-0 ps-3">
+                            <li>Remplissez toutes les étapes du formulaire</li>
+                            <li>Les champs marqués * sont obligatoires</li>
+                            <li>Un numéro unique sera généré automatiquement</li>
+                            <li>Vous pourrez uploader les documents après</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carte statut -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark py-3">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-rocket me-1"></i>Statut du Processus
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="progress mb-3" style="height: 8px;">
+                        <div class="progress-bar" id="progressBar" role="progressbar" style="width: 25%;"></div>
+                    </div>
+                    <div class="small text-muted">
+                        <span id="progressText">Étape 1/4 : Informations compte</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Éléments du DOM
+    const form = document.getElementById('membreForm');
+    const prevBtn = document.getElementById('prevStep');
+    const nextBtn = document.getElementById('nextStep');
+    const submitBtn = document.getElementById('submitForm');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const generatePasswordBtn = document.getElementById('generatePassword');
+    
+    // Configuration des étapes
+    const steps = ['compte', 'personnel', 'contact', 'documents'];
+    let currentStep = 0;
+    
+    // Mettre à jour la progression
+    function updateProgress() {
+        const progress = ((currentStep + 1) / steps.length) * 100;
+        progressBar.style.width = `${progress}%`;
+        
+        const stepNames = [
+            'Informations compte',
+            'Informations personnelles', 
+            'Coordonnées de contact',
+            'Documents et catégorie'
+        ];
+        progressText.textContent = `Étape ${currentStep + 1}/${steps.length} : ${stepNames[currentStep]}`;
+        
+        // Gérer l'affichage des boutons
+        prevBtn.style.display = currentStep > 0 ? 'block' : 'none';
+        nextBtn.style.display = currentStep < steps.length - 1 ? 'block' : 'none';
+        submitBtn.style.display = currentStep === steps.length - 1 ? 'block' : 'none';
+        
+        // Activer l'onglet actif
+        document.querySelectorAll('.nav-link').forEach((tab, index) => {
+            if (index === currentStep) {
+                tab.classList.add('active');
+                document.getElementById(steps[index]).classList.add('show', 'active');
+            } else {
+                tab.classList.remove('active');
+                document.getElementById(steps[index]).classList.remove('show', 'active');
+            }
+        });
+    }
+    
+    // Générer un mot de passe aléatoire
+    function generatePassword() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
+        let password = '';
+        for (let i = 0; i < 12; i++) {
+            password += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        document.getElementById('{{ form.password.id_for_label }}').value = password;
+    }
+    
+    // Validation de l'étape actuelle
+    function validateStep(stepIndex) {
+        const step = steps[stepIndex];
+        const inputs = document.querySelectorAll(`#${step} [required]`);
+        let isValid = true;
+        
+        inputs.forEach(input => {
+            if (!input.value.trim()) {
+                isValid = false;
+                input.classList.add('is-invalid');
+            } else {
+                input.classList.remove('is-invalid');
+            }
+        });
+        
+        return isValid;
+    }
+    
+    // Événements
+    nextBtn.addEventListener('click', function() {
+        if (validateStep(currentStep)) {
+            currentStep++;
+            updateProgress();
+        }
+    });
+    
+    prevBtn.addEventListener('click', function() {
+        currentStep--;
+        updateProgress();
+    });
+    
+    generatePasswordBtn.addEventListener('click', generatePassword);
+    
+    // Navigation par clic sur les onglets
+    document.querySelectorAll('.nav-link').forEach((tab, index) => {
+        tab.addEventListener('click', function() {
+            if (index <= currentStep) {
+                currentStep = index;
+                updateProgress();
+            }
+        });
+    });
+    
+    // Initialisation
+    updateProgress();
+    
+    // Amélioration de l'UX des champs
+    document.querySelectorAll('input, select, textarea').forEach(field => {
+        field.addEventListener('focus', function() {
+            this.classList.add('focus');
+        });
+        
+        field.addEventListener('blur', function() {
+            this.classList.remove('focus');
+            if (this.value.trim() && this.hasAttribute('required')) {
+                this.classList.remove('is-invalid');
+            }
+        });
+    });
+});
+</script>
+
+<style>
+.nav-pills .nav-link {
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.nav-pills .nav-link.active {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+}
+
+.nav-pills .nav-link:not(.active):hover {
+    background-color: #f8f9fa;
+    transform: translateY(-1px);
+}
+
+.card {
+    border: none;
+    border-radius: 1rem;
+}
+
+.card-header {
+    border-radius: 1rem 1rem 0 0 !important;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+.progress {
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    transition: width 0.5s ease;
+}
+
+.btn {
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.alert {
+    border-radius: 0.75rem;
+    border: none;
+}
+</style>
+{% endblock %}

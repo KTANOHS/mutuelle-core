@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Liste des Cotisations</title>
+</head>
+<body>
+    <h1>Liste des Cotisations</h1>
+    
+    <p>Total: {{ total|default:0 }} cotisations</p>
+    <p>Générées: {{ generees|default:0 }} | Payées: {{ payees|default:0 }}</p>
+    
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Référence</th>
+                <th>Membre</th>
+                <th>Période</th>
+                <th>Montant</th>
+                <th>Statut</th>
+                <th>Date création</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cotisation in cotisations %}
+            <tr>
+                <td>{{ cotisation.reference|default:"N/A" }}</td>
+                <td>{{ cotisation.membre.nom_complet|default:"N/A" }}</td>
+                <td>{{ cotisation.periode|default:"N/A" }}</td>
+                <td>{{ cotisation.montant|default:"0" }} FCFA</td>
+                <td>{{ cotisation.get_statut_display|default:"N/A" }}</td>
+                <td>{{ cotisation.date_creation|date:"d/m/Y"|default:"N/A" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">Aucune cotisation trouvée</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

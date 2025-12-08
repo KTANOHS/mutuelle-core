@@ -1,0 +1,270 @@
+{% extends 'agents/base_agent.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-user-plus me-2"></i>{{ title }}
+        </h1>
+        <a href="{% url 'agents:liste_membres' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+        </a>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Formulaire -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-id-card me-2"></i>Nouveau Membre
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" id="memberForm">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <!-- Colonne 1: Informations personnelles -->
+                            <div class="col-md-6">
+                                <h6 class="text-primary mb-3 border-bottom pb-2">
+                                    <i class="fas fa-user me-2"></i>Informations personnelles
+                                </h6>
+                                
+                                <!-- Numéro unique -->
+                                <div class="mb-3">
+                                    <label for="numero_unique" class="form-label">Numéro membre</label>
+                                    <input type="text" class="form-control" id="numero_unique" name="numero_unique" 
+                                           placeholder="Généré automatiquement si vide">
+                                    <div class="form-text">Format: MEM000001 (généré automatiquement)</div>
+                                </div>
+                                
+                                <!-- Nom et Prénom -->
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="nom" class="form-label">Nom *</label>
+                                        <input type="text" class="form-control" id="nom" name="nom" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="prenom" class="form-label">Prénom *</label>
+                                        <input type="text" class="form-control" id="prenom" name="prenom" required>
+                                    </div>
+                                </div>
+                                
+                                <!-- Contact -->
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email *</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="telephone" class="form-label">Téléphone *</label>
+                                    <input type="tel" class="form-control" id="telephone" name="telephone" required>
+                                </div>
+                                
+                                <!-- Informations supplémentaires -->
+                                <div class="mb-3">
+                                    <label for="date_naissance" class="form-label">Date de naissance</label>
+                                    <input type="date" class="form-control" id="date_naissance" name="date_naissance">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="profession" class="form-label">Profession</label>
+                                    <input type="text" class="form-control" id="profession" name="profession">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="adresse" class="form-label">Adresse</label>
+                                    <textarea class="form-control" id="adresse" name="adresse" rows="3"></textarea>
+                                </div>
+                            </div>
+                            
+                            <!-- Colonne 2: Documents d'identité -->
+                            <div class="col-md-6">
+                                <h6 class="text-primary mb-3 border-bottom pb-2">
+                                    <i class="fas fa-camera me-2"></i>Documents d'identité
+                                </h6>
+                                
+                                <!-- Type et numéro de pièce -->
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="type_piece_identite" class="form-label">Type de pièce</label>
+                                        <select class="form-select" id="type_piece_identite" name="type_piece_identite">
+                                            <option value="CNI" selected>Carte Nationale d'Identité</option>
+                                            <option value="PASSEPORT">Passeport</option>
+                                            <option value="PERMIS">Permis de conduire</option>
+                                            <option value="AUTRE">Autre</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="numero_piece_identite" class="form-label">Numéro de pièce</label>
+                                        <input type="text" class="form-control" id="numero_piece_identite" name="numero_piece_identite">
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="date_expiration_piece" class="form-label">Date d'expiration</label>
+                                    <input type="date" class="form-control" id="date_expiration_piece" name="date_expiration_piece">
+                                </div>
+                                
+                                <!-- Photo identité -->
+                                <div class="mb-4">
+                                    <label for="photo_identite" class="form-label">
+                                        <i class="fas fa-id-badge me-2"></i>Photo d'identité
+                                    </label>
+                                    <input type="file" class="form-control" id="photo_identite" name="photo_identite" 
+                                           accept=".jpg,.jpeg,.png,.gif">
+                                    <div class="form-text">
+                                        Photo portrait récente. Formats: JPG, PNG, GIF (max 5MB)
+                                    </div>
+                                    <div class="mt-2" id="photo-preview"></div>
+                                </div>
+                                
+                                <!-- Pièce identité recto -->
+                                <div class="mb-4">
+                                    <label for="piece_identite_recto" class="form-label">
+                                        <i class="fas fa-id-card me-2"></i>Pièce d'identité (Recto)
+                                    </label>
+                                    <input type="file" class="form-control" id="piece_identite_recto" 
+                                           name="piece_identite_recto" accept=".jpg,.jpeg,.png,.gif,.pdf">
+                                    <div class="form-text">
+                                        Recto de la pièce d'identité. Formats: JPG, PNG, GIF, PDF (max 5MB)
+                                    </div>
+                                    <div class="mt-2" id="recto-preview"></div>
+                                </div>
+                                
+                                <!-- Pièce identité verso -->
+                                <div class="mb-4">
+                                    <label for="piece_identite_verso" class="form-label">
+                                        <i class="fas fa-id-card me-2"></i>Pièce d'identité (Verso)
+                                    </label>
+                                    <input type="file" class="form-control" id="piece_identite_verso" 
+                                           name="piece_identite_verso" accept=".jpg,.jpeg,.png,.gif,.pdf">
+                                    <div class="form-text">
+                                        Verso de la pièce d'identité. Formats: JPG, PNG, GIF, PDF (max 5MB)
+                                    </div>
+                                    <div class="mt-2" id="verso-preview"></div>
+                                </div>
+                                
+                                <!-- Aperçu -->
+                                <div class="card border-info">
+                                    <div class="card-header bg-info text-white py-2">
+                                        <small><i class="fas fa-eye me-1"></i>Aperçu des documents</small>
+                                    </div>
+                                    <div class="card-body p-3">
+                                        <div id="file-previews" class="small text-muted">
+                                            Aucun document sélectionné
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Boutons -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <button type="reset" class="btn btn-secondary">
+                                        <i class="fas fa-undo me-2"></i>Réinitialiser
+                                    </button>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-save me-2"></i>Créer le membre
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Prévisualisation des fichiers
+    function setupFilePreview(inputId, previewId) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+        
+        input.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.innerHTML = `
+                            <div class="border rounded p-2 bg-light">
+                                <img src="${e.target.result}" class="img-thumbnail" style="max-height: 100px;">
+                                <div class="mt-1 small">${file.name} (${(file.size/1024/1024).toFixed(2)} MB)</div>
+                            </div>
+                        `;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    preview.innerHTML = `
+                        <div class="border rounded p-2 bg-light">
+                            <i class="fas fa-file-pdf text-danger me-2"></i>
+                            <strong>${file.name}</strong> (${(file.size/1024/1024).toFixed(2)} MB)
+                        </div>
+                    `;
+                }
+            } else {
+                preview.innerHTML = '';
+            }
+            updateFilePreviews();
+        });
+    }
+    
+    // Configuration des prévisualisations
+    setupFilePreview('photo_identite', 'photo-preview');
+    setupFilePreview('piece_identite_recto', 'recto-preview');
+    setupFilePreview('piece_identite_verso', 'verso-preview');
+    
+    function updateFilePreviews() {
+        const previewsContainer = document.getElementById('file-previews');
+        const files = [
+            { input: 'photo_identite', label: 'Photo identité' },
+            { input: 'piece_identite_recto', label: 'Pièce recto' },
+            { input: 'piece_identite_verso', label: 'Pièce verso' }
+        ];
+        
+        let previews = [];
+        files.forEach(file => {
+            const input = document.getElementById(file.input);
+            if (input.files[0]) {
+                previews.push(`<i class="fas fa-check text-success me-1"></i> ${file.label}`);
+            }
+        });
+        
+        previewsContainer.innerHTML = previews.length > 0 ? 
+            previews.join('<br>') : 'Aucun document sélectionné';
+    }
+    
+    // Génération automatique du numéro
+    document.getElementById('numero_unique').addEventListener('focus', function() {
+        if (!this.value) {
+            this.value = 'MEM' + new Date().getTime().toString().slice(-6);
+        }
+    });
+});
+</script>
+{% endblock %}

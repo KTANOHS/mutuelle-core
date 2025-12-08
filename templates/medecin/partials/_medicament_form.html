@@ -1,0 +1,268 @@
+<!-- Formulaire dynamique pour les médicaments -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h6 class="card-title mb-0">
+            <i class="fas fa-pills text-primary me-2"></i>
+            Prescription Médicamenteuse
+        </h6>
+    </div>
+    <div class="card-body">
+        <!-- Liste des médicaments existants -->
+        <div id="medicaments-list">
+            {% if ordonnance and ordonnance.medications %}
+                {% for med in ordonnance.medications %}
+                <div class="medicament-item border rounded p-3 mb-3">
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Médicament</label>
+                            <input type="text" class="form-control form-control-sm" name="medicament[]" 
+                                   value="{{ med.medicament }}" placeholder="Nom commercial" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold">DCI</label>
+                            <input type="text" class="form-control form-control-sm" name="dci[]" 
+                                   value="{{ med.dci|default:'' }}" placeholder="Dénomination commune">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold">Dosage</label>
+                            <input type="text" class="form-control form-control-sm" name="dosage[]" 
+                                   value="{{ med.dosage }}" placeholder="500mg" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold">Forme</label>
+                            <select class="form-select form-select-sm" name="forme[]">
+                                <option value="">Forme</option>
+                                <option value="COMPRIME" {% if med.forme == 'COMPRIME' %}selected{% endif %}>Comprimé</option>
+                                <option value="GELULE" {% if med.forme == 'GELULE' %}selected{% endif %}>Gélule</option>
+                                <option value="SIROP" {% if med.forme == 'SIROP' %}selected{% endif %}>Sirop</option>
+                                <option value="POUDRE" {% if med.forme == 'POUDRE' %}selected{% endif %}>Poudre</option>
+                                <option value="INJECTABLE" {% if med.forme == 'INJECTABLE' %}selected{% endif %}>Injectable</option>
+                                <option value="POMMADE" {% if med.forme == 'POMMADE' %}selected{% endif %}>Pommade</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Posologie</label>
+                            <input type="text" class="form-control form-control-sm" name="posologie[]" 
+                                   value="{{ med.posologie }}" placeholder="1 comprimé 2x/jour" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold">Durée</label>
+                            <input type="text" class="form-control form-control-sm" name="duree[]" 
+                                   value="{{ med.duree }}" placeholder="7 jours" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold">Quantité</label>
+                            <input type="number" class="form-control form-control-sm" name="quantite[]" 
+                                   value="{{ med.quantite|default:'1' }}" min="1" max="100" required>
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label small fw-bold">&nbsp;</label>
+                            <button type="button" class="btn btn-outline-danger btn-sm w-100 remove-medicament">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Instructions spécifiques -->
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Instructions particulières</label>
+                            <textarea class="form-control form-control-sm" name="instructions_med[]" 
+                                      rows="1" placeholder="Avant les repas, au coucher...">{{ med.instructions|default:'' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <!-- Premier médicament vide -->
+                <div class="medicament-item border rounded p-3 mb-3">
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Médicament</label>
+                            <input type="text" class="form-control form-control-sm" name="medicament[]" 
+                                   placeholder="Nom commercial" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold">DCI</label>
+                            <input type="text" class="form-control form-control-sm" name="dci[]" 
+                                   placeholder="Dénomination commune">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold">Dosage</label>
+                            <input type="text" class="form-control form-control-sm" name="dosage[]" 
+                                   placeholder="500mg" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold">Forme</label>
+                            <select class="form-select form-select-sm" name="forme[]">
+                                <option value="">Forme</option>
+                                <option value="COMPRIME">Comprimé</option>
+                                <option value="GELULE">Gélule</option>
+                                <option value="SIROP">Sirop</option>
+                                <option value="POUDRE">Poudre</option>
+                                <option value="INJECTABLE">Injectable</option>
+                                <option value="POMMADE">Pommade</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Posologie</label>
+                            <input type="text" class="form-control form-control-sm" name="posologie[]" 
+                                   placeholder="1 comprimé 2x/jour" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold">Durée</label>
+                            <input type="text" class="form-control form-control-sm" name="duree[]" 
+                                   placeholder="7 jours" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold">Quantité</label>
+                            <input type="number" class="form-control form-control-sm" name="quantite[]" 
+                                   value="1" min="1" max="100" required>
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label small fw-bold">&nbsp;</label>
+                            <button type="button" class="btn btn-outline-danger btn-sm w-100 remove-medicament" disabled>
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Instructions spécifiques -->
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Instructions particulières</label>
+                            <textarea class="form-control form-control-sm" name="instructions_med[]" 
+                                      rows="1" placeholder="Avant les repas, au coucher..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <button type="button" id="add-medicament" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-plus me-1"></i>Ajouter un médicament
+            </button>
+            
+            <div class="text-muted small">
+                <span id="medicament-count">1</span> médicament(s) ajouté(s)
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Template pour nouveau médicament (caché) -->
+<template id="medicament-template">
+    <div class="medicament-item border rounded p-3 mb-3">
+        <div class="row g-2">
+            <div class="col-md-3">
+                <label class="form-label small fw-bold">Médicament</label>
+                <input type="text" class="form-control form-control-sm" name="medicament[]" 
+                       placeholder="Nom commercial" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">DCI</label>
+                <input type="text" class="form-control form-control-sm" name="dci[]" 
+                       placeholder="Dénomination commune">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">Dosage</label>
+                <input type="text" class="form-control form-control-sm" name="dosage[]" 
+                       placeholder="500mg" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">Forme</label>
+                <select class="form-select form-select-sm" name="forme[]">
+                    <option value="">Forme</option>
+                    <option value="COMPRIME">Comprimé</option>
+                    <option value="GELULE">Gélule</option>
+                    <option value="SIROP">Sirop</option>
+                    <option value="POUDRE">Poudre</option>
+                    <option value="INJECTABLE">Injectable</option>
+                    <option value="POMMADE">Pommade</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold">Posologie</label>
+                <input type="text" class="form-control form-control-sm" name="posologie[]" 
+                       placeholder="1 comprimé 2x/jour" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">Durée</label>
+                <input type="text" class="form-control form-control-sm" name="duree[]" 
+                       placeholder="7 jours" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">Quantité</label>
+                <input type="number" class="form-control form-control-sm" name="quantite[]" 
+                       value="1" min="1" max="100" required>
+            </div>
+            <div class="col-md-1">
+                <label class="form-label small fw-bold">&nbsp;</label>
+                <button type="button" class="btn btn-outline-danger btn-sm w-100 remove-medicament">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Instructions spécifiques -->
+        <div class="row mt-2">
+            <div class="col-12">
+                <label class="form-label small fw-bold">Instructions particulières</label>
+                <textarea class="form-control form-control-sm" name="instructions_med[]" 
+                          rows="1" placeholder="Avant les repas, au coucher..."></textarea>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const medicamentsList = document.getElementById('medicaments-list');
+    const addButton = document.getElementById('add-medicament');
+    const medicamentCount = document.getElementById('medicament-count');
+    const template = document.getElementById('medicament-template');
+    
+    // Mettre à jour le compteur initial
+    updateMedicamentCount();
+    
+    // Ajouter un médicament
+    addButton.addEventListener('click', function() {
+        const newMedicament = template.content.cloneNode(true);
+        medicamentsList.appendChild(newMedicament);
+        updateMedicamentCount();
+        
+        // Activer le bouton de suppression du premier élément
+        const firstRemoveBtn = medicamentsList.querySelector('.remove-medicament');
+        if (firstRemoveBtn) {
+            firstRemoveBtn.disabled = false;
+        }
+    });
+    
+    // Supprimer un médicament
+    medicamentsList.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-medicament') || 
+            e.target.closest('.remove-medicament')) {
+            const button = e.target.classList.contains('remove-medicament') ? 
+                          e.target : e.target.closest('.remove-medicament');
+            const item = button.closest('.medicament-item');
+            
+            if (medicamentsList.querySelectorAll('.medicament-item').length > 1) {
+                item.remove();
+                updateMedicamentCount();
+                
+                // Désactiver le bouton de suppression s'il ne reste qu'un élément
+                if (medicamentsList.querySelectorAll('.medicament-item').length === 1) {
+                    medicamentsList.querySelector('.remove-medicament').disabled = true;
+                }
+            }
+        }
+    });
+    
+    function updateMedicamentCount() {
+        const count = medicamentsList.querySelectorAll('.medicament-item').length;
+        medicamentCount.textContent = count;
+    }
+});
+</script>

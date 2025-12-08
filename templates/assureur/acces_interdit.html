@@ -1,0 +1,27 @@
+{% extends 'assureur/base_assureur.html' %}
+
+{% block title %}Accès Interdit - Assureur{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 text-center">
+        <div class="card">
+            <div class="card-body py-5">
+                <i class="fas fa-ban fa-5x text-danger mb-4"></i>
+                <h2 class="text-danger">Accès Refusé</h2>
+                <p class="lead">Vous n'avez pas les autorisations nécessaires pour accéder à cette page.</p>
+                <p class="text-muted">Cette section est réservée aux assureurs de la mutuelle.</p>
+                
+                <div class="mt-4">
+                    <a href="{% url 'assureur:dashboard' %}" class="btn btn-primary me-2">
+                        <i class="fas fa-tachometer-alt me-1"></i> Retour au Dashboard
+                    </a>
+                    <a href="{% url 'logout' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-sign-out-alt me-1"></i> Se déconnecter
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

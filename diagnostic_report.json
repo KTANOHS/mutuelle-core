@@ -1,0 +1,341 @@
+{
+  "timestamp": "2025-12-08T11:09:47.086886",
+  "summary": {
+    "total": 46,
+    "successes": 39,
+    "warnings": 4,
+    "errors": 3
+  },
+  "results": [
+    {
+      "category": "ENV",
+      "test": "Version Python",
+      "status": "SUCCESS",
+      "details": "Version: 3.11.10",
+      "timestamp": "2025-12-08T11:09:39.207272"
+    },
+    {
+      "category": "ENV",
+      "test": "Pip installé",
+      "status": "SUCCESS",
+      "details": "pip 25.3 from /Users/koffitanohsoualiho/.pyenv/versions/3.11.10/lib/python3.11/site-packages/pip (python 3.11)",
+      "timestamp": "2025-12-08T11:09:40.484467"
+    },
+    {
+      "category": "ENV",
+      "test": "Dossier courant",
+      "status": "SUCCESS",
+      "details": "/Users/koffitanohsoualiho/Documents/P FINALE AVANT SYNCHRO/p tres avancee /pf erreur/projet 21.49.30",
+      "timestamp": "2025-12-08T11:09:40.484649"
+    },
+    {
+      "category": "ENV",
+      "test": "Fichier manage.py",
+      "status": "SUCCESS",
+      "details": "Trouvé",
+      "timestamp": "2025-12-08T11:09:40.485761"
+    },
+    {
+      "category": "STRUCTURE",
+      "test": "Dossier mutuelle_core",
+      "status": "SUCCESS",
+      "details": "Package principal",
+      "timestamp": "2025-12-08T11:09:40.485914"
+    },
+    {
+      "category": "STRUCTURE",
+      "test": "Dossier core",
+      "status": "SUCCESS",
+      "details": "Application core",
+      "timestamp": "2025-12-08T11:09:40.486000"
+    },
+    {
+      "category": "STRUCTURE",
+      "test": "Dossier membres",
+      "status": "SUCCESS",
+      "details": "Application membres",
+      "timestamp": "2025-12-08T11:09:40.486082"
+    },
+    {
+      "category": "STRUCTURE",
+      "test": "Dossier static",
+      "status": "SUCCESS",
+      "details": "Fichiers statiques",
+      "timestamp": "2025-12-08T11:09:40.486150"
+    },
+    {
+      "category": "STRUCTURE",
+      "test": "Dossier templates",
+      "status": "SUCCESS",
+      "details": "Templates",
+      "timestamp": "2025-12-08T11:09:40.486218"
+    },
+    {
+      "category": "STRUCTURE",
+      "test": "Fichier requirements.txt",
+      "status": "SUCCESS",
+      "details": "Dépendances Python",
+      "timestamp": "2025-12-08T11:09:40.486295"
+    },
+    {
+      "category": "STRUCTURE",
+      "test": "Fichier .env",
+      "status": "SUCCESS",
+      "details": "Variables d'environnement (optionnel)",
+      "timestamp": "2025-12-08T11:09:40.487241"
+    },
+    {
+      "category": "STRUCTURE",
+      "test": "Fichier .gitignore",
+      "status": "SUCCESS",
+      "details": "Fichiers à ignorer par Git",
+      "timestamp": "2025-12-08T11:09:40.488121"
+    },
+    {
+      "category": "STRUCTURE",
+      "test": "Fichier render.yaml",
+      "status": "SUCCESS",
+      "details": "Configuration Render (déploiement)",
+      "timestamp": "2025-12-08T11:09:40.488207"
+    },
+    {
+      "category": "STRUCTURE",
+      "test": "Fichier Procfile",
+      "status": "SUCCESS",
+      "details": "Configuration processus (déploiement)",
+      "timestamp": "2025-12-08T11:09:40.488307"
+    },
+    {
+      "category": "STRUCTURE",
+      "test": "Fichier build.sh",
+      "status": "SUCCESS",
+      "details": "Script de build (déploiement)",
+      "timestamp": "2025-12-08T11:09:40.488358"
+    },
+    {
+      "category": "DJANGO",
+      "test": "Mode DEBUG",
+      "status": "WARNING",
+      "details": "DEBUG activé",
+      "timestamp": "2025-12-08T11:09:41.830814"
+    },
+    {
+      "category": "DJANGO",
+      "test": "ALLOWED_HOSTS",
+      "status": "SUCCESS",
+      "details": "Configuré: ['localhost', '127.0.0.1', '[::1]']",
+      "timestamp": "2025-12-08T11:09:41.830954"
+    },
+    {
+      "category": "DJANGO",
+      "test": "SECRET_KEY",
+      "status": "ERROR",
+      "details": "Non sécurisée ou trop courte - À changer en production",
+      "timestamp": "2025-12-08T11:09:41.831068"
+    },
+    {
+      "category": "DJANGO",
+      "test": "Base de données",
+      "status": "WARNING",
+      "details": "SQLite - OK pour développement seulement",
+      "timestamp": "2025-12-08T11:09:41.831139"
+    },
+    {
+      "category": "DJANGO",
+      "test": "Applications",
+      "status": "SUCCESS",
+      "details": "33 application(s) installée(s)",
+      "timestamp": "2025-12-08T11:09:41.831179"
+    },
+    {
+      "category": "DJANGO",
+      "test": "STATIC_ROOT",
+      "status": "WARNING",
+      "details": "Non configuré - Obligatoire pour collectstatic",
+      "timestamp": "2025-12-08T11:09:41.831239"
+    },
+    {
+      "category": "DJANGO",
+      "test": "Middleware",
+      "status": "SUCCESS",
+      "details": "11 middleware(s)",
+      "timestamp": "2025-12-08T11:09:41.831312"
+    },
+    {
+      "category": "DJANGO",
+      "test": "WhiteNoise",
+      "status": "SUCCESS",
+      "details": "Configuré pour Render",
+      "timestamp": "2025-12-08T11:09:41.831372"
+    },
+    {
+      "category": "DATABASE",
+      "test": "Migrations",
+      "status": "SUCCESS",
+      "details": "Aucune migration en attente",
+      "timestamp": "2025-12-08T11:09:43.911399"
+    },
+    {
+      "category": "DATABASE",
+      "test": "Connexion DB",
+      "status": "SUCCESS",
+      "details": "Connexion établie",
+      "timestamp": "2025-12-08T11:09:44.766388"
+    },
+    {
+      "category": "STATIC",
+      "test": "collectstatic",
+      "status": "ERROR",
+      "details": "Traceback (most recent call last):\n  File \"/Users/koffitanohsoualiho/Documents/P FINALE AVANT SYNCHRO/p tres avancee /pf erreur/projet 21.49.30/manage.py\", line 22, in <module>\n    main()\n  File \"/Use",
+      "timestamp": "2025-12-08T11:09:45.320513"
+    },
+    {
+      "category": "DEPS",
+      "test": "requirements.txt",
+      "status": "SUCCESS",
+      "details": "13 dépendance(s) listée(s)",
+      "timestamp": "2025-12-08T11:09:45.322997"
+    },
+    {
+      "category": "DEPS",
+      "test": "Dépendances critiques",
+      "status": "ERROR",
+      "details": "Manquantes: ['psycopg2']",
+      "timestamp": "2025-12-08T11:09:45.323094"
+    },
+    {
+      "category": "URLS",
+      "test": "URL /",
+      "status": "SUCCESS",
+      "details": "Page d'accueil",
+      "timestamp": "2025-12-08T11:09:45.401598"
+    },
+    {
+      "category": "URLS",
+      "test": "URL /health/",
+      "status": "SUCCESS",
+      "details": "Health check",
+      "timestamp": "2025-12-08T11:09:45.401963"
+    },
+    {
+      "category": "URLS",
+      "test": "URL /admin/",
+      "status": "SUCCESS",
+      "details": "Admin Django",
+      "timestamp": "2025-12-08T11:09:45.405470"
+    },
+    {
+      "category": "URLS",
+      "test": "URL /dashboard/",
+      "status": "SUCCESS",
+      "details": "Dashboard principal",
+      "timestamp": "2025-12-08T11:09:45.405770"
+    },
+    {
+      "category": "URLS",
+      "test": "Nombre d'URLs",
+      "status": "SUCCESS",
+      "details": "637 motif(s) d'URL",
+      "timestamp": "2025-12-08T11:09:45.406480"
+    },
+    {
+      "category": "HEALTH",
+      "test": "Check Django",
+      "status": "SUCCESS",
+      "details": "Aucune erreur détectée",
+      "timestamp": "2025-12-08T11:09:46.245370"
+    },
+    {
+      "category": "HEALTH",
+      "test": "Check déploiement",
+      "status": "SUCCESS",
+      "details": "Prêt pour la production",
+      "timestamp": "2025-12-08T11:09:47.086003"
+    },
+    {
+      "category": "DEPLOY",
+      "test": "Fichier render.yaml",
+      "status": "SUCCESS",
+      "details": "Présent",
+      "timestamp": "2025-12-08T11:09:47.086213"
+    },
+    {
+      "category": "DEPLOY",
+      "test": "Fichier Procfile",
+      "status": "SUCCESS",
+      "details": "Présent",
+      "timestamp": "2025-12-08T11:09:47.086253"
+    },
+    {
+      "category": "DEPLOY",
+      "test": "Fichier build.sh",
+      "status": "SUCCESS",
+      "details": "Présent",
+      "timestamp": "2025-12-08T11:09:47.086284"
+    },
+    {
+      "category": "DEPLOY",
+      "test": "Permissions build.sh",
+      "status": "SUCCESS",
+      "details": "Exécutable",
+      "timestamp": "2025-12-08T11:09:47.086344"
+    },
+    {
+      "category": "DEPLOY",
+      "test": "Hosts déploiement",
+      "status": "WARNING",
+      "details": "À configurer pour votre domaine",
+      "timestamp": "2025-12-08T11:09:47.086446"
+    },
+    {
+      "category": "APPS",
+      "test": "Application core",
+      "status": "SUCCESS",
+      "details": "Complète",
+      "timestamp": "2025-12-08T11:09:47.086561"
+    },
+    {
+      "category": "APPS",
+      "test": "Application membres",
+      "status": "SUCCESS",
+      "details": "Complète",
+      "timestamp": "2025-12-08T11:09:47.086620"
+    },
+    {
+      "category": "APPS",
+      "test": "Application agents",
+      "status": "SUCCESS",
+      "details": "Complète",
+      "timestamp": "2025-12-08T11:09:47.086672"
+    },
+    {
+      "category": "APPS",
+      "test": "Application medecin",
+      "status": "SUCCESS",
+      "details": "Complète",
+      "timestamp": "2025-12-08T11:09:47.086721"
+    },
+    {
+      "category": "APPS",
+      "test": "Application pharmacien",
+      "status": "SUCCESS",
+      "details": "Complète",
+      "timestamp": "2025-12-08T11:09:47.086773"
+    },
+    {
+      "category": "APPS",
+      "test": "Application assureur",
+      "status": "SUCCESS",
+      "details": "Complète",
+      "timestamp": "2025-12-08T11:09:47.086821"
+    }
+  ],
+  "system_info": {
+    "platform": "macOS-13.7.8-x86_64-i386-64bit",
+    "python_version": "3.11.10",
+    "processor": "i386",
+    "cwd": "/Users/koffitanohsoualiho/Documents/P FINALE AVANT SYNCHRO/p tres avancee /pf erreur/projet 21.49.30",
+    "user": "koffitanohsoualiho",
+    "timestamp": "2025-12-08T11:09:47.200966"
+  }
+}

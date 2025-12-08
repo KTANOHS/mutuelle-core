@@ -1,0 +1,18 @@
+[
+  {
+    "date": "2025-11-27T10:06:10.851318",
+    "utilisateurs": 43,
+    "membres": 22,
+    "membres_avec_user": 22,
+    "taux_synchronisation": 100.0,
+    "temps_requete": 0.003143
+  },
+  {
+    "date": "2025-11-27T10:06:15.900570",
+    "utilisateurs": 43,
+    "membres": 22,
+    "membres_avec_user": 22,
+    "taux_synchronisation": 100.0,
+    "temps_requete": 0.001272
+  }
+]

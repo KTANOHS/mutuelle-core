@@ -1,0 +1,132 @@
+<!-- templates/agents/creer_bon_soin_membre.html -->
+{% extends 'agents/base_agent.html' %}
+
+{% block title %}Créer Bon de Soin pour Membre - Agents{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">
+                        <i class="fas fa-file-medical"></i>
+                        Créer un Bon de Soin pour {{ membre.prenom }} {{ membre.nom }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                    <div class="alert-container">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="info-card">
+                                <h5>Informations du Membre</h5>
+                                <p><strong>Nom :</strong> {{ membre.nom }}</p>
+                                <p><strong>Prénom :</strong> {{ membre.prenom }}</p>
+                                <p><strong>Numéro unique :</strong> {{ membre.numero_unique }}</p>
+                                <p><strong>Téléphone :</strong> {{ membre.telephone }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="stats-card">
+                                <h5>Statistiques du Jour</h5>
+                                <p><strong>Bons créés aujourd'hui :</strong> {{ bons_du_jour }}</p>
+                                <p><strong>Date :</strong> {{ today|date:"d/m/Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="type_soin" class="form-label">Type de Soin *</label>
+                                    <select class="form-select" id="type_soin" name="type_soin" required>
+                                        <option value="">Sélectionnez un type de soin</option>
+                                        {% for value, label in types_soins %}
+                                        <option value="{{ value }}">{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Veuillez sélectionner un type de soin.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="montant" class="form-label">Montant (FCFA) *</label>
+                                    <input type="number" class="form-control" id="montant" name="montant" 
+                                           step="0.01" min="0" required placeholder="Ex: 15000">
+                                    <div class="invalid-feedback">
+                                        Veuillez entrer un montant valide.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="symptomes" class="form-label">Symptômes</label>
+                            <textarea class="form-control" id="symptomes" name="symptomes" 
+                                      rows="3" placeholder="Décrivez les symptômes du patient..."></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="diagnostic" class="form-label">Diagnostic</label>
+                            <textarea class="form-control" id="diagnostic" name="diagnostic" 
+                                      rows="3" placeholder="Diagnostic médical..."></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description Complémentaire</label>
+                            <textarea class="form-control" id="description" name="description" 
+                                      rows="2" placeholder="Informations supplémentaires..."></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'agents:creer_bon_soin' %}" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-arrow-left"></i> Retour
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Créer le Bon de Soin
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Validation du formulaire
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+</script>
+{% endblock %}

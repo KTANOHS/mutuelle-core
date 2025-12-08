@@ -1,0 +1,345 @@
+{% extends 'assureur/base_assureur.html' %}
+{% load static %}
+
+{% block title %}Liste des Paiements - Assureur{% endblock %}
+
+{% block page_title %}Liste des Paiements{% endblock %}
+{% block page_subtitle %}Gestion de tous les paiements{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Filtres -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-filter me-2"></i>Filtres
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label for="statut" class="form-label">Statut</label>
+                    <select name="statut" id="statut" class="form-select">
+                        <option value="">Tous les statuts</option>
+                        <option value="valide" {% if statut_filter == 'valide' %}selected{% endif %}>Validé</option>
+                        <option value="en_attente" {% if statut_filter == 'en_attente' %}selected{% endif %}>En attente</option>
+                        <option value="annule" {% if statut_filter == 'annule' %}selected{% endif %}>Annulé</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="type_paiement" class="form-label">Type de paiement</label>
+                    <select name="type_paiement" id="type_paiement" class="form-select">
+                        <option value="">Tous les types</option>
+                        <option value="remboursement" {% if type_paiement_filter == 'remboursement' %}selected{% endif %}>Remboursement</option>
+                        <option value="cotisation" {% if type_paiement_filter == 'cotisation' %}selected{% endif %}>Cotisation</option>
+                        <option value="frais" {% if type_paiement_filter == 'frais' %}selected{% endif %}>Frais</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="date_debut" class="form-label">Date début</label>
+                    <input type="date" name="date_debut" id="date_debut" class="form-control" 
+                           value="{{ date_debut }}">
+                </div>
+                <div class="col-md-2">
+                    <label for="date_fin" class="form-label">Date fin</label>
+                    <input type="date" name="date_fin" id="date_fin" class="form-control" 
+                           value="{{ date_fin }}">
+                </div>
+                <div class="col-md-2">
+                    <label for="search" class="form-label">Recherche</label>
+                    <input type="text" name="search" id="search" class="form-control" 
+                           value="{{ search_query }}" placeholder="Référence ou membre">
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Filtrer
+                    </button>
+                    <a href="{% url 'assureur:liste_paiements' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>Réinitialiser
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Statistiques Générales -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Paiements
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ paiements.count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-receipt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Montant Total
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if stats_finances.montant_total %}
+                                    {{ stats_finances.montant_total|floatformat:0 }} FCFA
+                                {% else %}
+                                    0 FCFA
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-money-bill-wave fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Paiements Validés
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if stats_finances.paiements_valides %}
+                                    {{ stats_finances.paiements_valides }}
+                                {% else %}
+                                    0
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Actions
+                            </div>
+                            <a href="{% url 'assureur:creer_paiement' %}" 
+                               class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus me-1"></i>Nouveau Paiement
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-plus-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau des Paiements -->
+    <div class="card shadow">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-list me-2"></i>Liste des Paiements
+                </h6>
+                <div class="text-muted">
+                    {{ paiements.count }} paiement(s) trouvé(s)
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if paiements %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover mb-0" width="100%" cellspacing="0">
+                    <thead class="table-light">
+                        <tr>
+                            <th width="120">Référence</th>
+                            <th>Membre</th>
+                            <th>Type</th>
+                            <th width="120">Montant</th>
+                            <th width="120">Statut</th>
+                            <th width="150">Date</th>
+                            <th width="100" class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for paiement in paiements %}
+                        <tr>
+                            <td class="fw-bold">
+                                {% if paiement.reference %}
+                                    {{ paiement.reference }}
+                                {% else %}
+                                    PAI-{{ paiement.id }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if paiement.membre %}
+                                    <strong>{{ paiement.membre.nom }} {{ paiement.membre.prenom }}</strong>
+                                    <br><small class="text-muted">
+                                        {% if paiement.membre.numero_unique %}
+                                            {{ paiement.membre.numero_unique }}
+                                        {% elif paiement.membre.numero_unique %}
+                                            {{ paiement.membre.numero_unique }}
+                                        {% endif %}
+                                    </small>
+                                {% else %}
+                                    <span class="text-muted">Membre non spécifié</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-info">
+                                    {% if paiement.type_paiement %}
+                                        {{ paiement.get_type_paiement_display }}
+                                    {% else %}
+                                        Remboursement
+                                    {% endif %}
+                                </span>
+                                {% if paiement.description %}
+                                    <br><small class="text-muted">{{ paiement.description|truncatewords:5 }}</small>
+                                {% endif %}
+                            </td>
+                            <td class="fw-bold text-primary text-end">
+                                {{ paiement.montant|floatformat:0 }} FCFA
+                            </td>
+                            <td>
+                                <span class="badge 
+                                    {% if paiement.statut == 'valide' %}bg-success
+                                    {% elif paiement.statut == 'annule' %}bg-danger
+                                    {% else %}bg-warning text-dark{% endif %}">
+                                    {% if paiement.statut == 'valide' %}Validé
+                                    {% elif paiement.statut == 'annule' %}Annulé
+                                    {% else %}En attente{% endif %}
+                                </span>
+                            </td>
+                            <td class="text-nowrap">
+                                {% if paiement.date_paiement %}
+                                    {{ paiement.date_paiement|date:"d/m/Y" }}
+                                {% else %}
+                                    {{ paiement.date_creation|date:"d/m/Y" }}
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'assureur:detail_paiement' paiement.id %}" 
+                                   class="btn btn-outline-primary btn-sm"
+                                   title="Voir détails">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if paiement.statut == 'en_attente' %}
+                                <a href="#" class="btn btn-outline-success btn-sm"
+                                   title="Valider le paiement">
+                                    <i class="fas fa-check"></i>
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if paiements.has_other_pages %}
+            <div class="card-footer">
+                <nav aria-label="Pagination">
+                    <ul class="pagination justify-content-center mb-0">
+                        {% if paiements.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ paiements.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                Précédent
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% for num in paiements.paginator.page_range %}
+                            {% if paiements.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                            {% elif num > paiements.number|add:'-3' and num < paiements.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                    {{ num }}
+                                </a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if paiements.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ paiements.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                Suivant
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="text-center py-5">
+                <div class="text-muted">
+                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                    <h5>Aucun paiement trouvé</h5>
+                    <p class="mb-0">Aucun paiement ne correspond à vos critères de recherche.</p>
+                    <a href="{% url 'assureur:creer_paiement' %}" class="btn btn-primary mt-3">
+                        <i class="fas fa-plus me-1"></i>Créer un paiement
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Initialisation des tooltips
+    $('[title]').tooltip();
+    
+    // Auto-submit du formulaire de filtres quand les dates changent
+    $('#date_debut, #date_fin').change(function() {
+        $(this).closest('form').submit();
+    });
+
+    // Confirmation pour la validation des paiements
+    $('.btn-validation').click(function(e) {
+        e.preventDefault();
+        const url = $(this).attr('href');
+        const reference = $(this).closest('tr').find('td:first').text();
+        
+        if (confirm(`Êtes-vous sûr de vouloir valider le paiement ${reference} ?`)) {
+            window.location.href = url;
+        }
+    });
+
+    // Affichage des statistiques en temps réel
+    function updateStats() {
+        // Cette fonction pourrait être utilisée pour des mises à jour AJAX
+        console.log('Stats mises à jour');
+    }
+
+    // Mise à jour périodique des stats (optionnel)
+    // setInterval(updateStats, 30000); // Toutes les 30 secondes
+});
+</script>
+{% endblock %}

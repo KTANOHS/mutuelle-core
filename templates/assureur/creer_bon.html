@@ -1,0 +1,426 @@
+<!-- templates/assureur/creer_bon.html -->
+{% extends "assureur/base_assureur.html" %}
+{% load static %}
+
+{% block title %}Créer un Bon de Soin - {{ membre.nom_complet }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- En-tête -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-file-medical me-2 text-success"></i>Créer un Bon de Soin
+                </h1>
+                <a href="{% url 'assureur:detail_membre' membre.id %}" 
+                   class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Retour
+                </a>
+            </div>
+
+            <!-- Messages Django -->
+            {% if messages %}
+            <div class="messages mb-4">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Informations du membre -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user me-2"></i>Informations du Membre
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <th width="40%">Nom complet:</th>
+                                    <td>{{ membre.nom_complet }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Numéro unique:</th>
+                                    <td class="fw-bold text-primary">{{ membre.numero_unique }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Téléphone:</th>
+                                    <td>{{ membre.telephone|default:"Non renseigné" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <th width="40%">Statut cotisation:</th>
+                                    <td>
+                                        <span class="badge {% if membre.est_a_jour %}bg-success{% else %}bg-warning{% endif %}">
+                                            {% if membre.est_a_jour %}À jour{% else %}En retard{% endif %}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Date inscription:</th>
+                                    <td>{{ membre.date_inscription|date:"d/m/Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Catégorie:</th>
+                                    <td>{{ membre.get_categorie_display }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulaire de création -->
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>Nouveau Bon de Soin
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="formCreerBon">
+                        {% csrf_token %}
+                        
+                        <!-- Section Type de soin -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-stethoscope me-2"></i>Type de soin
+                                </h6>
+                            </div>
+                            <div class="col-md-12">
+                                <label for="type_soin" class="form-label fw-bold">
+                                    Type de soin <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select form-select-lg" id="type_soin" name="type_soin" required>
+                                    <option value="">Choisir un type de soin...</option>
+                                    {% for type_soin in types_soin %}
+                                    <option value="{{ type_soin }}">{{ type_soin }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text">
+                                    Sélectionnez le type de soin pour lequel vous créez ce bon
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section Informations complémentaires -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>Informations complémentaires (Optionnel)
+                                </h6>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="medecin_traitant" class="form-label">
+                                    Médecin traitant
+                                </label>
+                                <input type="text" class="form-control" id="medecin_traitant" 
+                                       name="medecin_traitant" placeholder="Dr. Nom Prénom">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="lieu_soins" class="form-label">
+                                    Lieu de soins
+                                </label>
+                                <input type="text" class="form-control" id="lieu_soins" 
+                                       name="lieu_soins" placeholder="Nom de l'établissement">
+                            </div>
+
+                            <div class="col-12 mb-3">
+                                <label for="diagnostic" class="form-label">
+                                    Diagnostic / Motif
+                                </label>
+                                <textarea class="form-control" id="diagnostic" name="diagnostic" 
+                                          rows="2" placeholder="Diagnostic présumé ou motif de la consultation..."></textarea>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="description" class="form-label">
+                                    Description
+                                </label>
+                                <textarea class="form-control" id="description" name="description" 
+                                          rows="2" placeholder="Description complémentaire..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Section Informations financières -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-euro-sign me-2"></i>Informations financières
+                                </h6>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="montant_total" class="form-label fw-bold">
+                                    Montant total (FCFA) <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="montant_total" 
+                                           name="montant_total" step="0.01" min="0" placeholder="0.00" required>
+                                    <span class="input-group-text">FCFA</span>
+                                </div>
+                                <div class="form-text">
+                                    Montant total des soins
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="taux_remboursement" class="form-label">
+                                    Taux de remboursement (%)
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="taux_remboursement" 
+                                           name="taux_remboursement" min="0" max="100" value="70">
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <div class="form-text">
+                                    Pourcentage pris en charge
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Numéro d'ordonnance -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <label for="numero_ordonnance" class="form-label">
+                                    Numéro d'ordonnance (Optionnel)
+                                </label>
+                                <input type="text" class="form-control" id="numero_ordonnance" 
+                                       name="numero_ordonnance" placeholder="N° d'ordonnance si applicable">
+                            </div>
+                        </div>
+
+                        <!-- Résumé du bon -->
+                        <div class="alert alert-light border">
+                            <h6 class="alert-heading mb-3">
+                                <i class="fas fa-file-alt me-1"></i>Résumé du bon
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Membre:</strong> {{ membre.nom_complet }}<br>
+                                    <strong>N° membre:</strong> {{ membre.numero_unique }}<br>
+                                    <strong>Date création:</strong> {% now "d/m/Y" %}
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Type soin:</strong> <span id="resume-type-soin" class="text-muted">Non sélectionné</span><br>
+                                    <strong>Statut:</strong> <span class="badge bg-warning">En attente</span><br>
+                                    <strong>Créé par:</strong> {{ request.user.get_full_name|default:request.user.username }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Avertissement si membre non à jour -->
+                        {% if not membre.est_a_jour %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Attention:</strong> Ce membre n'est pas à jour de ses cotisations. 
+                            Le bon pourra être créé mais certaines restrictions pourraient s'appliquer.
+                        </div>
+                        {% endif %}
+
+                        <!-- Actions -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'assureur:detail_membre' membre.id %}" 
+                               class="btn btn-outline-secondary me-md-2">
+                                <i class="fas fa-times me-1"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-success px-4" id="btnSubmit">
+                                <i class="fas fa-check me-1"></i> Créer le bon
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Informations sur BonService -->
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-cogs me-1"></i>Informations techniques
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <div class="text-info">
+                                <i class="fas fa-shield-alt fa-2x mb-2"></i>
+                                <h6>Validation automatique</h6>
+                                <small class="text-muted">Le bon sera validé par notre système</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-success">
+                                <i class="fas fa-bolt fa-2x mb-2"></i>
+                                <h6>Traitement rapide</h6>
+                                <small class="text-muted">Création instantanée du bon</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-primary">
+                                <i class="fas fa-history fa-2x mb-2"></i>
+                                <h6>Historique complet</h6>
+                                <small class="text-muted">Traçabilité de toutes les actions</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('formCreerBon');
+    const typeSoinSelect = document.getElementById('type_soin');
+    const montantTotalInput = document.getElementById('montant_total');
+    const btnSubmit = document.getElementById('btnSubmit');
+    const resumeTypeSoin = document.getElementById('resume-type-soin');
+    
+    // Mise à jour du résumé en temps réel
+    typeSoinSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption.value) {
+            resumeTypeSoin.textContent = selectedOption.text;
+            resumeTypeSoin.className = 'text-success fw-bold';
+        } else {
+            resumeTypeSoin.textContent = 'Non sélectionné';
+            resumeTypeSoin.className = 'text-muted';
+        }
+    });
+    
+    // Validation basique avant soumission
+    form.addEventListener('submit', function(e) {
+        const typeSoin = typeSoinSelect.value;
+        const montantTotal = montantTotalInput.value;
+        
+        let errors = [];
+        
+        if (!typeSoin) {
+            errors.push('Veuillez sélectionner un type de soin');
+            typeSoinSelect.classList.add('is-invalid');
+        } else {
+            typeSoinSelect.classList.remove('is-invalid');
+        }
+        
+        if (!montantTotal || parseFloat(montantTotal) <= 0) {
+            errors.push('Veuillez saisir un montant total valide');
+            montantTotalInput.classList.add('is-invalid');
+        } else {
+            montantTotalInput.classList.remove('is-invalid');
+        }
+        
+        if (errors.length > 0) {
+            e.preventDefault();
+            showAlert(errors.join('<br>'), 'danger');
+            return false;
+        }
+        
+        // Désactiver le bouton pendant l'envoi
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Création en cours...';
+        
+        return true;
+    });
+    
+    // Fonction pour afficher des alertes
+    function showAlert(message, type = 'info') {
+        // Supprimer les alertes existantes
+        const existingAlerts = document.querySelectorAll('.temp-alert');
+        existingAlerts.forEach(alert => alert.remove());
+        
+        // Créer une alerte temporaire
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show mt-3 temp-alert`;
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        // Insérer après les messages Django
+        const messagesContainer = document.querySelector('.messages');
+        if (messagesContainer) {
+            messagesContainer.parentNode.insertBefore(alertDiv, messagesContainer.nextSibling);
+        } else {
+            form.parentNode.insertBefore(alertDiv, form);
+        }
+        
+        // Supprimer automatiquement après 5 secondes
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.parentNode.removeChild(alertDiv);
+            }
+        }, 5000);
+    }
+    
+    // Validation en temps réel
+    typeSoinSelect.addEventListener('change', function() {
+        if (this.value) {
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+        } else {
+            this.classList.remove('is-valid');
+        }
+    });
+    
+    montantTotalInput.addEventListener('input', function() {
+        if (this.value && parseFloat(this.value) > 0) {
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+        } else {
+            this.classList.remove('is-valid');
+        }
+    });
+    
+    // Focus sur le premier champ
+    typeSoinSelect.focus();
+});
+</script>
+
+<style>
+.form-select.is-valid,
+.form-control.is-valid {
+    border-color: #198754;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+}
+
+.form-select.is-invalid,
+.form-control.is-invalid {
+    border-color: #dc3545;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 3.6.4.4.4-.4'/%3e%3cpath d='M6 7v1'/%3e%3c/svg%3e");
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.card-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #198754 0%, #157347 100%);
+    border-color: #146c43;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #157347 0%, #0f5734 100%);
+    border-color: #13653f;
+}
+</style>
+{% endblock %}

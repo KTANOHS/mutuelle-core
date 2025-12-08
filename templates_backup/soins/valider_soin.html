@@ -1,0 +1,50 @@
+<!-- templates/soins/valider_soin.html -->
+{% extends "soins/base_soins.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-check-circle"></i>
+                        Validation du Soin
+                    </h4>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-question-circle fa-3x text-warning mb-3"></i>
+                        <h5>Confirmer la validation</h5>
+                        <p class="text-muted">
+                            Êtes-vous sûr de vouloir valider le soin #{{ soin.id }} ?
+                        </p>
+                    </div>
+
+                    <div class="border p-3 mb-4 rounded bg-light text-start">
+                        <h6>Détails du soin:</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Type:</strong> {{ soin.type_soin.nom }}</li>
+                            <li><strong>Patient:</strong> {{ soin.patient.get_full_name }}</li>
+                            <li><strong>Médecin:</strong> {{ soin.medecin.get_full_name }}</li>
+                            <li><strong>Coût estimé:</strong> {{ soin.cout_estime }} FCFA</li>
+                        </ul>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-check"></i> Confirmer la validation
+                            </button>
+                            <a href="{% url 'soins:detail_soin' soin.id %}" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-times"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,92 @@
+<div class="preview-container">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Cotisations existantes
+                    </h6>
+                    <h3 class="mb-0">{{ total_existant }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        Nouvelles à créer
+                    </h6>
+                    <h3 class="mb-0">{{ total_a_generer }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if total_a_generer > 0 %}
+    <div class="table-responsive">
+        <table class="table table-sm table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Membre</th>
+                    <th>Numéro</th>
+                    <th>Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for membre in membres_a_generer %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ membre.nom }} {{ membre.prenom }}</td>
+                    <td>{{ membre.numero_membre|default:"-" }}</td>
+                    <td>{{ membre.get_type_membre_display }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- AJOUTER CE BOUTON OU FORMULAIRE SI C'EST ICI QUE SE TROUVE L'ERREUR -->
+    <div class="mt-4">
+        <!-- Option 1: Bouton de confirmation avec formulaire -->
+        <form method="post" action="{% url 'assureur:generer_cotisations' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-check me-2"></i>
+                Confirmer et générer {{ total_a_generer }} cotisation(s)
+            </button>
+            <a href="{% url 'assureur:dashboard' %}" class="btn btn-secondary ms-2">
+                <i class="fas fa-times me-2"></i>
+                Annuler
+            </a>
+        </form>
+        
+        <!-- Option 2: Lien vers la prévisualisation -->
+        <!-- Si vous avez besoin d'un lien vers preview_generation -->
+        <!--
+        <a href="{% url 'assureur:preview_generation' %}" class="btn btn-info">
+            <i class="fas fa-eye me-2"></i>
+            Prévisualiser avant génération
+        </a>
+        -->
+    </div>
+    
+    {% else %}
+    <div class="alert alert-warning">
+        <i class="fas fa-info-circle me-2"></i>
+        Tous les membres actifs ont déjà une cotisation pour {{ periode }}
+    </div>
+    <div class="mt-3">
+        <a href="{% url 'assureur:liste_cotisations' %}" class="btn btn-primary">
+            <i class="fas fa-list me-2"></i>
+            Voir toutes les cotisations
+        </a>
+        <a href="{% url 'assureur:dashboard' %}" class="btn btn-secondary ms-2">
+            <i class="fas fa-home me-2"></i>
+            Retour au tableau de bord
+        </a>
+    </div>
+    {% endif %}
+</div>

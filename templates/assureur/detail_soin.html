@@ -1,0 +1,67 @@
+{% extends "assureur/base_assureur.html" %}
+
+{% block title %}Détail Soin - Assureur{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-stethoscope me-2"></i>
+                        Détail du Soin
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Informations du Soin</h5>
+                            <p><strong>ID:</strong> {{ soin.id }}</p>
+                            <p><strong>Date:</strong> {{ soin.date_soin|default:"Non spécifié" }}</p>
+                            <p><strong>Statut:</strong> 
+                                <span class="badge bg-{% if soin.status == 'VALIDE' %}success{% else %}warning{% endif %}">
+                                    {{ soin.status }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Informations Patient</h5>
+                            <p><strong>Membre:</strong> {{ soin.patient.nom_complet|default:"Non spécifié" }}</p>
+                            <p><strong>Numéro:</strong> {{ soin.patient.numero_unique|default:"N/A" }}</p>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h5>Détails du Traitement</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Description</th>
+                                    <th>Coût</th>
+                                    <th>Remboursement</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Consultation médicale</td>
+                                    <td>5 000 FCFA</td>
+                                    <td>4 000 FCFA (80%)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'assureur:liste_soins' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

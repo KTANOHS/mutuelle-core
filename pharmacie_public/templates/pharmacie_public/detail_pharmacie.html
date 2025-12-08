@@ -1,0 +1,97 @@
+<!-- pharmacie_public/templates/pharmacie_public/detail_pharmacie.html -->
+{% extends 'pharmacie_public/base_pharmacie_public.html' %}
+
+{% block title %}{{ pharmacie.nom_pharmacie }} - Mutuelle Santé{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <!-- Informations pharmacie -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">{{ pharmacie.nom_pharmacie }}</h4>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    {% if pharmacie.est_de_garde %}
+                    <span class="badge garde-badge fs-6">
+                        <i class="fas fa-clock"></i> PHARMACIE DE GARDE
+                    </span>
+                    {% endif %}
+                    {% if pharmacie.partenaire_mutuelle %}
+                    <span class="badge mutuelle-badge fs-6">
+                        <i class="fas fa-handshake"></i> PARTENAIRE MUTUELLE
+                    </span>
+                    {% endif %}
+                </div>
+                
+                <p>
+                    <i class="fas fa-map-marker-alt"></i> 
+                    <strong>{{ pharmacie.adresse }}</strong><br>
+                    {{ pharmacie.code_postal }} {{ pharmacie.ville }}
+                </p>
+                
+                <p>
+                    <i class="fas fa-phone"></i> 
+                    <strong>{{ pharmacie.telephone }}</strong>
+                </p>
+                
+                <p>
+                    <i class="fas fa-envelope"></i> 
+                    {{ pharmacie.email }}
+                </p>
+                
+                <p>
+                    <i class="fas fa-store"></i> 
+                    {{ pharmacie.get_type_pharmacie_display }}
+                </p>
+                
+                <p>
+                    <i class="fas fa-clock"></i> 
+                    {{ pharmacie.horaires_ouverture|linebreaks }}
+                </p>
+            </div>
+            <div class="card-footer">
+                {% if user.is_authenticated %}
+                <a href="{% url 'pharmacie_public:passer_commande' pharmacie.id %}" 
+                   class="btn btn-success w-100">
+                    <i class="fas fa-shopping-cart"></i> Commander des médicaments
+                </a>
+                {% else %}
+                <a href="{% url 'login' %}?next={% url 'pharmacie_public:passer_commande' pharmacie.id %}" 
+                   class="btn btn-outline-success w-100">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter pour commander
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Retour -->
+        <a href="{% url 'pharmacie_public:liste_pharmacies' %}" class="btn btn-outline-primary w-100">
+            <i class="fas fa-arrow-left"></i> Retour à la liste
+        </a>
+    </div>
+
+    <div class="col-md-8">
+        <!-- Liste des médicaments -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-pills"></i> Médicaments disponibles
+                    <span class="badge bg-primary">{{ medicaments.count }}</span>
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if medicaments %}
+                    {% include 'pharmacie_public/includes/_medicament_list.html' %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-pills fa-2x text-muted mb-3"></i>
+                        <p class="text-muted">Aucun médicament disponible pour le moment</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

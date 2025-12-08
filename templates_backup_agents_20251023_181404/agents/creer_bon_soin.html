@@ -1,0 +1,262 @@
+{% comment %}
+Template: creer_bon_soin.html
+Description: Formulaire de création de bons de soins pour les membres
+Variables attendues: 
+Dernière mise à jour: 2025-10-23
+{% endcomment %}
+
+{% extends "agents/base_agent.html" %}
+{% load static %}
+
+{% block title %}Créer Bon de Soin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Créer un Bon de Soin</h1>
+        <a href="{% url 'agents:dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Retour
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-file-medical me-2"></i>
+                        Nouveau Bon de Soin
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Formulaire de création de bon -->
+                    <form id="bon-soin-form" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Étape 1: Recherche du membre -->
+                        <div class="step" id="step-1">
+                            <h6 class="text-primary mb-3">
+                                <span class="badge bg-primary me-2">1</span>
+                                Sélection du Membre
+                            </h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Rechercher un membre</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="search-member" 
+                                           placeholder="Nom, prénom, téléphone ou numéro de membre..."
+                                           aria-label="Rechercher un membre">
+                                    <button class="btn btn-outline-primary" type="button" id="search-btn">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text">
+                                    Saisissez au moins 3 caractères pour lancer la recherche
+                                </div>
+                            </div>
+                            
+                            <div id="member-results" class="mt-3" style="display: none;">
+                                <h6 class="text-muted mb-2">Résultats de la recherche:</h6>
+                                <div class="list-group" id="members-list">
+                                    <!-- Résultats dynamiques -->
+                                </div>
+                            </div>
+                            
+                            <div id="selected-member" class="alert alert-info mt-3" style="display: none;">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="alert-heading mb-2">Membre Sélectionné</h6>
+                                        <div id="member-details"></div>
+                                    </div>
+                                    <button type="button" class="btn-close" id="deselect-member"></button>
+                                </div>
+                                <div class="mt-2">
+                                    <button type="button" class="btn btn-sm btn-warning" id="verifier-cotisation">
+                                        <i class="fas fa-check-circle me-1"></i>
+                                        Vérifier la cotisation
+                                    </button>
+                                </div>
+                                <div id="cotisation-status" class="mt-2"></div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-end mt-3">
+                                <button type="button" class="btn btn-primary" id="next-step-1" disabled>
+                                    Suivant <i class="fas fa-arrow-right ms-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Étape 2: Détails du bon -->
+                        <div class="step" id="step-2" style="display: none;">
+                            <h6 class="text-primary mb-3">
+                                <span class="badge bg-primary me-2">2</span>
+                                Détails du Bon de Soin
+                            </h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="montant_max" class="form-label">Montant maximum (FCFA)</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="montant_max" 
+                                                   name="montant_max" min="0" step="100" required>
+                                            <span class="input-group-text">FCFA</span>
+                                        </div>
+                                        <div class="form-text">
+                                            Montant maximum couvert par le bon
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="medecin_id" class="form-label">Médecin traitant</label>
+                                        <select class="form-select" id="medecin_id" name="medecin_id" required>
+                                            <option value="">Sélectionner un médecin...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="motif" class="form-label">Motif de consultation</label>
+                                <textarea class="form-control" id="motif" name="motif" rows="4" 
+                                          placeholder="Décrire le motif de la consultation, les symptômes, etc."
+                                          required></textarea>
+                                <div class="form-text">
+                                    Décrivez précisément le motif de la consultation
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Important:</strong> Ce bon de soin expirera automatiquement dans 24 heures.
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-secondary" id="prev-step-2">
+                                    <i class="fas fa-arrow-left me-1"></i>Retour
+                                </button>
+                                <button type="submit" class="btn btn-success" id="submit-btn">
+                                    <i class="fas fa-save me-1"></i>Créer le Bon de Soin
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Panneau latéral d'information -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Informations
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <h6>Statistiques du Jour</h6>
+                    <div class="list-group list-group-flush mb-3">
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            Bons créés aujourd'hui
+                            <span class="badge bg-primary rounded-pill" id="today-count">0</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            Limite quotidienne restante
+                            <span class="badge bg-success rounded-pill" id="remaining-count">0</span>
+                        </div>
+                    </div>
+                    
+                    <h6>Instructions</h6>
+                    <div class="small text-muted">
+                        <ol class="ps-3">
+                            <li class="mb-2">Vérifiez que le membre est à jour de sa cotisation</li>
+                            <li class="mb-2">Sélectionnez le médecin traitant approprié</li>
+                            <li class="mb-2">Indiquez un montant maximum réaliste</li>
+                            <li class="mb-2">Décrivez précisément le motif de consultation</li>
+                            <li>Le bon sera transmis automatiquement au médecin</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="alert alert-light border mt-3">
+                        <small>
+                            <i class="fas fa-clock me-1"></i>
+                            <strong>Validité:</strong> 24 heures<br>
+                            <i class="fas fa-user-md me-1"></i>
+                            <strong>Notification:</strong> Médecin informé automatiquement
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation -->
+<div class="modal fade" id="bonCreatedModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Bon de Soin Créé avec Succès
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                    <h4 class="text-success">Bon créé avec succès !</h4>
+                </div>
+                
+                <div class="alert alert-info">
+                    <h6 class="alert-heading">Détails du Bon de Soin</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Code du bon:</strong><br>
+                            <code class="fs-5" id="bon-code"></code>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Expire le:</strong><br>
+                            <span id="bon-expiration"></span>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <strong>Montant maximum:</strong><br>
+                            <span id="bon-montant"></span> FCFA
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Médecin:</strong><br>
+                            <span id="bon-medecin"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Important:</strong> Notez le code du bon et remettez-le au membre. 
+                    Le médecin aura besoin de ce code pour valider la consultation.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Fermer
+                </button>
+                <button type="button" class="btn btn-primary" onclick="imprimerBon()">
+                    <i class="fas fa-print me-1"></i>Imprimer
+                </button>
+                <button type="button" class="btn btn-success" onclick="creerNouveauBon()">
+                    <i class="fas fa-plus me-1"></i>Nouveau Bon
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/agents/creer_bon_soin.js' %}"></script>
+{% endblock %}

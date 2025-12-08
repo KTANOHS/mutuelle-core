@@ -1,0 +1,173 @@
+{% extends 'assureur/base_assureur.html' %}
+
+{% block title %}Enregistrer Paiement - {{ membre.nom_complet }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-cash-register me-2"></i>Enregistrer un Paiement
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'assureur:historique_paiements' membre.numero_unique %}" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Retour
+        </a>
+    </div>
+</div>
+
+<!-- Informations du membre -->
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <h5 class="card-title">{{ membre.nom_complet }}</h5>
+        <div class="row">
+            <div class="col-md-4">
+                <p><i class="fas fa-id-card me-1"></i><strong>Numéro:</strong> {{ membre.numero_unique }}</p>
+            </div>
+            <div class="col-md-4">
+                <p><i class="fas fa-phone me-1"></i><strong>Téléphone:</strong> {{ membre.telephone|default:"Non renseigné" }}</p>
+            </div>
+            <div class="col-md-4">
+                <p>
+                    <span class="badge bg-{% if membre.est_a_jour %}success{% else %}warning{% endif %}">
+                        {% if membre.est_a_jour %}À jour{% else %}En retard{% endif %}
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Formulaire de paiement -->
+<div class="card shadow">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-credit-card me-1"></i>
+            Informations du Paiement
+        </h5>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="montant" class="form-label">Montant (€) *</label>
+                    <input type="number" 
+                           class="form-control" 
+                           id="montant" 
+                           name="montant" 
+                           step="0.01"
+                           min="0"
+                           required
+                           placeholder="0.00">
+                    <div class="form-text">Montant du paiement en euros</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="methode_paiement" class="form-label">Méthode de paiement *</label>
+                    <select class="form-select" id="methode_paiement" name="methode_paiement" required>
+                        <option value="">Choisir une méthode...</option>
+                        <option value="ESPECES">Espèces</option>
+                        <option value="VIREMENT">Virement</option>
+                        <option value="CHEQUE">Chèque</option>
+                        <option value="CARTE">Carte bancaire</option>
+                        <option value="MOBILE">Paiement mobile</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="date_paiement" class="form-label">Date du paiement *</label>
+                    <input type="date" 
+                           class="form-control" 
+                           id="date_paiement" 
+                           name="date_paiement"
+                           value="{{ today|date:'Y-m-d' }}"
+                           required>
+                </div>
+                <div class="col-md-6">
+                    <label for="reference" class="form-label">Référence</label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="reference" 
+                           name="reference"
+                           placeholder="Numéro de chèque, référence virement...">
+                    <div class="form-text">Facultatif - pour le suivi</div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="notes" class="form-label">Notes supplémentaires</label>
+                <textarea class="form-control" 
+                          id="notes" 
+                          name="notes" 
+                          rows="3"
+                          placeholder="Informations complémentaires sur ce paiement..."></textarea>
+            </div>
+
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Information :</strong> Ce paiement sera enregistré pour le membre <strong>{{ membre.nom_complet }}</strong> et affectera son statut de cotisation.
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'assureur:historique_paiements' membre.numero_unique %}" class="btn btn-secondary me-md-2">
+                    <i class="fas fa-times me-1"></i>Annuler
+                </a>
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-check me-1"></i>Enregistrer le paiement
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Derniers paiements du membre -->
+<div class="card shadow mt-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-history me-1"></i>
+            Derniers paiements
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if derniers_paiements %}
+            <div class="list-group">
+                {% for paiement in derniers_paiements %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ paiement.montant }} €</h6>
+                            <small class="text-muted">{{ paiement.date_paiement|date:"d/m/Y" }}</small>
+                        </div>
+                        <p class="mb-1">
+                            <span class="badge bg-info me-2">{{ paiement.get_methode_paiement_display }}</span>
+                            <span class="badge bg-{% if paiement.status == 'VALIDE' %}success{% else %}warning{% endif %}">
+                                {{ paiement.get_statut_display }}
+                            </span>
+                        </p>
+                        {% if paiement.reference %}
+                            <small class="text-muted">Réf: {{ paiement.reference }}</small>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted text-center py-3">
+                <i class="fas fa-info-circle me-1"></i>Aucun paiement précédent
+            </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-remplissage de la date du jour
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateField = document.getElementById('date_paiement');
+        if (dateField && !dateField.value) {
+            const today = new Date().toISOString().split('T')[0];
+            dateField.value = today;
+        }
+    });
+</script>
+{% endblock %}

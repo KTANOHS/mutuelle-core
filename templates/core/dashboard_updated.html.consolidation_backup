@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3">
+            {% include "includes/sidebar.html" %}
+        </div>
+        
+        <div class="col-md-9">
+            <div class="row">
+                <!-- WIDGET COMMUNICATION -->
+                <div class="col-xl-4 col-lg-6 col-md-12 mb-4">
+                    {% include "includes/communication_widget.html" %}
+                </div>
+                
+                <!-- Vos autres widgets existants -->
+                <div class="col-xl-8 col-lg-6 col-md-12">
+                    <div class="row">
+                        <!-- Exemple d'autres widgets - À ADAPTER selon votre contenu existant -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h4 class="mb-0">150</h4>
+                                            <p class="mb-0">Patients</p>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fas fa-users fa-2x"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-4">
+                            <div class="card bg-success text-white">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h4 class="mb-0">45</h4>
+                                            <p class="mb-0">Rendez-vous</p>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fas fa-calendar fa-2x"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Contenu supplémentaire -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Activité récente</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Votre contenu existant ici...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ groupe.nom }} - Mutuelle App{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1><i class="fas fa-users me-2"></i>{{ groupe.nom }}</h1>
+        <p class="text-muted mb-0">{{ groupe.description }}</p>
+    </div>
+    <div class="text-end">
+        <small class="text-muted d-block">
+            <i class="fas fa-user me-1"></i>
+            {{ groupe.membres.count }} membre{{ groupe.membres.count|pluralize }}
+        </small>
+        <small class="text-muted">
+            Créé par {{ groupe.createur.get_full_name|default:groupe.createur.username }}
+        </small>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Messages du groupe</h5>
+                <span class="badge bg-primary">{{ messages.count }} message{{ messages.count|pluralize }}</span>
+            </div>
+            <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+                {% if messages %}
+                <div class="messages-container">
+                    {% for message in messages %}
+                    <div class="message-item border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <strong>{{ message.expediteur.get_full_name|default:message.expediteur.username }}</strong>
+                                <small class="text-muted ms-2">{{ message.date_envoi|timesince }}</small>
+                            </div>
+                            <small class="text-muted">{{ message.date_envoi|date:"d/m/Y H:i" }}</small>
+                        </div>
+                        <p class="mb-2">{{ message.contenu|linebreaks }}</p>
+                        {% if message.pieces_jointes.exists %}
+                        <div class="pieces-jointes">
+                            <small class="text-muted">
+                                <i class="fas fa-paperclip me-1"></i>
+                                Pièces jointes:
+                                {% for pj in message.pieces_jointes.all %}
+                                <a href="{% url 'communication:telecharger_fichier' pj.id %}" class="text-decoration-none ms-1">
+                                    {{ pj.nom_original }}
+                                </a>{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-comments fa-2x text-muted mb-3"></i>
+                    <p class="text-muted">Aucun message dans ce groupe pour le moment.</p>
+                    <p class="text-muted">Soyez le premier à envoyer un message !</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Formulaire d'envoi de message -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">Envoyer un message</h6>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'communication:envoyer_message_groupe' groupe.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <textarea name="contenu" class="form-control" rows="4" 
+                                  placeholder="Tapez votre message ici..." required></textarea>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            Votre message sera visible par tous les membres du groupe
+                        </small>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i>Envoyer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Liste des membres -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Membres du groupe</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for membre in groupe.membres.all %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ membre.get_full_name|default:membre.username }}</strong>
+                            {% if membre == groupe.createur %}
+                            <span class="badge bg-primary ms-2">Créateur</span>
+                            {% endif %}
+                        </div>
+                        <small class="text-muted">{{ membre.email }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Informations du groupe -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">Informations du groupe</h6>
+            </div>
+            <div class="card-body">
+                <dl class="mb-0">
+                    <dt>Date de création</dt>
+                    <dd>{{ groupe.date_creation|date:"d/m/Y" }}</dd>
+                    
+                    <dt>Statut</dt>
+                    <dd>
+                        {% if groupe.est_actif %}
+                        <span class="badge bg-success">Actif</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Inactif</span>
+                        {% endif %}
+                    </dd>
+                    
+                    <dt>Créateur</dt>
+                    <dd>{{ groupe.createur.get_full_name|default:groupe.createur.username }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+<!-- pharmacien/templates/pharmacien/_sidebar_mobile.html -->
+<div class="collapse" id="mobileSidebar">
+    <div class="bg-light p-3">
+        <div class="text-center mb-3">
+            <div class="pharmacien-bg text-white rounded p-2">
+                <i class="fas fa-user-md fa-lg mb-1"></i>
+                <div class="small">{{ user.username }}</div>
+                <small class="opacity-75">Pharmacien</small>
+            </div>
+        </div>
+
+        <div class="list-group list-group-flush">
+            <a href="{% url 'pharmacien:dashboard' %}" 
+               class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'dashboard_pharmacien' %}active{% endif %}">
+                <i class="fas fa-tachometer-alt me-2"></i>Tableau de bord
+            </a>
+            <a href="{% url 'pharmacien:liste_ordonnances_attente' %}" 
+               class="list-group-item list-group-item-action {% if 'ordonnance' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-file-prescription me-2"></i>Ordonnances
+                <span class="badge badge-pharmacien rounded-pill float-end">
+                    {{ request.ordonnances_attente_count|default:0 }}
+                </span>
+            </a>
+            <a href="{% url 'pharmacien:historique_validation' %}" 
+               class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'historique_validation' %}active{% endif %}">
+                <i class="fas fa-history me-2"></i>Historique
+            </a>
+            <a href="{% url 'pharmacien:profil_pharmacien' %}" 
+               class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'profil_pharmacien' %}active{% endif %}">
+                <i class="fas fa-user me-2"></i>Mon profil
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Bouton toggle pour mobile -->
+<nav class="navbar navbar-light bg-light d-md-none">
+    <div class="container-fluid">
+        <button class="navbar-toggler w-100" type="button" data-bs-toggle="collapse" data-bs-target="#mobileSidebar">
+            <i class="fas fa-bars me-2"></i>Menu Pharmacien
+        </button>
+    </div>
+</nav>

@@ -1,0 +1,142 @@
+{% extends 'assureur/base_assureur.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Messagerie Assureur</h1>
+        <div>
+            <a href="/assureur/communication/envoyer/" class="btn btn-primary">
+                <i class="fas fa-paper-plane me-1"></i>Nouveau message
+            </a>
+            <a href="/communication/notifications/" class="btn btn-warning ml-2">
+                <i class="fas fa-bell me-1"></i>Notifications
+            </a>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        Cette messagerie permet de communiquer avec les agents, médecins et membres.
+        Utilisez les liens ci-dessous pour accéder aux différentes fonctionnalités.
+    </div>
+
+    <div class="row">
+        <!-- Accès rapide -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-left-primary shadow h-100">
+                <div class="card-body">
+                    <div class="text-center">
+                        <i class="fas fa-comments fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Messagerie complète</h5>
+                        <p class="card-text">Accédez à l'interface de messagerie avancée</p>
+                        <a href="/communication/messagerie/" class="btn btn-primary">
+                            <i class="fas fa-external-link-alt me-1"></i>Ouvrir
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Envoyer un message -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-left-success shadow h-100">
+                <div class="card-body">
+                    <div class="text-center">
+                        <i class="fas fa-paper-plane fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">Nouveau message</h5>
+                        <p class="card-text">Envoyez un message à un destinataire</p>
+                        <a href="/assureur/communication/envoyer/" class="btn btn-success">
+                            <i class="fas fa-edit me-1"></i>Écrire
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-left-warning shadow h-100">
+                <div class="card-body">
+                    <div class="text-center">
+                        <i class="fas fa-bell fa-3x text-warning mb-3"></i>
+                        <h5 class="card-title">Notifications</h5>
+                        <p class="card-text">Consultez vos alertes et notifications</p>
+                        <a href="/communication/notifications/" class="btn btn-warning">
+                            <i class="fas fa-list me-1"></i>Voir
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liens utiles -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Liens utiles</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center mb-3">
+                            <a href="/communication/conversations/" class="btn btn-outline-primary btn-block">
+                                <i class="fas fa-comment-dots fa-2x mb-2 d-block"></i>
+                                Conversations
+                            </a>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <a href="/communication/messages/" class="btn btn-outline-info btn-block">
+                                <i class="fas fa-envelope fa-2x mb-2 d-block"></i>
+                                Tous les messages
+                            </a>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <a href="/communication/search/" class="btn btn-outline-secondary btn-block">
+                                <i class="fas fa-search fa-2x mb-2 d-block"></i>
+                                Rechercher
+                            </a>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <a href="/communication/stats/" class="btn btn-outline-success btn-block">
+                                <i class="fas fa-chart-bar fa-2x mb-2 d-block"></i>
+                                Statistiques
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="row mt-4">
+        <div class="col-lg-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">
+                        <i class="fas fa-question-circle me-1"></i>Comment utiliser la messagerie
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6><i class="fas fa-1 text-primary me-2"></i>Envoyer un message</h6>
+                            <p class="small">Cliquez sur "Nouveau message" pour écrire à un agent, médecin ou membre.</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6><i class="fas fa-2 text-success me-2"></i>Consulter les réponses</h6>
+                            <p class="small">Accédez à la messagerie complète pour voir les conversations.</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6><i class="fas fa-3 text-warning me-2"></i>Gérer les notifications</h6>
+                            <p class="small">Vérifiez régulièrement vos notifications pour ne rien manquer.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

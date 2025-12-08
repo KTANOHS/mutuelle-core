@@ -1,0 +1,163 @@
+<!-- pharmacie_public/templates/pharmacie_public/inscription.html -->
+{% extends 'pharmacie_public/base_pharmacie_public.html' %}
+
+{% block title %}Inscription Pharmacie - Mutuelle Santé{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">
+                    <i class="fas fa-clinic-medical"></i>
+                    Inscription de votre Pharmacie
+                </h2>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-4">
+                    Rejoignez notre réseau de pharmacies partenaires. 
+                    Votre inscription sera validée sous 48h.
+                </p>
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <!-- Informations de connexion -->
+                        <div class="col-md-6">
+                            <h4 class="border-bottom pb-2">Informations de connexion</h4>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Nom d'utilisateur *</label>
+                                {{ form.username }}
+                                {% if form.username.errors %}
+                                    <div class="text-danger">{{ form.username.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Email *</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger">{{ form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Prénom</label>
+                                {{ form.first_name }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Nom</label>
+                                {{ form.last_name }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Mot de passe *</label>
+                                {{ form.password1 }}
+                                {% if form.password1.errors %}
+                                    <div class="text-danger">{{ form.password1.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Confirmation mot de passe *</label>
+                                {{ form.password2 }}
+                                {% if form.password2.errors %}
+                                    <div class="text-danger">{{ form.password2.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Informations pharmacie -->
+                        <div class="col-md-6">
+                            <h4 class="border-bottom pb-2">Informations pharmacie</h4>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Nom de la pharmacie *</label>
+                                {{ form.nom_pharmacie }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Adresse complète *</label>
+                                {{ form.adresse }}
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Ville *</label>
+                                        {{ form.ville }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Code postal *</label>
+                                        {{ form.code_postal }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Téléphone *</label>
+                                {{ form.telephone }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Type de pharmacie *</label>
+                                {{ form.type_pharmacie }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Horaires d'ouverture *</label>
+                                {{ form.horaires_ouverture }}
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                {{ form.partenaire_mutuelle }}
+                                <label class="form-check-label">
+                                    Souhaitez-vous devenir partenaire de la mutuelle ?
+                                </label>
+                            </div>
+                            
+                            <div class="mb-3" id="agrement-field" style="display: none;">
+                                <label class="form-label">Numéro d'agrément</label>
+                                {{ form.numero_agrement }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-paper-plane"></i>
+                            Envoyer l'inscription
+                        </button>
+                        <a href="{% url 'pharmacie_public:liste_pharmacies' %}" class="btn btn-secondary">
+                            Annuler
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const partenaireCheckbox = document.querySelector('#id_partenaire_mutuelle');
+    const agrementField = document.getElementById('agrement-field');
+    
+    function toggleAgrementField() {
+        if (partenaireCheckbox.checked) {
+            agrementField.style.display = 'block';
+        } else {
+            agrementField.style.display = 'none';
+        }
+    }
+    
+    partenaireCheckbox.addEventListener('change', toggleAgrementField);
+    toggleAgrementField(); // Initial state
+});
+</script>
+{% endblock %}

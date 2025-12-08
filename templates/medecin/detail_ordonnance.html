@@ -1,0 +1,266 @@
+<!-- medecin/templates/medecin/detail_ordonnance.html -->
+{% extends 'medecin/base.html' %}
+
+{% block title %}Détail de l'Ordonnance {{ ordonnance.ordonnance_medecin.numero }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>📄 Ordonnance {{ ordonnance.ordonnance_medecin.numero }}</h1>
+    <div>
+        <a href="{% url 'medecin:historique_ordonnances' %}" class="btn btn-outline-secondary">
+            ↩️ Retour à l'historique
+        </a>
+        <a href="{% url 'medecin:creer_ordonnance' %}" class="btn btn-primary">
+            ➕ Nouvelle ordonnance
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Carte des informations principales -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Informations de l'ordonnance</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Numéro :</strong> {{ ordonnance.ordonnance_medecin.numero }}</p>
+                        <p><strong>Patient :</strong> {{ ordonnance.ordonnance_medecin.patient.nom_complet }}</p>
+                        <p><strong>Médecin :</strong> Dr {{ ordonnance.ordonnance_medecin.medecin.get_full_name }}</p>
+                        <p><strong>Type :</strong> {{ ordonnance.get_type_ordonnance_display }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Date de prescription :</strong> {{ ordonnance.ordonnance_medecin.date_prescription }}</p>
+                        <p><strong>Date d'expiration :</strong> {{ ordonnance.ordonnance_medecin.date_expiration }}</p>
+                        <p><strong>Statut :</strong> 
+                            <span class="badge bg-{% if ordonnance.statut == 'ACTIVE' %}success{% elif ordonnance.statut == 'UTILISEE' %}info{% else %}secondary{% endif %}">
+                                {{ ordonnance.get_statut_display }}
+                            </span>
+                        </p>
+                        <p><strong>Jours restants :</strong> 
+                            <span class="badge bg-{% if ordonnance.jours_restants > 7 %}success{% elif ordonnance.jours_restants > 0 %}warning{% else %}danger{% endif %}">
+                                {{ ordonnance.jours_restants }} jours
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                
+                {% if ordonnance.ordonnance_medecin.diagnostic %}
+                <div class="mt-3">
+                    <strong>Diagnostic :</strong>
+                    <p class="mt-1 p-2 bg-light rounded">{{ ordonnance.ordonnance_medecin.diagnostic }}</p>
+                </div>
+                {% endif %}
+                
+                {% if ordonnance.notes %}
+                <div class="mt-3">
+                    <strong>Notes complémentaires :</strong>
+                    <p class="mt-1 p-2 bg-light rounded">{{ ordonnance.notes }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Carte des médicaments -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">Médicaments prescrits</h5>
+            </div>
+            <div class="card-body">
+                {% if ordonnance.ordonnance_medecin.medicaments %}
+                    <div class="mb-3">
+                        <strong>Prescription générale :</strong>
+                        <p class="mt-1 p-2 bg-light rounded">{{ ordonnance.ordonnance_medecin.medicaments }}</p>
+                    </div>
+                {% endif %}
+                
+                {% if ordonnance.ordonnance_medecin.posologie %}
+                    <div class="mb-3">
+                        <strong>Posologie :</strong>
+                        <p class="mt-1 p-2 bg-light rounded">{{ ordonnance.ordonnance_medecin.posologie }}</p>
+                    </div>
+                {% endif %}
+                
+                <p><strong>Durée du traitement :</strong> {{ ordonnance.ordonnance_medecin.duree_traitement }} jours</p>
+                
+                {% if ordonnance.renouvelable %}
+                    <p><strong>Renouvelable :</strong> Oui ({{ ordonnance.renouvellements_effectues }}/{{ ordonnance.nombre_renouvellements }} renouvellements effectués)</p>
+                {% else %}
+                    <p><strong>Renouvelable :</strong> Non</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Lignes détaillées de l'ordonnance -->
+        {% if ordonnance.lignes.exists %}
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">Détail des médicaments</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Médicament</th>
+                                <th>Dosage</th>
+                                <th>Forme</th>
+                                <th>Quantité</th>
+                                <th>Posologie</th>
+                                <th>Durée</th>
+                                <th>Remarques</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ligne in ordonnance.lignes.all %}
+                            <tr>
+                                <td>{{ ligne.medicament }}</td>
+                                <td>{{ ligne.dosage }}</td>
+                                <td>{{ ligne.forme_galenique|default:"-" }}</td>
+                                <td>{{ ligne.quantite }}</td>
+                                <td>{{ ligne.posologie }}</td>
+                                <td>{{ ligne.duree }} jours</td>
+                                <td>{{ ligne.remarques|default:"-" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-4">
+        <!-- Carte des actions -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning">
+                <h5 class="card-title mb-0">Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    {% if ordonnance.est_valide %}
+                        <button class="btn btn-success" onclick="marquerCommeUtilisee()">
+                            ✅ Marquer comme utilisée
+                        </button>
+                    {% endif %}
+                    
+                    {% if ordonnance.peut_etre_renouvelee %}
+                        <button class="btn btn-primary" onclick="renouvelerOrdonnance()">
+                            🔄 Renouveler l'ordonnance
+                        </button>
+                    {% endif %}
+                    
+                    <a href="#" class="btn btn-outline-primary">
+                            🖨️ Imprimer l'ordonnance
+                    </a>
+                    
+                    <a href="{% url 'medecin:creer_ordonnance' %}?duplicate={{ ordonnance.id }}" class="btn btn-outline-secondary">
+                            📋 Dupliquer cette ordonnance
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carte des informations du patient -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="card-title mb-0">Informations du patient</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Nom complet :</strong> {{ ordonnance.ordonnance_medecin.patient.nom_complet }}</p>
+                <p><strong>Numéro de membre :</strong> {{ ordonnance.ordonnance_medecin.patient.numero_unique }}</p>
+                <p><strong>Email :</strong> {{ ordonnance.ordonnance_medecin.patient.email|default:"Non renseigné" }}</p>
+                <p><strong>Téléphone :</strong> {{ ordonnance.ordonnance_medecin.patient.telephone|default:"Non renseigné" }}</p>
+                <p><strong>Date de naissance :</strong> {{ ordonnance.ordonnance_medecin.patient.date_naissance|default:"Non renseignée" }}</p>
+                
+                <div class="mt-3">
+                    <a href="#" class="btn btn-sm btn-outline-primary">
+                        👁️ Voir le dossier patient
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carte du statut -->
+        <div class="card">
+            <div class="card-header 
+                {% if ordonnance.statut == 'ACTIVE' %}bg-success
+                {% elif ordonnance.statut == 'UTILISEE' %}bg-info
+                {% elif ordonnance.statut == 'EXPIREE' %}bg-danger
+                {% else %}bg-secondary{% endif %} text-white">
+                <h5 class="card-title mb-0">Statut de l'ordonnance</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center">
+                    <h3>
+                        {% if ordonnance.statut == 'ACTIVE' %}
+                            ✅ Active
+                        {% elif ordonnance.statut == 'UTILISEE' %}
+                            📭 Utilisée
+                        {% elif ordonnance.statut == 'EXPIREE' %}
+                            ❌ Expirée
+                        {% else %}
+                            ⚠️ {{ ordonnance.get_statut_display }}
+                        {% endif %}
+                    </h3>
+                    
+                    {% if ordonnance.est_valide %}
+                        <p class="text-success mt-2">
+                            <strong>Cette ordonnance est valide</strong>
+                        </p>
+                        <p>Expire dans {{ ordonnance.jours_restants }} jours</p>
+                    {% else %}
+                        <p class="text-danger mt-2">
+                            <strong>Cette ordonnance n'est plus valide</strong>
+                        </p>
+                    {% endif %}
+                    
+                    {% if ordonnance.est_urgent %}
+                        <span class="badge bg-danger mt-2">URGENT</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts JavaScript pour les actions -->
+<script>
+function marquerCommeUtilisee() {
+    if (confirm('Êtes-vous sûr de vouloir marquer cette ordonnance comme utilisée ?')) {
+        // Implémentation à ajouter pour l'action
+        alert('Ordonnance marquée comme utilisée');
+    }
+}
+
+function renouvelerOrdonnance() {
+    if (confirm('Voulez-vous renouveler cette ordonnance ?')) {
+        // Implémentation à ajouter pour le renouvellement
+        alert('Ordonnance renouvelée');
+    }
+}
+</script>
+
+<style>
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.card-header {
+    font-weight: 600;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.badge {
+    font-size: 0.75em;
+}
+</style>
+{% endblock %}

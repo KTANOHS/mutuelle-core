@@ -1,0 +1,421 @@
+{% comment %}
+Template: notifications.html
+Description: Gestion des notifications et alertes de l'agent
+Variables attendues: 
+Dernière mise à jour: 2025-10-23
+{% endcomment %}
+
+{% extends "agents/base_agent.html" %}
+{% load static humanize %}
+
+{% block title %}Notifications - Espace Agent{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-bell me-2 text-warning"></i>
+            Mes Notifications
+        </h1>
+        <div class="btn-group">
+            <button class="btn btn-outline-secondary" onclick="markAllAsRead()">
+                <i class="fas fa-check-double me-1"></i>Tout marquer comme lu
+            </button>
+            <button class="btn btn-outline-danger" onclick="clearAllNotifications()">
+                <i class="fas fa-trash me-1"></i>Tout supprimer
+            </button>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body py-3">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-3">
+                            <label class="form-label">Type</label>
+                            <select class="form-select" id="filter-type">
+                                <option value="">Tous les types</option>
+                                <option value="BON_SOIN">Bons de soin</option>
+                                <option value="COTISATION">Cotisations</option>
+                                <option value="DOCUMENT">Documents</option>
+                                <option value="SYSTEME">Système</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Statut</label>
+                            <select class="form-select" id="filter-status">
+                                <option value="">Tous</option>
+                                <option value="non_lu">Non lues</option>
+                                <option value="lu">Lues</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Période</label>
+                            <select class="form-select" id="filter-period">
+                                <option value="7">7 derniers jours</option>
+                                <option value="30">30 derniers jours</option>
+                                <option value="90">3 derniers mois</option>
+                                <option value="">Tout</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">&nbsp;</label>
+                            <button class="btn btn-primary w-100" onclick="applyFilters()">
+                                <i class="fas fa-filter me-1"></i>Filtrer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0" id="total-notifications">0</h4>
+                            <span>Total</span>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-bell fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0" id="unread-notifications">0</h4>
+                            <span>Non lues</span>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-envelope fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0" id="today-notifications">0</h4>
+                            <span>Aujourd'hui</span>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calendar-day fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0" id="bon-soin-notifications">0</h4>
+                            <span>Bons de soin</span>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-file-medical fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des notifications -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Liste des notifications</h5>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="auto-refresh" checked>
+                        <label class="form-check-label" for="auto-refresh">Actualisation auto</label>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div id="notifications-list">
+                        <!-- Chargement -->
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Chargement...</span>
+                            </div>
+                            <p class="mt-2 text-muted">Chargement des notifications...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de détail de notification -->
+<div class="modal fade" id="notificationDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="notificationDetailTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="notificationDetailContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                <button type="button" class="btn btn-primary" id="notificationActionBtn">Action</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let notificationsData = [];
+let currentFilters = {};
+
+function loadNotifications() {
+    fetch('/agents/api/notifications/')
+        .then(response => response.json())
+        .then(data => {
+            notificationsData = data.notifications;
+            updateStats(data.stats);
+            renderNotifications();
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            document.getElementById('notifications-list').innerHTML = `
+                <div class="alert alert-danger m-3">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Erreur lors du chargement des notifications
+                </div>
+            `;
+        });
+}
+
+function updateStats(stats) {
+    document.getElementById('total-notifications').textContent = stats.total;
+    document.getElementById('unread-notifications').textContent = stats.unread;
+    document.getElementById('today-notifications').textContent = stats.today;
+    document.getElementById('bon-soin-notifications').textContent = stats.bon_soin;
+}
+
+function renderNotifications() {
+    const container = document.getElementById('notifications-list');
+    
+    if (notificationsData.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-5">
+                <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Aucune notification</h5>
+                <p class="text-muted">Vous n'avez aucune notification pour le moment.</p>
+            </div>
+        `;
+        return;
+    }
+
+    let html = '';
+    notificationsData.forEach(notif => {
+        const badgeClass = notif.est_lue ? 'bg-secondary' : 'bg-primary';
+        const iconClass = getNotificationIcon(notif.type_notification);
+        
+        html += `
+            <div class="notification-item border-bottom ${notif.est_lue ? '' : 'bg-light'}">
+                <div class="p-3">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="${iconClass} me-2"></i>
+                                <h6 class="mb-0">${notif.titre}</h6>
+                                <span class="badge ${badgeClass} ms-2">${notif.est_lue ? 'Lu' : 'Nouveau'}</span>
+                            </div>
+                            <p class="mb-2 text-muted">${notif.message}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    ${notif.date_creation}
+                                </small>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" onclick="viewNotification(${notif.id})">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    ${!notif.est_lue ? `
+                                    <button class="btn btn-outline-success" onclick="markAsRead(${notif.id})">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    ` : ''}
+                                    <button class="btn btn-outline-danger" onclick="deleteNotification(${notif.id})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+function getNotificationIcon(type) {
+    const icons = {
+        'BON_SOIN': 'fas fa-file-medical text-success',
+        'COTISATION': 'fas fa-money-bill-wave text-warning',
+        'DOCUMENT': 'fas fa-file-alt text-info',
+        'SYSTEME': 'fas fa-cog text-secondary',
+        'default': 'fas fa-bell text-primary'
+    };
+    return icons[type] || icons.default;
+}
+
+function viewNotification(id) {
+    const notif = notificationsData.find(n => n.id === id);
+    if (!notif) return;
+
+    document.getElementById('notificationDetailTitle').textContent = notif.titre;
+    document.getElementById('notificationDetailContent').innerHTML = `
+        <p>${notif.message}</p>
+        <div class="alert alert-light">
+            <small>
+                <i class="fas fa-clock me-1"></i>Créée: ${notif.date_creation}<br>
+                <i class="fas fa-tag me-1"></i>Type: ${notif.type_notification}<br>
+                ${notif.lien ? `<i class="fas fa-link me-1"></i>Lien: ${notif.lien}` : ''}
+            </small>
+        </div>
+    `;
+
+    // Configurer le bouton d'action
+    const actionBtn = document.getElementById('notificationActionBtn');
+    if (notif.lien) {
+        actionBtn.style.display = 'block';
+        actionBtn.textContent = 'Ouvrir';
+        actionBtn.onclick = () => window.location.href = notif.lien;
+    } else {
+        actionBtn.style.display = 'none';
+    }
+
+    // Marquer comme lu si ce n'est pas déjà fait
+    if (!notif.est_lue) {
+        markAsRead(id, false);
+    }
+
+    const modal = new bootstrap.Modal(document.getElementById('notificationDetailModal'));
+    modal.show();
+}
+
+function markAsRead(id, reload = true) {
+    fetch(`/agents/api/notifications/${id}/mark-read/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCSRFToken(),
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && reload) {
+            loadNotifications();
+        }
+    });
+}
+
+function markAllAsRead() {
+    if (!confirm('Marquer toutes les notifications comme lues ?')) return;
+
+    fetch('/agents/api/notifications/mark-all-read/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCSRFToken(),
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            loadNotifications();
+        }
+    });
+}
+
+function deleteNotification(id) {
+    if (!confirm('Supprimer cette notification ?')) return;
+
+    fetch(`/agents/api/notifications/${id}/delete/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCSRFToken(),
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            loadNotifications();
+        }
+    });
+}
+
+function clearAllNotifications() {
+    if (!confirm('Supprimer toutes les notifications ? Cette action est irréversible.')) return;
+
+    fetch('/agents/api/notifications/clear-all/', {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCSRFToken(),
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            loadNotifications();
+        }
+    });
+}
+
+function applyFilters() {
+    currentFilters = {
+        type: document.getElementById('filter-type').value,
+        status: document.getElementById('filter-status').value,
+        period: document.getElementById('filter-period').value
+    };
+    loadNotifications();
+}
+
+function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+
+// Auto-refresh
+let refreshInterval;
+document.getElementById('auto-refresh').addEventListener('change', function(e) {
+    if (e.target.checked) {
+        refreshInterval = setInterval(loadNotifications, 30000); // 30 secondes
+    } else {
+        clearInterval(refreshInterval);
+    }
+});
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    loadNotifications();
+    refreshInterval = setInterval(loadNotifications, 30000);
+});
+</script>
+{% endblock %}

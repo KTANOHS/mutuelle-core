@@ -1,0 +1,72 @@
+{% extends 'assureur/base_assureur.html' %}
+{% load static %}
+
+{% block title %}Répondre à {{ message_original.expediteur.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-reply me-2"></i>Répondre à {{ message_original.expediteur.get_full_name|default:message_original.expediteur.username }}
+                </h6>
+            </div>
+            <div class="card-body">
+                <!-- Message original -->
+                <div class="card bg-light mb-4">
+                    <div class="card-header bg-transparent">
+                        <strong>Message original :</strong>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-2"><strong>De :</strong> {{ message_original.expediteur.get_full_name|default:message_original.expediteur.username }}</p>
+                        <p class="mb-2"><strong>Sujet :</strong> {{ message_original.sujet }}</p>
+                        <p class="mb-2"><strong>Date :</strong> {{ message_original.date_envoi|date:"d/m/Y H:i" }}</p>
+                        <hr>
+                        <p class="mb-0">{{ message_original.contenu|linebreaks }}</p>
+                    </div>
+                </div>
+                
+                <!-- Formulaire de réponse -->
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <strong>Veuillez corriger les erreurs suivantes :</strong>
+                        {{ form.errors }}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.destinataire.id_for_label }}" class="form-label">Destinataire</label>
+                        {{ form.destinataire }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.sujet.id_for_label }}" class="form-label">Sujet</label>
+                        {{ form.sujet }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.contenu.id_for_label }}" class="form-label">Votre réponse</label>
+                        {{ form.contenu }}
+                        <div class="form-text">
+                            Votre réponse sera envoyée à {{ message_original.expediteur.get_full_name|default:message_original.expediteur.username }}
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'assureur:detail_message' message_original.id %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-2"></i>Envoyer la réponse
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

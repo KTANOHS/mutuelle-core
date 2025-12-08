@@ -1,0 +1,266 @@
+{% extends 'pharmacien/base_pharmacien.html' %}
+{% load static %}
+
+{% block title %}Détail Ordonnance #{{ ordonnance.id }} - Pharmacien{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1">Ordonnance #{{ ordonnance.id }}</h1>
+                    <p class="text-muted mb-0">Détails de l'ordonnance médicale</p>
+                </div>
+                <div class="text-end">
+                    <span class="text-muted">{{ date_aujourdhui }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Informations principales -->
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-file-prescription text-primary me-2"></i>
+                        Détails de l'Ordonnance
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6>Informations Médecin</h6>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-user-md text-primary me-2"></i>
+                                <strong>
+                                    {% if ordonnance.medecin %}
+                                        {{ ordonnance.medecin.first_name }} {{ ordonnance.medecin.last_name }}
+                                    {% else %}
+                                        Médecin non spécifié
+                                    {% endif %}
+                                </strong>
+                            </div>
+                            <small class="text-muted">Médecin prescripteur</small>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Informations Patient</h6>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-user text-info me-2"></i>
+                                <strong>
+                                    {% if ordonnance.patient %}
+                                        {{ ordonnance.patient.first_name }} {{ ordonnance.patient.last_name }}
+                                    {% else %}
+                                        Patient non spécifié
+                                    {% endif %}
+                                </strong>
+                            </div>
+                            <small class="text-muted">Patient bénéficiaire</small>
+                        </div>
+                    </div>
+
+                    <!-- Détails de la prescription -->
+                    <h6 class="border-bottom pb-2">Prescription Médicale</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Médicament:</strong></p>
+                            {% if ordonnance.medicaments %}
+                                <span class="badge bg-primary fs-6">{{ ordonnance.medicaments }}</span>
+                            {% else %}
+                                <span class="text-warning">Non spécifié</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Durée du traitement:</strong></p>
+                            {% if ordonnance.duree_traitement %}
+                                <span class="badge bg-info">{{ ordonnance.duree_traitement }} jours</span>
+                            {% else %}
+                                <span class="text-muted">Non spécifiée</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Notes du médecin -->
+                    {% if ordonnance.notes_medecin %}
+                    <div class="mt-4">
+                        <h6>Notes du Médecin</h6>
+                        <div class="alert alert-light border">
+                            {{ ordonnance.notes_medecin }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions et statut -->
+        <div class="col-lg-4 mb-4">
+            <!-- Statut -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h6 class="card-title mb-0">Statut de l'Ordonnance</h6>
+                </div>
+                <div class="card-body text-center">
+                    {% if ordonnance.statut == "valide" or ordonnance.statut == "VALIDATED" %}
+                    <div class="text-success mb-3">
+                        <i class="fas fa-check-circle fa-3x"></i>
+                    </div>
+                    <h5 class="text-success">Validée</h5>
+                    <p class="text-muted small">
+                        {% if ordonnance.date_validation %}
+                            Validée le {{ ordonnance.date_validation|date:"d/m/Y à H:i" }}
+                        {% else %}
+                            Validée
+                        {% endif %}
+                    </p>
+                    {% else %}
+                    <div class="text-warning mb-3">
+                        <i class="fas fa-clock fa-3x"></i>
+                    </div>
+                    <h5 class="text-warning">En Attente</h5>
+                    <p class="text-muted small">
+                        En attente de validation pharmacienne
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Actions -->
+            {% if ordonnance.statut == "ACTIVE" or ordonnance.statut == "en_attente" %}
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h6 class="card-title mb-0">Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'pharmacien:valider_ordonnance' ordonnance.id %}" 
+                           class="btn btn-success btn-lg">
+                            <i class="fas fa-check me-2"></i>
+                            Valider l'Ordonnance
+                        </a>
+                        <a href="{% url 'pharmacien:refuser_ordonnance' ordonnance.id %}" 
+                           class="btn btn-outline-danger">
+                            <i class="fas fa-times me-2"></i>
+                            Refuser l'Ordonnance
+                        </a>
+                        <a href="{% url 'pharmacien:liste_ordonnances_attente' %}" 
+                           class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Retour à la liste
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h6 class="card-title mb-0">Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'pharmacien:liste_ordonnances_attente' %}" 
+                           class="btn btn-primary">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Retour à la liste
+                        </a>
+                        <a href="{% url 'pharmacien:historique_validation' %}" 
+                           class="btn btn-outline-primary">
+                            <i class="fas fa-history me-2"></i>
+                            Voir l'historique
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Informations techniques -->
+            <div class="card mt-4">
+                <div class="card-header bg-white">
+                    <h6 class="card-title mb-0">Informations Techniques</h6>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">Créée le:</dt>
+                        <dd class="col-sm-7">
+                            {% if ordonnance.date_creation %}
+                                {{ ordonnance.date_creation|date:"d/m/Y H:i" }}
+                            {% else %}
+                                Non spécifiée
+                            {% endif %}
+                        </dd>
+                        
+                        <dt class="col-sm-5">ID Ordonnance:</dt>
+                        <dd class="col-sm-7">#{{ ordonnance.id }}</dd>
+                        
+                        {% if ordonnance.date_validation %}
+                        <dt class="col-sm-5">Validée le:</dt>
+                        <dd class="col-sm-7">{{ ordonnance.date_validation|date:"d/m/Y H:i" }}</dd>
+                        {% endif %}
+
+                        <dt class="col-sm-5">Statut:</dt>
+                        <dd class="col-sm-7">
+                            {% if ordonnance.statut == "ACTIVE" or ordonnance.statut == "en_attente" %}
+                                <span class="badge bg-warning">En attente</span>
+                            {% elif ordonnance.statut == "valide" or ordonnance.statut == "VALIDATED" %}
+                                <span class="badge bg-success">Validée</span>
+                            {% elif ordonnance.statut == "refuse" or ordonnance.statut == "REJECTED" %}
+                                <span class="badge bg-danger">Refusée</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ ordonnance.statut }}</span>
+                            {% endif %}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Fonction utilitaire pour afficher des notifications
+function showNotification(message, type = 'info') {
+    const alertClass = {
+        'success': 'alert-success',
+        'error': 'alert-danger',
+        'warning': 'alert-warning',
+        'info': 'alert-info'
+    }[type] || 'alert-info';
+
+    const alertHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
+             style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+            <strong>${type === 'success' ? 'Succès' : type === 'error' ? 'Erreur' : 'Information'}:</strong> 
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', alertHtml);
+    
+    // Supprimer automatiquement après 5 secondes
+    setTimeout(() => {
+        const alert = document.querySelector('.alert.position-fixed');
+        if (alert) {
+            alert.remove();
+        }
+    }, 5000);
+}
+
+// Initialisation quand la page est chargée
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Page détail ordonnance chargée');
+    
+    // Vérifier si des messages d'alerte Django existent
+    const djangoMessages = document.querySelector('.alert');
+    if (djangoMessages) {
+        setTimeout(() => {
+            djangoMessages.remove();
+        }, 5000);
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,293 @@
+{% extends 'pharmacien/base_pharmacien.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Gestion du Stock - Pharmacien{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">
+                    <i class="fas fa-pills text-primary"></i>
+                    Gestion du Stock
+                </h1>
+                <div>
+                    <a href="{% url 'pharmacien:ajouter_stock' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Ajouter un médicament
+                    </a>
+                    <a href="{% url 'pharmacien:importer_stock' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-file-import"></i> Importer
+                    </a>
+                    <a href="{% url 'pharmacien:export_stock' %}" class="btn btn-outline-info">
+                        <i class="fas fa-file-export"></i> Exporter
+                    </a>
+                </div>
+            </div>
+
+            <!-- Cartes de statistiques -->
+            <div class="row mb-4">
+                <div class="col-xl-3 col-md-6">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Total Médicaments
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        {{ total_stocks }}
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-pills fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Stock Normal
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        {{ stocks_normal }}
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="card border-left-warning shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                        Stock Alerte
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        {{ stocks_alerte }}
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="card border-left-danger shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                        Rupture de Stock
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        {{ stocks_rupture }}
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtres -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Filtres</h6>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="recherche" placeholder="Rechercher..." value="{{ recherche }}">
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-control" name="categorie">
+                                <option value="">Toutes les catégories</option>
+                                {% for categorie in categories %}
+                                <option value="{{ categorie.0 }}" {% if categorie_filter == categorie.0 %}selected{% endif %}>
+                                    {{ categorie.1 }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-control" name="statut">
+                                <option value="">Tous les statuts</option>
+                                <option value="normal" {% if statut_filter == 'normal' %}selected{% endif %}>Normal</option>
+                                <option value="alerte" {% if statut_filter == 'alerte' %}selected{% endif %}>Alerte</option>
+                                <option value="rupture" {% if statut_filter == 'rupture' %}selected{% endif %}>Rupture</option>
+                                <option value="perime" {% if statut_filter == 'perime' %}selected{% endif %}>Périmé</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tableau des stocks -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Liste des médicaments en stock</h6>
+                    <div class="text-muted">
+                        Valeur totale du stock: <strong>{{ valeur_stock|floatformat:2|intcomma }} F</strong>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Médicament</th>
+                                    <th>Catégorie</th>
+                                    <th>Stock</th>
+                                    <th>Seuil Alerte</th>
+                                    <th>Prix Achat</th>
+                                    <th>Prix Vente</th>
+                                    <th>Marge</th>
+                                    <th>Péremption</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stock in stocks %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ stock.nom_medicament }}</strong>
+                                        {% if stock.code_medicament %}
+                                        <br><small class="text-muted">{{ stock.code_medicament }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-info">{{ stock.get_categorie_display }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            {% with pourcentage=stock.pourcentage_stock %}
+                                            <div class="progress-bar 
+                                                {% if stock.statut_stock == 'normal' %}bg-success
+                                                {% elif stock.statut_stock == 'alerte' %}bg-warning
+                                                {% else %}bg-danger{% endif %}" 
+                                                style="width: {{ pourcentage }}%">
+                                                {{ stock.quantite_stock }}
+                                            </div>
+                                            {% endwith %}
+                                        </div>
+                                    </td>
+                                    <td>{{ stock.seuil_alerte }}</td>
+                                    <td>{{ stock.prix_achat|floatformat:2|intcomma }} F</td>
+                                    <td>{{ stock.prix_vente|floatformat:2|intcomma }} F</td>
+                                    <td>
+                                        {% with marge=stock.marge %}
+                                        <span class="badge {% if marge > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                                            {{ marge|floatformat:2|intcomma }} F
+                                        </span>
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        {% if stock.date_peremption %}
+                                            {% if stock.est_perime %}
+                                            <span class="badge bg-danger" title="Périmé">
+                                                {{ stock.date_peremption|date:"d/m/Y" }}
+                                            </span>
+                                            {% else %}
+                                            <span class="badge {% if stock.get_jours_avant_peremption < 30 %}bg-warning{% else %}bg-success{% endif %}">
+                                                {{ stock.date_peremption|date:"d/m/Y" }}
+                                                <br>
+                                                <small>({{ stock.get_jours_avant_peremption }} jours)</small>
+                                            </span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if stock.statut_stock == 'normal' %}
+                                        <span class="badge bg-success">Normal</span>
+                                        {% elif stock.statut_stock == 'alerte' %}
+                                        <span class="badge bg-warning">Alerte</span>
+                                        {% elif stock.statut_stock == 'rupture' %}
+                                        <span class="badge bg-danger">Rupture</span>
+                                        {% elif stock.statut_stock == 'perime' %}
+                                        <span class="badge bg-dark">Périmé</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'pharmacien:modifier_stock' stock.id %}" 
+                                               class="btn btn-outline-primary" title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            {% if stock.actif %}
+                                            <a href="{% url 'pharmacien:desactiver_stock' stock.id %}" 
+                                               class="btn btn-outline-warning" title="Désactiver">
+                                                <i class="fas fa-pause"></i>
+                                            </a>
+                                            {% else %}
+                                            <a href="{% url 'pharmacien:activer_stock' stock.id %}" 
+                                               class="btn btn-outline-success" title="Activer">
+                                                <i class="fas fa-play"></i>
+                                            </a>
+                                            {% endif %}
+                                            <a href="{% url 'pharmacien:reapprovisionner_stock' stock.id %}" 
+                                               class="btn btn-outline-info" title="Réapprovisionner">
+                                                <i class="fas fa-truck-loading"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="10" class="text-center text-muted py-4">
+                                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                                        <p>Aucun médicament en stock pour le moment.</p>
+                                        <a href="{% url 'pharmacien:ajouter_stock' %}" class="btn btn-primary">
+                                            Ajouter le premier médicament
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+$(document).ready(function() {
+    // Recherche en temps réel
+    $('#searchStock').on('keyup', function() {
+        var value = $(this).val().toLowerCase();
+        $('#dataTable tbody tr').filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
+});
+</script>
+{% endblock %}

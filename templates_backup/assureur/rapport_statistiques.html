@@ -1,0 +1,194 @@
+{% extends 'assureur/base_assureur.html' %}
+
+{% block title %}Rapports Statistiques{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-chart-bar me-2"></i>Rapports Statistiques
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <!-- ✅ CORRECTION : export_bons_pdf au lieu de export_bons -->
+        <a href="{% url 'assureur:export_bons_pdf' %}" class="btn btn-sm btn-outline-primary me-2">
+            <i class="fas fa-download me-1"></i>Exporter les données
+        </a>
+        <a href="{% url 'assureur:dashboard' %}" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Retour au dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Cartes de statistiques -->
+<div class="row mb-4">
+    <!-- Vos statistiques ici -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Total Membres
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ stats.total_membres }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Bons Émis
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ stats.total_bons }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-file-medical fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Bons Utilisés
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ stats.bons_utilises }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Revenus Mensuels
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ stats.revenus_mensuels }} €
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-euro-sign fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Graphiques et tableaux -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Évolution des bons par mois</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area">
+                    <!-- Graphique à implémenter -->
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-chart-line fa-3x mb-3"></i>
+                        <p>Graphique d'évolution à implémenter</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Répartition par type de soin</h6>
+            </div>
+            <div class="card-body">
+                <!-- Camembert à implémenter -->
+                <div class="text-center py-4 text-muted">
+                    <i class="fas fa-chart-pie fa-3x mb-3"></i>
+                    <p>Répartition par type à implémenter</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tableau des statistiques détaillées -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Statistiques détaillées</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Métrique</th>
+                        <th>Valeur</th>
+                        <th>Évolution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Nouveaux membres ce mois</td>
+                        <td>{{ stats.nouveaux_membres_mois }}</td>
+                        <td>
+                            {% if stats.evolution_membres > 0 %}
+                            <span class="text-success">+{{ stats.evolution_membres }}%</span>
+                            {% else %}
+                            <span class="text-danger">{{ stats.evolution_membres }}%</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Taux d'utilisation des bons</td>
+                        <td>{{ stats.taux_utilisation }}%</td>
+                        <td>
+                            {% if stats.evolution_utilisation > 0 %}
+                            <span class="text-success">+{{ stats.evolution_utilisation }}%</span>
+                            {% else %}
+                            <span class="text-danger">{{ stats.evolution_utilisation }}%</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Revenus moyens par membre</td>
+                        <td>{{ stats.revenu_moyen_membre }} €</td>
+                        <td>
+                            {% if stats.evolution_revenus > 0 %}
+                            <span class="text-success">+{{ stats.evolution_revenus }}%</span>
+                            {% else %}
+                            <span class="text-danger">{{ stats.evolution_revenus }}%</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

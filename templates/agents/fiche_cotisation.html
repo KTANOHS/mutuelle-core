@@ -1,0 +1,28 @@
+<!-- agents/fiche_cotisation.html -->
+{% extends 'agents/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">📊 Fiche Cotisation</h4>
+                </div>
+                <div class="card-body">
+                    <pre style="font-family: 'Courier New', monospace; font-size: 14px; background: #f8f9fa; padding: 20px; border-radius: 5px;">{{ fiche }}</pre>
+                    
+                    <div class="mt-3">
+                        <a href="{% url 'recherche_cotisations_avancee' %}" class="btn btn-secondary">
+                            🔍 Nouvelle recherche
+                        </a>
+                        <a href="{% url 'verification_cotisations' %}" class="btn btn-primary">
+                            📋 Retour aux vérifications
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

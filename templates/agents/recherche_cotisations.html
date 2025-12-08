@@ -1,0 +1,51 @@
+{% extends 'agents/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">🔍 Recherche Avancée Cotisations</h4>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="mb-4">
+                        <div class="input-group">
+                            <input type="text" name="q" class="form-control" placeholder="Rechercher par nom, prénom, téléphone ou numéro..." value="{{ query }}">
+                            <button type="submit" class="btn btn-primary">Rechercher</button>
+                        </div>
+                    </form>
+                    
+                    {% if query %}
+                        <h5>Résultats pour "{{ query }}" :</h5>
+                        
+                        {% if results %}
+                            {% for result in results %}
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <pre style="font-family: 'Courier New', monospace; font-size: 12px; background: #f8f9fa; padding: 15px; border-radius: 5px; white-space: pre-wrap;">{{ result.fiche }}</pre>
+                                    
+                                    <div class="mt-2">
+                                        <a href="{% url 'agents:fiche_cotisation' result.membre.id %}" class="btn btn-sm btn-primary">
+                                            📋 Voir fiche détaillée
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="alert alert-info">
+                                🔍 Aucun résultat trouvé pour "{{ query }}"
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-info">
+                            💡 Entrez un terme de recherche pour commencer
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

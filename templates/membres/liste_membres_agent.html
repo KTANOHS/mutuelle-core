@@ -1,0 +1,112 @@
+{% extends 'agents/base_agent.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>📋 Mes Membres Créés ({{ total_membres }})</h2>
+        <a href="{% url 'membres:creer_membre' %}" class="btn btn-success">
+            ➕ Créer un nouveau membre
+        </a>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            {% if membres %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Numéro Unique</th>
+                            <th>Nom Complet</th>
+                            <th>Téléphone</th>
+                            <th>Date Inscription</th>
+                            <th>Statut</th>
+                            <th>Documents</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for membre in membres %}
+                        <tr>
+                            <td>
+                                <strong>{{ membre.numero_unique }}</strong>
+                            </td>
+                            <td>
+                                {{ membre.prenom }} <strong>{{ membre.nom }}</strong>
+                            </td>
+                            <td>{{ membre.telephone|default:"-" }}</td>
+                            <td>{{ membre.date_inscription|date:"d/m/Y" }}</td>
+                            <td>
+                                <span class="badge bg-{% if membre.statut == 'actif' %}success{% else %}warning{% endif %}">
+                                    {{ membre.statut|title }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{% if membre.statut_documents == 'valide' %}success{% elif membre.statut_documents == 'rejete' %}danger{% else %}warning{% endif %}">
+                                    {{ membre.statut_documents|title }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'membres:upload_documents' membre.id %}" 
+                                       class="btn btn-outline-primary" title="Uploader documents">
+                                       📎 Documents
+                                    </a>
+                                    <a href="#" class="btn btn-outline-info" title="Voir détails">
+                                        👁️ Détails
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if membres.has_other_pages %}
+            <nav aria-label="Pagination">
+                <ul class="pagination justify-content-center mt-4">
+                    {% if membres.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ membres.previous_page_number }}">Précédent</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in membres.paginator.page_range %}
+                        {% if membres.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if membres.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ membres.next_page_number }}">Suivant</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            
+            {% else %}
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-users fa-4x text-muted"></i>
+                </div>
+                <h4 class="text-muted">Aucun membre créé pour le moment</h4>
+                <p class="text-muted">Commencez par créer votre premier membre</p>
+                <a href="{% url 'membres:creer_membre' %}" class="btn btn-primary btn-lg mt-3">
+                    ➕ Créer votre premier membre
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

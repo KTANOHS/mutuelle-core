@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Mes Notifications</h2>
+    <div class="list-group">
+        {% for notification in notifications %}
+        <div class="list-group-item {% if not notification.lue %}list-group-item-warning{% endif %}">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ notification.titre }}</h5>
+                <small>{{ notification.date_creation|timesince }}</small>
+            </div>
+            <p class="mb-1">{{ notification.message }}</p>
+            {% if notification.lien %}
+            <a href="{{ notification.lien }}" class="btn btn-sm btn-primary">Voir</a>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="alert alert-info">
+            Aucune notification pour le moment.
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

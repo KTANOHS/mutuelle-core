@@ -1,0 +1,46 @@
+{% extends 'soins/base_soins.html' %}
+
+{% block soins_content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Liste des Soins</h1>
+    <a href="{% url 'soins:creer_soin' %}" class="btn btn-primary">Nouveau Soin</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-sm">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Patient</th>
+                <th>Type</th>
+                <th>Date</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for soin in soins %}
+            <tr>
+                <td>{{ soin.id }}</td>
+                <td>{{ soin.patient.nom_complet }}</td>
+                <td>{{ soin.type_soin }}</td>
+                <td>{{ soin.date_soin|date:"d/m/Y" }}</td>
+                <td>
+                    <span class="badge bg-{{ soin.get_statut_color }}">
+                        {{ soin.get_statut_display }}
+                    </span>
+                </td>
+                <td>
+                    <a href="{% url 'soins:detail_soin' soin.id %}" class="btn btn-sm btn-info">Voir</a>
+                    <a href="{% url 'soins:modifier_soin' soin.id %}" class="btn btn-sm btn-warning">Modifier</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">Aucun soin enregistré</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

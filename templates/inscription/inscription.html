@@ -1,0 +1,524 @@
+<!-- templates/inscription/inscription.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow border-0">
+                <div class="card-header bg-gradient-primary text-white text-center py-4">
+                    <h1 class="mb-3"><i class="fas fa-heartbeat"></i> ma SanteDirect</h1>
+                    <p class="lead mb-0">Votre partenaire santé au quotidien</p>
+                </div>
+                
+                <div class="card-body text-center p-5">
+                    <!-- Alerte principale remplaçant tout le contenu -->
+                    <div class="alert alert-light border-primary rounded-4 shadow-sm p-5">
+                        <div class="mb-4">
+                            <div class="icon-wrapper mb-4">
+                                <i class="fas fa-phone-alt fa-4x text-primary bg-light rounded-circle p-4 phone-icon"></i>
+                            </div>
+                            
+                            <h2 class="text-primary mb-4 title-animation">
+                                <i class="fas fa-hands-helping me-2"></i>Inscription personnalisée
+                            </h2>
+                            
+                            <div class="message-box bg-white rounded-3 p-4 shadow-sm mb-4">
+                                <p class="fs-5 text-dark mb-4 fade-in-text">
+                                    Pour vous accompagner dans la création de votre espace <span class="text-primary fw-bold">ma SanteDirect</span> et bénéficier d'un suivi personnalisé, notre équipe dédiée vous accueille par téléphone.
+                                </p>
+                                
+                                <div class="cta-box mt-4">
+                                    <p class="fs-4 text-dark mb-3">
+                                        <i class="fas fa-arrow-circle-right text-primary me-2 bounce-icon"></i>
+                                        Contactez-nous pour une prise en charge complète :
+                                    </p>
+                                    
+                                    <div class="phone-highlight my-4">
+                                        <a href="tel:+33798910912" class="btn btn-primary btn-lg rounded-pill px-5 py-3 shadow pulse-button">
+                                            <i class="fas fa-phone-alt me-2"></i>
+                                            <span class="fs-3 fw-bold">07 98 91 09 12</span>
+                                        </a>
+                                    </div>
+                                    
+                                    <p class="text-muted mt-3">
+                                        <i class="far fa-clock me-1"></i>
+                                        Service disponible du lundi au vendredi, de 9h à 18h
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="benefits-box mt-5">
+                                <h4 class="text-primary mb-4">
+                                    <i class="fas fa-star me-2"></i>Pourquoi nous contacter ?
+                                </h4>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <div class="p-3 h-100 benefit-card">
+                                            <i class="fas fa-user-check fa-2x text-primary mb-3"></i>
+                                            <h5>Accueil personnalisé</h5>
+                                            <p class="text-muted small">Un conseiller dédié répond à toutes vos questions</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="p-3 h-100 benefit-card">
+                                            <i class="fas fa-shield-alt fa-2x text-primary mb-3"></i>
+                                            <h5>Sécurité des données</h5>
+                                            <p class="text-muted small">Inscription sécurisée et confidentielle</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="p-3 h-100 benefit-card">
+                                            <i class="fas fa-file-signature fa-2x text-primary mb-3"></i>
+                                            <h5>Guichet unique</h5>
+                                            <p class="text-muted small">Toutes les démarches en un seul appel</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="alternative-options mt-5 pt-4 border-top">
+                                <p class="text-muted mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Vous pouvez également :
+                                </p>
+                                <div class="d-flex flex-column flex-md-row justify-content-center gap-3">
+                                    <a href="mailto:contact@santedirect.fr" class="btn btn-outline-primary">
+                                        <i class="fas fa-envelope me-2"></i>Nous écrire
+                                    </a>
+                                    <a href="{% url 'login' %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-sign-in-alt me-2"></i>Accéder à mon espace
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <!-- Formulaire de demande de rappel AJAX -->
+                            <div class="demande-rappel mt-5 pt-4 border-top">
+                                <h4 class="text-primary mb-4">
+                                    <i class="fas fa-bell me-2"></i>Demander un rappel gratuit
+                                </h4>
+                                
+                                <div id="form-container" class="bg-light p-4 rounded-3">
+                                    <form id="rappel-form" novalidate>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="nom" class="form-label">Nom *</label>
+                                                <input type="text" class="form-control" id="nom" name="nom" required>
+                                                <div class="invalid-feedback">Veuillez entrer votre nom.</div>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="prenom" class="form-label">Prénom *</label>
+                                                <input type="text" class="form-control" id="prenom" name="prenom" required>
+                                                <div class="invalid-feedback">Veuillez entrer votre prénom.</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="telephone" class="form-label">Téléphone *</label>
+                                                <input type="tel" class="form-control" id="telephone" name="telephone" required pattern="[0-9]{10}">
+                                                <div class="invalid-feedback">Veuillez entrer un numéro de téléphone valide (10 chiffres).</div>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="creneau" class="form-label">Créneau horaire préféré</label>
+                                                <select class="form-control" id="creneau" name="creneau">
+                                                    <option value="">Sélectionnez un créneau</option>
+                                                    <option value="9-12">9h-12h</option>
+                                                    <option value="12-14">12h-14h</option>
+                                                    <option value="14-16">14h-16h</option>
+                                                    <option value="16-18">16h-18h</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="email" class="form-label">Email (optionnel)</label>
+                                            <input type="email" class="form-control" id="email" name="email">
+                                            <div class="invalid-feedback">Veuillez entrer un email valide.</div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="message" class="form-label">Message (optionnel)</label>
+                                            <textarea class="form-control" id="message" name="message" rows="3" placeholder="Avez-vous des questions spécifiques ?"></textarea>
+                                        </div>
+                                        
+                                        <div class="mb-4 form-check">
+                                            <input type="checkbox" class="form-check-input" id="consentement" name="consentement" required>
+                                            <label class="form-check-label" for="consentement">
+                                                J'accepte d'être contacté par téléphone pour mon inscription *
+                                            </label>
+                                            <div class="invalid-feedback">Vous devez accepter pour continuer.</div>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-success w-100">
+                                            <i class="fas fa-paper-plane me-2"></i>Demander un rappel
+                                        </button>
+                                        
+                                        <div id="form-message" class="mt-3"></div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-center">
+                        <p class="text-muted small">
+                            <i class="fas fa-lock me-1"></i>
+                            Votre confidentialité est notre priorité. Tous les appels sont sécurisés.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stocker l'URL de demande de rappel dans une variable cachée -->
+<input type="hidden" id="demande-rappel-url" value="/inscription/demande-rappel/">
+
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+        animation: gradientShift 10s ease infinite alternate;
+    }
+    
+    .message-box {
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+        border: 1px solid rgba(13, 110, 253, 0.1);
+        animation: subtleFloat 6s ease-in-out infinite;
+    }
+    
+    .phone-highlight .btn {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        border: none;
+        transition: all 0.3s ease;
+        animation: pulse 2s infinite;
+    }
+    
+    .phone-highlight .btn:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 8px 25px rgba(13, 110, 253, 0.3) !important;
+        animation: none;
+    }
+    
+    .benefit-card {
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        border-radius: 10px;
+        animation: fadeInUp 0.8s ease forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    
+    .benefit-card:nth-child(1) { animation-delay: 0.2s; }
+    .benefit-card:nth-child(2) { animation-delay: 0.4s; }
+    .benefit-card:nth-child(3) { animation-delay: 0.6s; }
+    
+    .benefit-card:hover {
+        transform: translateY(-10px) scale(1.05);
+        border-color: rgba(13, 110, 253, 0.2);
+        box-shadow: 0 10px 30px rgba(13, 110, 253, 0.15);
+        background: linear-gradient(145deg, #ffffff, #f0f8ff);
+    }
+    
+    .rounded-4 {
+        border-radius: 1rem !important;
+    }
+    
+    /* Animation de l'icône téléphone */
+    .phone-icon {
+        animation: ring 4s ease-in-out infinite;
+    }
+    
+    /* Animation du titre */
+    .title-animation {
+        animation: titleSlideIn 1s ease forwards;
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    
+    /* Animation du texte */
+    .fade-in-text {
+        animation: fadeIn 1.5s ease forwards;
+        opacity: 0;
+    }
+    
+    /* Animation de l'icône bounce */
+    .bounce-icon {
+        animation: bounce 2s infinite;
+    }
+    
+    /* Animation personnalisée pour le bouton téléphone */
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.2);
+        }
+        50% {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(13, 110, 253, 0.4);
+        }
+    }
+    
+    /* Animation pour l'icône téléphone */
+    @keyframes ring {
+        0% {
+            transform: rotate(0deg);
+        }
+        2% {
+            transform: rotate(15deg);
+        }
+        4% {
+            transform: rotate(-10deg);
+        }
+        6% {
+            transform: rotate(10deg);
+        }
+        8% {
+            transform: rotate(-5deg);
+        }
+        10%, 100% {
+            transform: rotate(0deg);
+        }
+    }
+    
+    /* Animation de flottement subtile */
+    @keyframes subtleFloat {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-5px);
+        }
+    }
+    
+    /* Animation de dégradé */
+    @keyframes gradientShift {
+        0% {
+            background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+        }
+        50% {
+            background: linear-gradient(135deg, #0a58ca 0%, #0ba1cc 100%);
+        }
+        100% {
+            background: linear-gradient(135deg, #084298 0%, #0982a3 100%);
+        }
+    }
+    
+    /* Animation d'apparition du titre */
+    @keyframes titleSlideIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Animation de fade in */
+    @keyframes fadeIn {
+        to {
+            opacity: 1;
+        }
+    }
+    
+    /* Animation de fade in up */
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Animation de rebond */
+    @keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+    
+    /* Animation de la carte principale */
+    .card {
+        animation: cardEntrance 1s ease forwards;
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    
+    @keyframes cardEntrance {
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    /* Désactiver les animations sur mobile pour des performances optimales */
+    @media (max-width: 768px) {
+        .card {
+            animation: none;
+            opacity: 1;
+            transform: none;
+        }
+        
+        .title-animation {
+            animation: none;
+            opacity: 1;
+            transform: none;
+        }
+        
+        .fade-in-text {
+            animation: none;
+            opacity: 1;
+        }
+        
+        .benefit-card {
+            animation: none;
+            opacity: 1;
+            transform: none;
+        }
+        
+        .phone-icon {
+            animation: ring 6s ease-in-out infinite;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Récupérer l'URL de l'input caché
+        const demandeRappelUrl = document.getElementById('demande-rappel-url').value;
+        
+        // Fonction pour obtenir le token CSRF
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Gestion du formulaire de rappel AJAX
+        const rappelForm = document.getElementById('rappel-form');
+        const formMessage = document.getElementById('form-message');
+        
+        if (rappelForm) {
+            rappelForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Validation frontend
+                if (!this.checkValidity()) {
+                    e.stopPropagation();
+                    this.classList.add('was-validated');
+                    return;
+                }
+                
+                // Désactiver le bouton
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Envoi en cours...';
+                submitBtn.disabled = true;
+                
+                // Récupérer les données
+                const formData = {
+                    nom: document.getElementById('nom').value,
+                    prenom: document.getElementById('prenom').value,
+                    telephone: document.getElementById('telephone').value,
+                    email: document.getElementById('email').value,
+                    creneau: document.getElementById('creneau').value,
+                    message: document.getElementById('message').value,
+                    consentement: document.getElementById('consentement').checked
+                };
+                
+                try {
+                    console.log('Envoi de la demande à:', demandeRappelUrl);
+                    
+                    // Envoyer la requête AJAX
+                    const response = await fetch(demandeRappelUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Afficher le message de succès
+                        formMessage.innerHTML = `
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-check-circle me-2"></i>
+                                ${data.message}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        `;
+                        
+                        // Réinitialiser le formulaire
+                        rappelForm.reset();
+                        rappelForm.classList.remove('was-validated');
+                    } else {
+                        formMessage.innerHTML = `
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                ${data.message}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    formMessage.innerHTML = `
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Une erreur réseau est survenue. Vous pouvez nous appeler directement au 07 98 91 09 12.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `;
+                } finally {
+                    // Réactiver le bouton
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            });
+        }
+        
+        // Animation au survol des cartes de bénéfices
+        const benefitCards = document.querySelectorAll('.benefit-card');
+        benefitCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.zIndex = '10';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.zIndex = '1';
+            });
+        });
+        
+        // Animation spéciale pour le bouton téléphone au clic
+        const phoneBtn = document.querySelector('.phone-highlight .btn');
+        if (phoneBtn) {
+            phoneBtn.addEventListener('click', function(e) {
+                // Ajouter une animation de confirmation
+                this.style.animation = 'none';
+                this.style.transform = 'scale(0.95)';
+                
+                setTimeout(() => {
+                    this.style.animation = 'pulse 2s infinite';
+                    this.style.transform = 'scale(1)';
+                }, 300);
+            });
+        }
+    });
+</script>
+{% endblock %}

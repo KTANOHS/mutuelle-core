@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Groupes de Communication - Mutuelle App{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-users me-2"></i>Groupes de Communication</h1>
+    <a href="{% url 'communication:creer_groupe' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i>Nouveau Groupe
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Mes Groupes</h5>
+            </div>
+            <div class="card-body">
+                {% if groupes %}
+                <div class="row">
+                    {% for groupe in groupes %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="fas fa-users me-2 text-primary"></i>
+                                    {{ groupe.nom }}
+                                </h5>
+                                <p class="card-text text-muted small">
+                                    {{ groupe.description|default:"Aucune description"|truncatewords:20 }}
+                                </p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-user me-1"></i>
+                                        {{ groupe.membres.count }} membre{{ groupe.membres.count|pluralize }}
+                                    </small>
+                                    <span class="badge {% if groupe.createur == user %}bg-primary{% else %}bg-secondary{% endif %}">
+                                        {% if groupe.createur == user %}Créateur{% else %}Membre{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <div class="d-grid gap-2">
+                                    <a href="{% url 'communication:detail_groupe' groupe.id %}" 
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-comments me-1"></i>Voir les messages
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Aucun groupe</h5>
+                    <p class="text-muted">Vous n'êtes membre d'aucun groupe pour le moment.</p>
+                    <a href="{% url 'communication:creer_groupe' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Créer un groupe
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

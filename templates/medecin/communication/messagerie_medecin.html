@@ -1,0 +1,48 @@
+<!-- templates/communication/messagerie_medecin.html -->
+{% extends 'medecin/base.html' %}
+{% load static %}
+
+{% block title %}Messagerie - Médecin{% endblock %}
+
+{% block page_title %}Messagerie{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">
+            <i class="bi bi-chat-left-text me-2"></i>
+            Ma Messagerie
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            Interface de messagerie pour les médecins. 
+            Communiquez avec les patients, les pharmaciens et les assureurs.
+        </div>
+        
+        <!-- Contenu de la messagerie -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-action active">
+                        Boîte de réception
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        Messages envoyés
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        Nouveau message
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Fonctionnalité en cours de développement
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

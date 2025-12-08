@@ -1,0 +1,16 @@
+<!-- Sidebar de base pour tous les rôles -->
+<nav class="sidebar">
+    <div class="sidebar-header">
+        <h5>{{ role_name|default:"Tableau de Bord" }}</h5>
+    </div>
+    <ul class="nav flex-column">
+        {% for item in sidebar_items %}
+        <li class="nav-item">
+            <a class="nav-link {% if item.active %}active{% endif %}" href="{{ item.url }}">
+                <i class="fas fa-{{ item.icon }}"></i>
+                {{ item.label }}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</nav>

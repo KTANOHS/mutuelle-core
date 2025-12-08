@@ -1,0 +1,41 @@
+{
+  "timestamp": "2025-11-27T10:06:15.913197",
+  "metriques_actuelles": {
+    "date": "2025-11-27T10:06:15.900570",
+    "utilisateurs": 43,
+    "membres": 22,
+    "membres_avec_user": 22,
+    "taux_synchronisation": 100.0,
+    "temps_requete": 0.001272
+  },
+  "tendances_30_jours": {
+    "periode": "30 jours",
+    "date_debut": "2025-10-28T10:06:15.904703",
+    "date_fin": "2025-11-27T10:06:15.904719",
+    "analyse": {
+      "moyenne_synchronisation": 100.0,
+      "croissance_membres": 0.0,
+      "performance_moyenne": 0.0022075,
+      "nombre_points_donnees": 2
+    },
+    "anomalies": []
+  },
+  "tendances_90_jours": {
+    "periode": "90 jours",
+    "date_debut": "2025-08-29T10:06:15.908149",
+    "date_fin": "2025-11-27T10:06:15.908270",
+    "analyse": {
+      "moyenne_synchronisation": 100.0,
+      "croissance_membres": 0.0,
+      "performance_moyenne": 0.0022075,
+      "nombre_points_donnees": 2
+    },
+    "anomalies": []
+  },
+  "recommandations_strategiques": [
+    "Croissance ralentie - \u00c9valuer la strat\u00e9gie d'acquisition",
+    "Maintenir la surveillance quotidienne",
+    "R\u00e9viser trimestriellement la strat\u00e9gie de donn\u00e9es",
+    "Planifier les \u00e9volutions d'infrastructure annuellement"
+  ]
+}

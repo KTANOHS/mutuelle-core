@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Créer un Groupe - Mutuelle App{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-plus me-2"></i>Créer un Nouveau Groupe</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <strong>Erreur!</strong> Veuillez corriger les erreurs ci-dessous.
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.nom.id_for_label }}" class="form-label">
+                            <strong>Nom du groupe *</strong>
+                        </label>
+                        {{ form.nom }}
+                        {% if form.nom.errors %}
+                        <div class="text-danger">{{ form.nom.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">
+                            <strong>Description</strong>
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                        <div class="text-danger">{{ form.description.errors }}</div>
+                        {% endif %}
+                        <div class="form-text">Décrivez l'objectif de ce groupe (optionnel).</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="{{ form.membres.id_for_label }}" class="form-label">
+                            <strong>Membres du groupe *</strong>
+                        </label>
+                        {{ form.membres }}
+                        {% if form.membres.errors %}
+                        <div class="text-danger">{{ form.membres.errors }}</div>
+                        {% endif %}
+                        <div class="form-text">
+                            Sélectionnez les membres à ajouter au groupe. 
+                            Vous serez automatiquement ajouté en tant que créateur.
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'communication:liste_groupes' %}" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-arrow-left me-1"></i>Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Créer le groupe
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-body">
+                <h6><i class="fas fa-info-circle me-2 text-info"></i>À propos des groupes</h6>
+                <ul class="mb-0">
+                    <li>Les groupes permettent une communication d'équipe efficace</li>
+                    <li>Tous les membres peuvent voir et envoyer des messages</li>
+                    <li>Les notifications sont envoyées à tous les membres</li>
+                    <li>Vous pouvez gérer les membres à tout moment</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

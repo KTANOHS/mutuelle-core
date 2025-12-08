@@ -1,0 +1,113 @@
+<!-- pharmacie_public/templates/pharmacie_public/base_pharmacie_public.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Pharmacies - Mutuelle Santé{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .pharmacy-card {
+            transition: transform 0.2s;
+            border-left: 4px solid #0d6efd;
+        }
+        .pharmacy-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .garde-badge {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+        .mutuelle-badge {
+            background: linear-gradient(45deg, #00b894, #00a085);
+            color: white;
+        }
+        .medicament-card {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+        }
+        .stock-low {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .stock-medium {
+            color: #f39c12;
+        }
+        .stock-high {
+            color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'pharmacie_public:liste_pharmacies' %}">
+                <i class="fas fa-clinic-medical"></i>
+                Pharmacies Mutuelle
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{% url 'pharmacie_public:liste_pharmacies' %}">
+                    <i class="fas fa-search"></i> Rechercher
+                </a>
+                <a class="nav-link" href="{% url 'pharmacie_public:pharmacies_garde' %}">
+                    <i class="fas fa-clock"></i> Pharmacies de Garde
+                </a>
+                <a class="nav-link" href="{% url 'pharmacie_public:inscription' %}">
+                    <i class="fas fa-user-plus"></i> Inscription Pharmacie
+                </a>
+                
+                {% if user.is_authenticated %}
+                    <a class="nav-link" href="{% url 'pharmacie_public:mes_commandes' %}">
+                        <i class="fas fa-shopping-cart"></i> Mes Commandes
+                    </a>
+                    <a class="nav-link" href="{% url 'logout' %}">
+                        <i class="fas fa-sign-out-alt"></i> Déconnexion
+                    </a>
+                {% else %}
+                    <a class="nav-link" href="{% url 'login' %}">
+                        <i class="fas fa-sign-in-alt"></i> Connexion
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    <div class="container mt-3">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Contenu principal -->
+    <main class="container my-4">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2024 Mutuelle Santé - Service Pharmacies</p>
+            <p class="text-muted">
+                <i class="fas fa-phone"></i> Assistance: 01 23 45 67 89 | 
+                <i class="fas fa-envelope"></i> pharmacie@mutuelle.com
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% block extra_js %}
+    {% endblock %}
+</body>
+</html>

@@ -1,0 +1,94 @@
+{% extends 'pharmacien/base_pharmacien.html' %}
+{% load static %}
+
+{% block title %}Importer Stock - Pharmacien{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 text-gray-800">
+                    <i class="fas fa-file-import text-success me-2"></i>
+                    Importer le Stock
+                </h1>
+                <a href="{% url 'pharmacien:stock' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour au stock
+                </a>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-xl-8 col-lg-10">
+                    <div class="card pharmacien-card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-file-csv me-2"></i>
+                                Importation depuis un fichier CSV
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Important :</strong> Le fichier CSV doit respecter le format suivant :
+                            </div>
+
+                            <div class="table-responsive mb-4">
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Nom Médicament</th>
+                                            <th>Code</th>
+                                            <th>Catégorie</th>
+                                            <th>Quantité Stock</th>
+                                            <th>Seuil Alerte</th>
+                                            <th>Prix Achat</th>
+                                            <th>Prix Vente</th>
+                                            <th>Date Péremption</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Paracétamol 500mg</td>
+                                            <td>3400935686487</td>
+                                            <td>ANALGESIQUE</td>
+                                            <td>100</td>
+                                            <td>20</td>
+                                            <td>5.50</td>
+                                            <td>7.50</td>
+                                            <td>31/12/2025</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <form id="importForm" method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                
+                                <div class="mb-3">
+                                    <label for="fichier_csv" class="form-label">
+                                        Fichier CSV <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="file" class="form-control" id="fichier_csv" 
+                                           name="fichier_csv" accept=".csv" required>
+                                    <div class="form-text">
+                                        Formats acceptés : CSV (séparateur: virgule)
+                                    </div>
+                                </div>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <a href="{% url 'pharmacien:stock' %}" class="btn btn-outline-secondary me-md-2">
+                                        <i class="fas fa-times me-2"></i>Annuler
+                                    </a>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-upload me-2"></i>Importer le fichier
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

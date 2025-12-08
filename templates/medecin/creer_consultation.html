@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Créer une Consultation{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">Créer une Consultation</h1>
+                <a href="{% url 'medecin:mes_rendez_vous' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour aux rendez-vous
+                </a>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" id="consultationForm">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="patient" class="form-label">Patient *</label>
+                                <select class="form-select" id="patient" name="patient" required>
+                                    <option value="">Sélectionner un patient</option>
+                                    {% for patient in patients %}
+                                        <option value="{{ patient.id }}">
+                                            {{ patient.user.get_full_name|default:patient.user.username }} 
+                                            {% if patient.numero_unique %}
+                                                - {{ patient.numero_unique }}
+                                            {% endif %}
+                                        </option>
+                                    {% empty %}
+                                        <option value="">Aucun patient disponible</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="type_consultation" class="form-label">Type de consultation *</label>
+                                <select class="form-select" id="type_consultation" name="type_consultation" required>
+                                    {% for value, label in types_consultation %}
+                                        <option value="{{ value }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="date_consultation" class="form-label">Date *</label>
+                                <input type="date" class="form-control" id="date_consultation" 
+                                       name="date_consultation" required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="heure_consultation" class="form-label">Heure *</label>
+                                <input type="time" class="form-control" id="heure_consultation" 
+                                       name="heure_consultation" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="motif" class="form-label">Motif de la consultation *</label>
+                            <textarea class="form-control" id="motif" name="motif" rows="3" 
+                                      placeholder="Décrivez le motif de la consultation..." required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notes supplémentaires</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                      placeholder="Notes médicales, observations..."></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Créer la consultation
+                            </button>
+                            <a href="{% url 'medecin:mes_rendez_vous' %}" class="btn btn-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Définir la date d'aujourd'hui comme valeur par défaut
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('date_consultation');
+    if (dateInput && !dateInput.value) {
+        dateInput.value = today;
+    }
+    
+    // Définir l'heure par défaut
+    const timeInput = document.getElementById('heure_consultation');
+    if (timeInput && !timeInput.value) {
+        timeInput.value = '09:00';
+    }
+});
+</script>
+{% endblock %}

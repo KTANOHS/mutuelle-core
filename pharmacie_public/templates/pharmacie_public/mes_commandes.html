@@ -1,0 +1,72 @@
+<!-- pharmacie_public/templates/pharmacie_public/mes_commandes.html -->
+{% extends 'pharmacie_public/base_pharmacie_public.html' %}
+
+{% block title %}Mes Commandes - Mutuelle Santé{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1><i class="fas fa-shopping-cart"></i> Mes Commandes</h1>
+        <p class="text-muted">Historique de vos commandes de médicaments</p>
+
+        {% if commandes %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>N° Commande</th>
+                        <th>Pharmacie</th>
+                        <th>Date</th>
+                        <th>Montant</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for commande in commandes %}
+                    <tr>
+                        <td>
+                            <strong>{{ commande.numero_commande }}</strong>
+                        </td>
+                        <td>{{ commande.pharmacie.nom_pharmacie }}</td>
+                        <td>{{ commande.date_commande|date:"d/m/Y H:i" }}</td>
+                        <td>{{ commande.montant_total }} €</td>
+                        <td>
+                            {% if commande.statut == 'en_attente' %}
+                                <span class="badge bg-warning text-dark">En attente</span>
+                            {% elif commande.statut == 'confirmee' %}
+                                <span class="badge bg-info">Confirmée</span>
+                            {% elif commande.statut == 'en_preparation' %}
+                                <span class="badge bg-primary">En préparation</span>
+                            {% elif commande.statut == 'pret' %}
+                                <span class="badge bg-success">Prête</span>
+                            {% elif commande.statut == 'retiree' %}
+                                <span class="badge bg-secondary">Retirée</span>
+                            {% elif commande.statut == 'annulee' %}
+                                <span class="badge bg-danger">Annulée</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'pharmacie_public:detail_commande' commande.id %}" 
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i> Détails
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+            <h3 class="text-muted">Aucune commande</h3>
+            <p class="text-muted">Vous n'avez pas encore passé de commande.</p>
+            <a href="{% url 'pharmacie_public:liste_pharmacies' %}" class="btn btn-primary">
+                <i class="fas fa-search"></i> Trouver une pharmacie
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

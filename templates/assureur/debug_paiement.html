@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Débogage Paiement</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .form-field { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; }
+        .error { color: red; }
+        .debug { background: #f0f0f0; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Débogage Formulaire Paiement</h1>
+    
+    <div class="debug">
+        <h3>Informations sur le formulaire</h3>
+        <p><strong>Mode paiement - Choix disponibles:</strong></p>
+        <ul>
+            {% for value, label in form.fields.mode_paiement.choices %}
+            <li>'{{ value }}' = '{{ label }}'</li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        {% for field in form %}
+        <div class="form-field">
+            <label>{{ field.label }}:</label>
+            {{ field }}
+            {% if field.errors %}
+            <div class="error">{{ field.errors }}</div>
+            {% endif %}
+            {% if field.help_text %}
+            <small>{{ field.help_text }}</small>
+            {% endif %}
+        </div>
+        {% endfor %}
+        
+        <button type="submit">Tester</button>
+    </form>
+    
+    {% if request.method == 'POST' %}
+    <div class="debug">
+        <h3>Résultat POST</h3>
+        <p><strong>Formulaire valide:</strong> {{ form.is_valid }}</p>
+        {% if form.errors %}
+        <p><strong>Erreurs:</strong></p>
+        <ul>
+            {% for field, errors in form.errors.items %}
+            <li>{{ field }}: {{ errors }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+    {% endif %}
+</body>
+</html>

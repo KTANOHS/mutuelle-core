@@ -1,0 +1,858 @@
+<!-- templates/base.html - VERSION COMPLÈTE AVEC AGENTS ET LOGO REDIMENSIONNÉ -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MaSante Directe - Votre santé, notre priorité">
+    <meta name="keywords" content="mutuelle, santé, assurance, médecine, pharmacie, massante">
+    <title>{% block title %}MaSante Direct - Votre santé, notre priorité{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles personnalisés pour le logo -->
+    <style>
+        :root {
+            --primary-color: #2c5aa0;
+            --secondary-color: #34c759;
+            --accent-color: #ff6b35;
+            --dark-color: #1a1a1a;
+            --light-color: #f8f9fa;
+            --gradient-primary: linear-gradient(135deg, #2c5aa0, #1e3a8a);
+            --gradient-success: linear-gradient(135deg, #34c759, #28a745);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.15);
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ===== LOGO REDIMENSIONNÉ ===== */
+        .logo-massante {
+            max-width: 120px;           /* Taille réduite */
+            height: auto;               /* Maintient les proportions */
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        /* Container ajusté */
+        .navbar-logo-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;                   /* Espace réduit */
+        }
+
+        /* Texte de marque ajusté */
+        .brand-text {
+            font-weight: 700;
+            font-size: 1.1rem;          /* Texte plus petit */
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: var(--transition);
+        }
+
+        .brand-text:hover {
+            transform: translateY(-1px);
+        }
+
+        /* Footer logo aussi */
+        .footer-logo {
+            max-width: 100px;           /* Plus petit dans le footer */
+            margin-bottom: 10px;
+        }
+
+        /* Logo login page */
+        .login-logo {
+            max-width: 100px;           /* Réduit sur la page login */
+            margin: 0 auto 15px;
+            display: block;
+        }
+
+        /* Animations adaptées à la nouvelle taille */
+        .logo-massante:hover {
+            transform: scale(1.05) rotate(1deg);  /* Effet réduit */
+            filter: brightness(1.1) drop-shadow(0 5px 12px rgba(44, 90, 160, 0.3));
+        }
+
+        @keyframes gentlePulse {
+            0%, 100% { 
+                transform: scale(1);
+                filter: brightness(1) drop-shadow(0 1px 4px rgba(0,0,0,0.1));
+            }
+            50% { 
+                transform: scale(1.02);  /* Pulsation plus subtile */
+                filter: brightness(1.03) drop-shadow(0 2px 6px rgba(44, 90, 160, 0.15));
+            }
+        }
+
+        /* Styles de base */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            position: relative;
+            transition: var(--transition);
+            border-radius: 8px;
+            margin: 0 2px;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--secondary-color);
+            transition: var(--transition);
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after {
+            width: 80%;
+        }
+
+        .btn-primary-custom {
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-success-custom {
+            background: var(--gradient-success);
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-success-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .dropdown-menu {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            padding: 0.5rem;
+            min-width: 220px;
+        }
+
+        .dropdown-item {
+            border-radius: 8px;
+            margin: 2px 0;
+            padding: 0.75rem 1rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .dropdown-item:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-right: 0.5rem;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        footer {
+            margin-top: auto;
+            background: var(--dark-color) !important;
+        }
+
+        .footer-links a {
+            color: #adb5bd;
+            text-decoration: none;
+            transition: var(--transition);
+            margin: 0 0.5rem;
+        }
+
+        .footer-links a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .social-links a {
+            color: #adb5bd;
+            font-size: 1.25rem;
+            margin: 0 0.5rem;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        /* Loading animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive improvements */
+        @media (max-width: 768px) {
+            .navbar-nav .btn {
+                margin: 0.25rem 0;
+            }
+            
+            .dropdown-menu {
+                margin-top: 0.5rem;
+            }
+
+            .logo-massante {
+                max-width: 90px;        /* Encore plus petit sur mobile */
+            }
+            
+            .brand-text {
+                font-size: 1rem;        /* Texte plus petit sur mobile */
+            }
+            
+            .navbar-logo-container {
+                gap: 5px;               /* Espace minimal sur mobile */
+            }
+        }
+
+        /* Accessibility improvements */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Focus styles for accessibility */
+        .nav-link:focus,
+        .btn:focus,
+        .dropdown-item:focus {
+            outline: 2px solid var(--secondary-color);
+            outline-offset: 2px;
+        }
+
+        /* Badge styles for roles - AVEC AGENTS */
+        .role-badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+        }
+        
+        .role-assureur {
+            background: linear-gradient(135deg, #2c5aa0, #1e3a8a);
+            color: white;
+        }
+        
+        .role-medecin {
+            background: linear-gradient(135deg, #34c759, #28a745);
+            color: white;
+        }
+        
+        .role-pharmacien {
+            background: linear-gradient(135deg, #ff6b35, #e5533c);
+            color: white;
+        }
+        
+        .role-membre {
+            background: linear-gradient(135deg, #6f42c1, #5a32a3);
+            color: white;
+        }
+        
+        .role-agent {
+            background: linear-gradient(135deg, #17a2b8, #138496);  /* Bleu cyan pour agents */
+            color: white;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <!-- Brand avec Logo MaSante Directe REDIMENSIONNÉ -->
+            <div class="navbar-logo-container">
+                <a class="navbar-brand" href="{% url 'home' %}">
+                    <img src="{% static 'mutuelle_core/images/logo.jpg' %}" 
+                         alt="MaSante Directe" 
+                         class="logo-massante">
+                </a>
+                <span class="brand-text d-none d-lg-block">MaSante Directe</span>
+            </div>
+            
+            <!-- Mobile toggle -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <!-- Navigation content -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- Left navigation -->
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}#services">
+                            <i class="fas fa-concierge-bell me-1"></i>Services
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}#tarifs">
+                            <i class="fas fa-tags me-1"></i>Tarifs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}#contact">
+                            <i class="fas fa-envelope me-1"></i>Contact
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}#faq">
+                            <i class="fas fa-question-circle me-1"></i>Aide
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <!-- Right navigation -->
+                <ul class="navbar-nav align-items-center">
+                    {% if user.is_authenticated %}
+                        <!-- Debug info (visible seulement en développement) -->
+                        {% if debug %}
+                        <li class="nav-item me-2">
+                            <span class="badge bg-warning text-dark">
+                                Debug: {{ user.groups.all.0.name|default:"Aucun groupe" }}
+                            </span>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- Notifications -->
+                        <li class="nav-item me-2">
+                            <a class="nav-link position-relative" href="#" title="Notifications">
+                                <i class="fas fa-bell"></i>
+                                <span class="notification-badge">3</span>
+                                <span class="sr-only">Notifications</span>
+                            </a>
+                        </li>
+                        
+                        <!-- User dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" 
+                               id="navbarDropdown" role="button" data-bs-toggle="dropdown" 
+                               aria-expanded="false">
+                                <div class="user-avatar">
+                                    {{ user.username|first|upper }}
+                                </div>
+                                <span class="d-none d-md-inline">{{ user.username }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <!-- User info -->
+                                <li class="dropdown-header">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-avatar me-2">
+                                            {{ user.username|first|upper }}
+                                        </div>
+                                        <div>
+                                            <strong>{{ user.username }}</strong>
+                                            <div class="small">
+                                                {% if user.groups.all %}
+                                                    <span class="badge 
+                                                        {% if user.groups.all.0.name == 'Assureur' %}role-assureur
+                                                        {% elif user.groups.all.0.name == 'Medecin' %}role-medecin
+                                                        {% elif user.groups.all.0.name == 'Pharmacien' %}role-pharmacien
+                                                        {% elif user.groups.all.0.name == 'Membre' %}role-membre
+                                                        {% elif user.groups.all.0.name == 'Agents' %}role-agent
+                                                        {% else %}bg-secondary{% endif %} role-badge">
+                                                        {{ user.groups.all.0.name }}
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary role-badge">Membre</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                
+                                <!-- Dashboard links - AVEC AGENTS -->
+                                {% if user.groups.all.0.name == 'Assureur' %}
+                                    <!-- Assureur -->
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'assureur:dashboard' %}">
+                                            <i class="fas fa-tachometer-alt me-2 text-primary"></i>Tableau de bord Assureur
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'assureur:liste_bons' %}">
+                                            <i class="fas fa-file-medical me-2 text-success"></i>Bons de soin
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'assureur:liste_paiements' %}">
+                                            <i class="fas fa-money-bill-wave me-2 text-info"></i>Paiements
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'assureur:recherche_membre' %}">
+                                            <i class="fas fa-search me-2 text-warning"></i>Recherche membres
+                                        </a>
+                                    </li>
+                                
+                                {% elif user.groups.all.0.name == 'Medecin' %}
+                                    <!-- Médecin -->
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'medecin:dashboard' %}">
+                                            <i class="fas fa-stethoscope me-2 text-primary"></i>Tableau de bord Médecin
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'medecin:liste_bons' %}">
+                                            <i class="fas fa-file-medical me-2 text-success"></i>Mes ordonnances
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'medecin:liste_bons' %}">
+                                            <i class="fas fa-clock me-2 text-warning"></i>Bons en attente
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'medecin:mes_rendez_vous' %}">
+                                            <i class="fas fa-calendar-alt me-2 text-info"></i>Mes rendez-vous
+                                        </a>
+                                    </li>
+                                
+                                {% elif user.groups.all.0.name == 'Pharmacien' %}
+                                    <!-- Pharmacien -->
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'pharmacien:dashboard' %}">
+                                            <i class="fas fa-prescription-bottle me-2 text-primary"></i>Tableau de bord Pharmacien
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'pharmacien:liste_ordonnances_attente' %}">
+                                            <i class="fas fa-prescription me-2 text-success"></i>Ordonnances
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'pharmacien:validation_ordonnances' %}">
+                                            <i class="fas fa-check-circle me-2 text-info"></i>Validation
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'pharmacien:historique_validation' %}">
+                                            <i class="fas fa-history me-2 text-warning"></i>Historique
+                                        </a>
+                                    </li>
+
+                                {% elif user.groups.all.0.name == 'Agents' %}
+                                    <!-- ⭐⭐⭐ AGENT ⭐⭐⭐ -->
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'agents:dashboard' %}">
+                                            <i class="fas fa-user-md me-2 text-primary"></i>Tableau de bord Agent
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'agents:liste_membres' %}">
+                                            <i class="fas fa-users me-2 text-success"></i>Liste des membres
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'agents:creer_bon_soin' %}">
+                                            <i class="fas fa-file-medical me-2 text-info"></i>Créer bon de soin
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'agents:historique_bons' %}">
+                                            <i class="fas fa-history me-2 text-warning"></i>Historique des bons
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'agents:notifications' %}">
+                                            <i class="fas fa-bell me-2 text-secondary"></i>Notifications
+                                        </a>
+                                    </li>
+                                
+                                {% elif user.groups.all.0.name == 'Membre' %}
+                                    <!-- Membre -->
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'membres:dashboard' %}">
+                                            <i class="fas fa-tachometer-alt me-2 text-primary"></i>Tableau de bord Membre
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'membres:mes_paiements' %}">
+                                            <i class="fas fa-money-bill-wave me-2 text-success"></i>Mes paiements
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'membres:solde_remboursements' %}">
+                                            <i class="fas fa-wallet me-2 text-info"></i>Solde & Remboursements
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#">
+                                            <i class="fas fa-file-medical me-2 text-warning"></i>Mes documents
+                                        </a>
+                                    </li>
+                                
+                                {% else %}
+                                    <!-- Utilisateur sans groupe spécifique -->
+                                    <li>
+                                        <a class="dropdown-item" href="#">
+                                            <i class="fas fa-tachometer-alt me-2 text-primary"></i>Tableau de bord
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#">
+                                            <i class="fas fa-user me-2 text-success"></i>Mon profil
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                
+                                <li><hr class="dropdown-divider"></li>
+                                
+                                <!-- Common user links -->
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-user-cog me-2 text-secondary"></i>Mon profil
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-shield-alt me-2 text-info"></i>Sécurité
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-question-circle me-2 text-warning"></i>Aide & Support
+                                    </a>
+                                </li>
+                                
+                                <li><hr class="dropdown-divider"></li>
+                                
+                                <!-- Déconnexion -->
+                                <li>
+                                    <form method="post" action="{% url 'logout' %}" class="d-inline w-100">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item border-0 bg-transparent w-100 text-start">
+                                            <i class="fas fa-sign-out-alt me-2 text-danger"></i> Déconnexion
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <!-- Guest user links -->
+                        <li class="nav-item me-2">
+                            <a class="nav-link" href="{% url 'login' %}">
+                                <i class="fas fa-sign-in-alt me-1"></i>Connexion
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'inscription:inscription' %}" class="btn btn-success-custom">
+                                <i class="fas fa-user-plus me-1"></i>Devenir Membre
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="flex-grow-1">
+        {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas 
+                        {% if message.tags == 'success' %}fa-check-circle
+                        {% elif message.tags == 'error' or message.tags == 'danger' %}fa-exclamation-triangle
+                        {% elif message.tags == 'warning' %}fa-exclamation-circle
+                        {% else %}fa-info-circle
+                        {% endif %} me-2"></i>
+                    <div class="flex-grow-1">{{ message }}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}
+        <!-- Le contenu spécifique à chaque page viendra ici -->
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-5 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <img src="{% static 'mutuelle_core/images/logo.jpg' %}" 
+                         alt="MaSante Direct" 
+                         class="footer-logo">
+                    <p class="text-muted mt-3">
+                        Votre partenaire santé de confiance. Nous vous accompagnons dans tous vos soins médicaux avec une couverture optimale.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="mb-3">Services</h6>
+                    <div class="footer-links">
+                        <a href="{% url 'home' %}#services">Soins médicaux</a><br>
+                        <a href="{% url 'home' %}#services">Chirurgie</a><br>
+                        <a href="{% url 'home' %}#services">Pharmacie</a><br>
+                        <a href="{% url 'home' %}#services">Urgences</a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="mb-3">Entreprise</h6>
+                    <div class="footer-links">
+                        <a href="{% url 'home' %}#about">À propos</a><br>
+                        <a href="{% url 'home' %}#contact">Contact</a><br>
+                        <a href="#">Carrières</a><br>
+                        <a href="#">Presse</a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="mb-3">Légal</h6>
+                    <div class="footer-links">
+                        <a href="#">Mentions légales</a><br>
+                        <a href="#">Confidentialité</a><br>
+                        <a href="#">CGU</a><br>
+                        <a href="#">Cookies</a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="mb-3">Support</h6>
+                    <div class="footer-links">
+                        <a href="{% url 'home' %}#faq">FAQ</a><br>
+                        <a href="#">Centre d'aide</a><br>
+                        <a href="#">Contact urgent</a><br>
+                        <a href="#">État des services</a>
+                    </div>
+                </div>
+            </div>
+            
+            <hr class="my-4 bg-secondary">
+            
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">&copy; 2025 MaSante Directe. Tous droits réservés.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <p class="mb-0 text-muted">
+                        <i class="fas fa-shield-alt me-1 text-success"></i>
+                        Site sécurisé - Vos données sont protégées
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        // Gestion des alertes automatiques
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fermer automatiquement les alertes après 5 secondes
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    if (alert.parentNode) {
+                        const bsAlert = new bootstrap.Alert(alert);
+                        bsAlert.close();
+                    }
+                }, 5000);
+            });
+
+            // Amélioration de l'accessibilité du dropdown
+            const dropdowns = document.querySelectorAll('.dropdown');
+            dropdowns.forEach(dropdown => {
+                dropdown.addEventListener('show.bs.dropdown', function () {
+                    this.querySelector('.dropdown-toggle').setAttribute('aria-expanded', 'true');
+                });
+                dropdown.addEventListener('hide.bs.dropdown', function () {
+                    this.querySelector('.dropdown-toggle').setAttribute('aria-expanded', 'false');
+                });
+            });
+
+            // Gestion du thème (optionnel)
+            const themeToggle = document.createElement('button');
+            themeToggle.className = 'btn btn-sm btn-outline-secondary position-fixed bottom-0 end-0 m-3';
+            themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            themeToggle.style.zIndex = '1000';
+            themeToggle.title = 'Changer le thème';
+            
+            themeToggle.addEventListener('click', function() {
+                const html = document.documentElement;
+                const currentTheme = html.getAttribute('data-bs-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                html.setAttribute('data-bs-theme', newTheme);
+                this.innerHTML = newTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+                localStorage.setItem('theme', newTheme);
+            });
+            
+            // Appliquer le thème sauvegardé
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-bs-theme', savedTheme);
+            themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            
+            document.body.appendChild(themeToggle);
+        });
+
+        // Gestion des états de chargement
+        function setLoadingState(button, loading) {
+            if (loading) {
+                button.disabled = true;
+                const originalText = button.innerHTML;
+                button.setAttribute('data-original-text', originalText);
+                button.innerHTML = '<span class="loading-spinner me-2"></span>Chargement...';
+            } else {
+                button.disabled = false;
+                const originalText = button.getAttribute('data-original-text');
+                if (originalText) {
+                    button.innerHTML = originalText;
+                }
+            }
+        }
+
+        // Debug: Afficher les informations utilisateur dans la console
+        console.log('Utilisateur connecté:', '{{ user.username }}');
+        console.log('Groupes:', '{{ user.groups.all|join:", " }}');
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+
+<!-- Patch pour bouton Nouveau Message -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Corriger tous les boutons Nouveau Message avec des URLs incorrectes
+    const buttons = document.querySelectorAll('a[href*="nouveau"], button');
+    buttons.forEach(btn => {
+        if (btn.textContent.includes('Nouveau') && btn.textContent.includes('message')) {
+            // Si c'est un lien avec une mauvaise URL
+            if (btn.tagName === 'A' && btn.href && btn.href.includes('undefined')) {
+                btn.href = "{% url "communication:message_create" %}";
+            }
+            
+            // Ajouter un gestionnaire de clic de secours
+            btn.addEventListener('click', function(e) {
+                console.log('Bouton nouveau message cliqué - Fallback activé');
+                
+                // Si c'est un lien qui ne fonctionne pas
+                if (btn.tagName === 'A' && (!btn.href || btn.href.includes('undefined'))) {
+                    e.preventDefault();
+                    window.location.href = "{% url "communication:message_create" %}";
+                }
+            });
+            
+            // Style visuel pour confirmation
+            btn.style.cursor = 'pointer';
+            console.log('Bouton patché:', btn);
+        }
+    });
+    
+    // Fallback global
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.btn') && e.target.closest('.btn').textContent.includes('Nouveau message')) {
+            console.log('Clic sur bouton nouveau message détecté');
+        }
+    });
+});
+</script>
+
+    <!-- Intégration Messagerie -->
+    <script src="{% static 'js/messagerie-integration.js'  %}"></script>
+
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Agents - Mutuelle{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .sidebar .nav-link {
+            color: #fff;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .main-content {
+            background-color: #f8f9fa;
+        }
+        .statut-badge {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        .statut-en_attente { background-color: #ffc107; color: #000; }
+        .statut-valide { background-color: #198754; color: #fff; }
+        .statut-rejete { background-color: #dc3545; color: #fff; }
+        .statut-utilise { background-color: #0d6efd; color: #fff; }
+        .statut-expire { background-color: #6c757d; color: #fff; }
+        .statut-annule { background-color: #000; color: #fff; }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-0">
+                <div class="p-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white mb-1">
+                            {% if request.user.get_full_name %}
+                                {{ request.user.get_full_name }}
+                            {% else %}
+                                {{ request.user.username }}
+                            {% endif %}
+                        </h4>
+                        <small class="text-light">Agent</small>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <!-- ✅ CORRIGÉ : Utilisation du bon nom d'URL -->
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" 
+                               href="{% url 'agents:dashboard' %}">
+                                <i class="fas fa-tachometer-alt me-2"></i>Tableau de bord
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'verification_cotisations' %}active{% endif %}" 
+                               href="{% url 'agents:verification_cotisations' %}">
+                                <i class="fas fa-check-circle me-2"></i>Vérification cotisations
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'creer_membre' %}active{% endif %}" 
+                               href="{% url 'agents:creer_membre' %}">
+                                <i class="fas fa-user-plus me-2"></i>Créer membre
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'creer_bon_soin' %}active{% endif %}" 
+                               href="{% url 'agents:creer_bon_soin' %}">
+                                <i class="fas fa-file-medical me-2"></i>Créer bon de soin
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'rechercher_membre' %}active{% endif %}" 
+                               href="{% url 'agents:rechercher_membre' %}">
+                                <i class="fas fa-search me-2"></i>Rechercher membre
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Main content -->
+            <div class="col-md-9 col-lg-10 main-content">
+                <!-- Header -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+                    <div class="container-fluid">
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#navbarSupportedContent">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" 
+                                       role="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-user-circle me-1"></i>
+                                        {{ request.user.username }}
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item" href="#">
+                                            <i class="fas fa-cog me-2"></i>Paramètres
+                                        </a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                                                <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+                
+                <!-- Page content -->
+                <main class="p-4">
+                    <!-- Page title -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="h4 mb-0">
+                            <i class="fas fa-{% block page_icon %}home{% endblock %} me-2"></i>
+                            {% block page_title %}Tableau de bord{% endblock %}
+                        </h2>
+                    </div>
+                    
+                    <!-- Messages -->
+                    {% if messages %}
+                    <div class="messages mb-4">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Main content block -->
+                    {% block content %}
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Bienvenue, agent !</h5>
+                                    <p class="card-text">Utilisez le menu de gauche pour naviguer.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endblock %}
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

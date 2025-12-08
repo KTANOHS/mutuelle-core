@@ -1,0 +1,41 @@
+<!-- Sidebar pour les membres -->
+<nav class="sidebar">
+    <div class="sidebar-header">
+        <h5>Espace Membre</h5>
+    </div>
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'membres_dashboard' %}">
+                
+            <!-- Lien Messagerie Membre -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'communication:messagerie_membre' %}">
+                    <i class="fas fa-envelope me-2"></i>
+                    <span>Messagerie</span>
+                    <span class="badge bg-primary rounded-pill ms-2" id="notification-badge">0</span>
+                </a>
+            </li>
+            <i class="fas fa-tachometer-alt"></i>
+                Tableau de Bord
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'mes_paiements' %}">
+                <i class="fas fa-receipt"></i>
+                Mes Paiements
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'mes_ordonnances' %}">
+                <i class="fas fa-file-prescription"></i>
+                Mes Ordonnances
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'solde_remboursements' %}">
+                <i class="fas fa-money-bill-wave"></i>
+                Solde & Remboursements
+            </a>
+        </li>
+    </ul>
+</nav>

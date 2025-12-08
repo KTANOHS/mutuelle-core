@@ -1,0 +1,119 @@
+{% extends 'agents/base_agent.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8">
+            <h2>📎 Documents - {{ membre.prenom }} {{ membre.nom }}</h2>
+            <p class="text-muted">Numéro: <strong>{{ membre.numero_unique }}</strong></p>
+            
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">{{ form.piece_identite_recto.label }}</label>
+                                    {{ form.piece_identite_recto }}
+                                    {% if form.piece_identite_recto.help_text %}
+                                    <div class="form-text">{{ form.piece_identite_recto.help_text }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if membre.piece_identite_recto %}
+                                <div class="mb-2">
+                                    <small class="text-success">✅ Fichier actuel : {{ membre.piece_identite_recto.name }}</small>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">{{ form.piece_identite_verso.label }}</label>
+                                    {{ form.piece_identite_verso }}
+                                    {% if form.piece_identite_verso.help_text %}
+                                    <div class="form-text">{{ form.piece_identite_verso.help_text }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if membre.piece_identite_verso %}
+                                <div class="mb-2">
+                                    <small class="text-success">✅ Fichier actuel : {{ membre.piece_identite_verso.name }}</small>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">{{ form.photo_identite.label }}</label>
+                                    {{ form.photo_identite }}
+                                    {% if form.photo_identite.help_text %}
+                                    <div class="form-text">{{ form.photo_identite.help_text }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if membre.photo_identite %}
+                                <div class="mb-2">
+                                    <small class="text-success">✅ Photo actuelle : {{ membre.photo_identite.name }}</small>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-success">
+                                💾 Enregistrer les documents
+                            </button>
+                            <a href="{% url 'membres:liste_membres_agent' %}" class="btn btn-secondary">
+                                Retour à la liste
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h6>📋 Informations du membre</h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>Nom :</strong> {{ membre.nom }}</p>
+                    <p><strong>Prénom :</strong> {{ membre.prenom }}</p>
+                    <p><strong>Numéro unique :</strong> {{ membre.numero_unique }}</p>
+                    <p><strong>Téléphone :</strong> {{ membre.telephone|default:"-" }}</p>
+                    <p><strong>Catégorie :</strong> {{ membre.categorie }}</p>
+                    <p><strong>Statut documents :</strong> 
+                        <span class="badge bg-{% if membre.statut_documents == 'valide' %}success{% elif membre.statut_documents == 'rejete' %}danger{% else %}warning{% endif %}">
+                            {{ membre.statut_documents|title }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header bg-warning">
+                    <h6>💡 Instructions</h6>
+                </div>
+                <div class="card-body">
+                    <small>
+                        <strong>Formats acceptés :</strong><br>
+                        • Images: JPG, PNG, PDF<br>
+                        • Taille max: 5MB par fichier<br>
+                        • Photo: Portrait récent<br><br>
+                        
+                        <strong>Pièce d'identité :</strong><br>
+                        • Recto et verso obligatoires<br>
+                        • Photo claire et lisible
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

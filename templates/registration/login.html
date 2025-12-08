@@ -1,0 +1,848 @@
+<!-- templates/registration/login.html - VERSION AMÉLIORÉE AVEC EFFETS COHÉRENTS - CORRIGÉ -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Connexion - MaSanté Directe {% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --accent-color: #ff4b5c;
+        --shadow-light: 0 2px 10px rgba(0,0,0,0.05);
+        --shadow-medium: 0 5px 20px rgba(0,0,0,0.1);
+        --shadow-heavy: 0 15px 35px rgba(0,0,0,0.15);
+        --border-radius: 20px;
+        --transition: all 0.3s ease;
+    }
+
+    .login-container {
+        min-height: 100vh;
+        background: var(--primary-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .login-container::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.2), transparent 60%);
+        animation: rotate 15s linear infinite;
+    }
+
+    @keyframes rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .login-card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-heavy);
+        overflow: hidden;
+        max-width: 450px;
+        width: 100%;
+        transition: var(--transition);
+        position: relative;
+        z-index: 2;
+    }
+
+    .login-card:hover {
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        transform: translateY(-5px);
+    }
+
+    .login-header {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 2.5rem 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .logo-container {
+        margin-bottom: 1.5rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .logo-icon {
+        background: white;
+        border-radius: 50%;
+        width: 90px;
+        height: 90px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        box-shadow: var(--shadow-light);
+        transition: var(--transition);
+        animation: heartbeat 1.5s infinite;
+    }
+
+    @keyframes heartbeat {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
+    .logo-icon:hover {
+        transform: scale(1.1);
+    }
+
+    .logo-text {
+        font-size: 2rem;
+        font-weight: 800;
+        color: white;
+        margin-bottom: 0.25rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .logo-subtitle {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        font-weight: 300;
+    }
+
+    .login-body {
+        padding: 2.5rem;
+    }
+
+    .form-floating {
+        margin-bottom: 1.25rem;
+        position: relative;
+    }
+
+    .form-control {
+        border-radius: 12px;
+        padding: 1rem 0.75rem;
+        border: 2px solid #e9ecef;
+        transition: var(--transition);
+        font-size: 1rem;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .form-control.is-valid {
+        border-color: #28a745;
+    }
+
+    .form-control.is-invalid {
+        border-color: #dc3545;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #6c757d;
+        cursor: pointer;
+        z-index: 5;
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: var(--transition);
+    }
+
+    .password-toggle:hover {
+        background: #f8f9fa;
+        color: #495057;
+    }
+
+    .btn-login {
+        background: var(--accent-color);
+        border: none;
+        padding: 1rem;
+        font-weight: 600;
+        border-radius: 30px;
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+        font-size: 1.1rem;
+        color: white;
+        box-shadow: 0 0 15px rgba(255,75,92,0.4);
+    }
+
+    .btn-login::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn-login:hover::before {
+        left: 100%;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 25px rgba(255,75,92,0.6);
+    }
+
+    .btn-register {
+        background: white;
+        color: #667eea;
+        border: 2px solid #667eea;
+        padding: 1rem;
+        font-weight: 600;
+        border-radius: 30px;
+        transition: var(--transition);
+        font-size: 1.1rem;
+    }
+
+    .btn-register:hover {
+        background: #667eea;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-medium);
+    }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        margin: 1.5rem 0;
+        color: #6c757d;
+    }
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .divider::before {
+        margin-right: 1rem;
+    }
+
+    .divider::after {
+        margin-left: 1rem;
+    }
+
+    .feature-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .feature-list li {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        display: flex;
+        align-items: center;
+        transition: var(--transition);
+    }
+
+    .feature-list li:hover {
+        transform: translateX(5px);
+    }
+
+    .testimonial-card {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+        border: 1px solid rgba(255,255,255,0.2);
+        transition: var(--transition);
+    }
+
+    .testimonial-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin: 1.5rem 0;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 1rem;
+        background: rgba(255,255,255,0.1);
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.2);
+        transition: var(--transition);
+    }
+
+    .stat-item:hover {
+        transform: scale(1.05);
+        background: rgba(255,255,255,0.15);
+    }
+
+    .security-badge {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(255,255,255,0.1);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.2);
+        transition: var(--transition);
+    }
+
+    .security-badge:hover {
+        background: rgba(255,255,255,0.15);
+        transform: translateY(-2px);
+    }
+
+    /* Animation pour les alertes */
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .alert {
+        animation: slideIn 0.3s ease-out;
+        border-radius: 10px;
+    }
+
+    /* Loading animation */
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
+    .loading {
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .benefits-tags {
+        margin-top: 1rem;
+    }
+
+    .benefit-tag {
+        display: inline-block;
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        margin: 0.2rem;
+        border: 1px solid rgba(102, 126, 234, 0.2);
+    }
+
+    @media (max-width: 768px) {
+        .login-container {
+            padding: 1rem;
+        }
+        
+        .login-body {
+            padding: 2rem 1.5rem;
+        }
+        
+        .logo-text {
+            font-size: 1.6rem;
+        }
+
+        .login-card:hover {
+            transform: none;
+        }
+        
+        .info-section {
+            margin-top: 2rem;
+        }
+    }
+
+    /* Amélioration de l'accessibilité */
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+    
+    /* Section d'information */
+    .info-section {
+        color: white;
+        padding: 2rem;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .info-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+    
+    .feature-icon {
+        font-size: 1.5rem;
+        margin-right: 0.75rem;
+        width: 30px;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="container">
+        <div class="row justify-content-center align-items-center">
+            <!-- Carte de connexion -->
+            <div class="col-lg-5 col-md-8">
+                <div class="login-card">
+                    <div class="login-header">
+                        <div class="logo-container">
+                            <div class="logo-icon">
+                                <i class="fas fa-heartbeat fa-2x" style="color: #ff4b5c;"></i>
+                            </div>
+                            <div class="logo-text">MaSanté Directe<span style="color: #ff4b5c;">+</span></div>
+                            <div class="logo-subtitle">Votre santé, notre priorité</div>
+                        </div>
+                    </div>
+                    
+                    <div class="login-body">
+                        <!-- Messages système -->
+                        {% if messages %}
+                        <div class="messages mb-4">
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show d-flex align-items-center">
+                                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-triangle{% endif %} me-2"></i>
+                                <div class="flex-grow-1">{{ message }}</div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Erreurs de formulaire -->
+                        {% if form.errors %}
+                        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <div class="flex-grow-1">
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        {{ error }}<br>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+                        </div>
+                        {% endif %}
+
+                        <form method="post" id="loginForm" novalidate>
+                            {% csrf_token %}
+                            
+                            <!-- ✅✅✅ CORRECTION CRITIQUE APPLIQUÉE ✅✅✅ -->
+                            <input type="hidden" name="next" value="{{ next|default:'/redirect-after-login/' }}">
+                            
+                            <!-- Champ Nom d'utilisateur -->
+                            <div class="form-floating">
+                                <input type="text" 
+                                       class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
+                                       id="id_username" 
+                                       name="username" 
+                                       placeholder="Nom d'utilisateur ou email"
+                                       value="{{ form.username.value|default:'' }}"
+                                       required
+                                       autocomplete="username"
+                                       aria-describedby="usernameHelp">
+                                <label for="id_username">
+                                    <i class="fas fa-user me-2"></i>Nom d'utilisateur ou email
+                                </label>
+                                {% if form.username.errors %}
+                                <div class="invalid-feedback d-block" id="usernameError">
+                                    {{ form.username.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Champ Mot de passe -->
+                            <div class="form-floating">
+                                <input type="password" 
+                                       class="form-control {% if form.password.errors %}is-invalid{% endif %}" 
+                                       id="id_password" 
+                                       name="password" 
+                                       placeholder="Mot de passe"
+                                       required
+                                       autocomplete="current-password"
+                                       aria-describedby="passwordHelp">
+                                <label for="id_password">
+                                    <i class="fas fa-lock me-2"></i>Mot de passe
+                                </label>
+                                <button type="button" class="password-toggle" id="passwordToggle" aria-label="Afficher le mot de passe" aria-describedby="passwordHelp">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                {% if form.password.errors %}
+                                <div class="invalid-feedback d-block" id="passwordError">
+                                    {{ form.password.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Options supplémentaires -->
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="remember_me" name="remember_me">
+                                    <label class="form-check-label small" for="remember_me">
+                                        Se souvenir de moi
+                                    </label>
+                                </div>
+                                <a href="{% url 'password_reset' %}" class="small text-primary text-decoration-none">
+                                    Mot de passe oublié ?
+                                </a>
+                            </div>
+
+                            <!-- Bouton de connexion -->
+                            <button type="submit" class="btn btn-login w-100 mb-3" id="loginButton">
+                                <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+                            </button>
+
+                            <!-- Séparateur -->
+                            <div class="divider">
+                                <span class="small">ou continuer avec</span>
+                            </div>
+
+                            <!-- Connexion sociale -->
+                            <div class="social-login">
+                                <div class="d-grid gap-2">
+                                    <button type="button" class="btn btn-outline-dark btn-lg" aria-label="Se connecter avec Google">
+                                        <i class="fab fa-google me-2"></i>Google
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Inscription -->
+                        <div class="text-center mt-4">
+                            <p class="mb-3 text-muted small">Nouveau chez nous ?</p>
+                            <!-- ✅✅✅ CORRECTION APPLIQUÉE ICI ✅✅✅ -->
+                            <a href="{% url 'inscription:inscription_membre' %}" class="btn btn-register w-100 mb-2">
+                                <i class="fas fa-user-plus me-2"></i>Créer un compte - 5000 FCFA/mois
+                            </a>
+                            <div class="benefits-tags">
+                                <span class="benefit-tag"><i class="fas fa-check me-1"></i>100% soins médicaux</span>
+                                <span class="benefit-tag"><i class="fas fa-check me-1"></i>65% chirurgie</span>
+                                <span class="benefit-tag"><i class="fas fa-check me-1"></i>48h remboursement</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section informative (visible uniquement sur les grands écrans) -->
+            <div class="col-lg-7 d-none d-lg-block">
+                <div class="info-section">
+                    <h1 class="info-title">Protégez votre santé intelligemment</h1>
+                    
+                    <!-- Avantages -->
+                    <div class="mb-4">
+                        <h5 class="mb-3">
+                            <i class="fas fa-medal me-2"></i>Des avantages exceptionnels
+                        </h5>
+                        <ul class="feature-list">
+                            <li>
+                                <i class="fas fa-shield-alt feature-icon" style="color: #28a745;"></i>
+                                <strong>Couverture complète</strong> - 100% des soins médicaux pris en charge
+                            </li>
+                            <li>
+                                <i class="fas fa-procedures feature-icon" style="color: #ffc107;"></i>
+                                <strong>Chirurgie à 65%</strong> - Interventions lourdes partiellement couvertes
+                            </li>
+                            <li>
+                                <i class="fas fa-bolt feature-icon" style="color: #17a2b8;"></i>
+                                <strong>Remboursement express</strong> - Vos fonds sous 48h
+                            </li>
+                            <li>
+                                <i class="fas fa-users feature-icon" style="color: #667eea;"></i>
+                                <strong>Communauté active</strong> - +10,000 membres satisfaits
+                            </li>
+                            <li>
+                                <i class="fas fa-headset feature-icon" style="color: #6c757d;"></i>
+                                <strong>Support premium</strong> - Assistance 7j/7 dédiée
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Témoignage -->
+                    <div class="testimonial-card">
+                        <div class="d-flex align-items-start mb-2">
+                            <i class="fas fa-quote-left text-warning me-2 mt-1"></i>
+                            <p class="mb-2 fst-italic flex-grow-1">
+                                "La mutuelle a sauvé ma famille de difficultés financières lors de mon hospitalisation. Les 65% de prise en charge ont fait toute la différence !"
+                            </p>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-white bg-opacity-20 rounded-circle p-2 me-2">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                            <div>
+                                <strong>Pierre K.</strong>
+                                <div class="small opacity-75">Membre depuis 3 ans</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Statistiques -->
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="h4 mb-1 fw-bold">10K+</div>
+                            <small>Membres actifs</small>
+                        </div>
+                        <div class="stat-item">
+                            <div class="h4 mb-1 fw-bold">100%</div>
+                            <small>Soins couverts</small>
+                        </div>
+                        <div class="stat-item">
+                            <div class="h4 mb-1 fw-bold">48h</div>
+                            <small>Remboursement</small>
+                        </div>
+                    </div>
+
+                    <!-- Badge sécurité -->
+                    <div class="text-center mt-4">
+                        <div class="security-badge">
+                            <i class="fas fa-shield-alt text-warning me-2"></i>
+                            <small>Données cryptées & sécurisées</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+class LoginForm {
+    constructor() {
+        this.form = document.getElementById('loginForm');
+        this.passwordInput = document.getElementById('id_password');
+        this.passwordToggle = document.getElementById('passwordToggle');
+        this.loginButton = document.getElementById('loginButton');
+        this.init();
+    }
+
+    init() {
+        this.setupPasswordToggle();
+        this.setupRealTimeValidation();
+        this.setupFormSubmission();
+        this.setupAutoFocus();
+        this.setupDevelopmentHelpers();
+        this.setupAccessibility();
+    }
+
+    setupPasswordToggle() {
+        this.passwordToggle.addEventListener('click', () => {
+            const type = this.passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            this.passwordInput.setAttribute('type', type);
+            
+            const icon = this.passwordToggle.querySelector('i');
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+            
+            // Accessibilité
+            this.passwordToggle.setAttribute('aria-label', 
+                type === 'password' ? 'Afficher le mot de passe' : 'Masquer le mot de passe'
+            );
+            
+            // Focus sur le champ mot de passe après le toggle
+            this.passwordInput.focus();
+        });
+    }
+
+    setupRealTimeValidation() {
+        const inputs = this.form.querySelectorAll('input[required]');
+        
+        inputs.forEach(input => {
+            input.addEventListener('blur', () => this.validateField(input));
+            input.addEventListener('input', () => this.clearValidation(input));
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.validateField(input);
+                }
+            });
+        });
+    }
+
+    validateField(field) {
+        if (field.value.trim() === '') {
+            field.classList.remove('is-valid');
+            field.classList.add('is-invalid');
+            this.setFieldError(field, 'Ce champ est obligatoire');
+        } else {
+            field.classList.remove('is-invalid');
+            field.classList.add('is-valid');
+            this.clearFieldError(field);
+        }
+    }
+
+    setFieldError(field, message) {
+        let errorElement = field.parentNode.querySelector('.field-error');
+        if (!errorElement) {
+            errorElement = document.createElement('div');
+            errorElement.className = 'invalid-feedback d-block field-error';
+            field.parentNode.appendChild(errorElement);
+        }
+        errorElement.textContent = message;
+        field.setAttribute('aria-invalid', 'true');
+        field.setAttribute('aria-describedby', field.id + 'Error');
+    }
+
+    clearFieldError(field) {
+        const errorElement = field.parentNode.querySelector('.field-error');
+        if (errorElement) {
+            errorElement.remove();
+        }
+        field.setAttribute('aria-invalid', 'false');
+        field.removeAttribute('aria-describedby');
+    }
+
+    clearValidation(field) {
+        field.classList.remove('is-invalid', 'is-valid');
+        this.clearFieldError(field);
+    }
+
+    setupFormSubmission() {
+        this.form.addEventListener('submit', (e) => {
+            if (!this.validateForm()) {
+                e.preventDefault();
+                this.showError('Veuillez corriger les erreurs dans le formulaire');
+                return;
+            }
+            
+            this.setLoadingState(true);
+            
+            // Réinitialiser après 5s maximum (sécurité)
+            setTimeout(() => this.setLoadingState(false), 5000);
+        });
+    }
+
+    validateForm() {
+        let isValid = true;
+        const inputs = this.form.querySelectorAll('input[required]');
+        
+        inputs.forEach(input => {
+            this.validateField(input);
+            if (input.classList.contains('is-invalid')) {
+                isValid = false;
+                // Focus sur le premier champ en erreur
+                if (isValid === false) {
+                    input.focus();
+                    isValid = false; // Reste false
+                }
+            }
+        });
+
+        return isValid;
+    }
+
+    setLoadingState(loading) {
+        if (loading) {
+            this.loginButton.disabled = true;
+            this.loginButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Connexion en cours...';
+            this.loginButton.classList.add('loading');
+        } else {
+            this.loginButton.disabled = false;
+            this.loginButton.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>Se connecter';
+            this.loginButton.classList.remove('loading');
+        }
+    }
+
+    setupAutoFocus() {
+        const usernameField = document.getElementById('id_username');
+        if (usernameField && !usernameField.value) {
+            setTimeout(() => usernameField.focus(), 300);
+        }
+    }
+
+    setupDevelopmentHelpers() {
+        // Auto-remplissage en développement
+        {% if debug %}
+        if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+            const usernameField = document.getElementById('id_username');
+            const passwordField = document.getElementById('id_password');
+            
+            if (usernameField && !usernameField.value) {
+                usernameField.value = 'assureur_test';
+            }
+            if (passwordField && !passwordField.value) {
+                passwordField.value = 'test123';
+            }
+        }
+        {% endif %}
+    }
+
+    setupAccessibility() {
+        // Ajouter les descriptions pour l'accessibilité
+        const usernameField = document.getElementById('id_username');
+        const passwordField = document.getElementById('id_password');
+        
+        if (usernameField) {
+            usernameField.setAttribute('aria-describedby', 'usernameHelp');
+        }
+        if (passwordField) {
+            passwordField.setAttribute('aria-describedby', 'passwordHelp');
+        }
+    }
+
+    showError(message) {
+        // Créer une alerte temporaire pour les erreurs de validation
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-warning alert-dismissible fade show';
+        alertDiv.innerHTML = `
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        const form = document.getElementById('loginForm');
+        form.parentNode.insertBefore(alertDiv, form);
+        
+        // Supprimer automatiquement après 5 secondes
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', () => {
+    new LoginForm();
+});
+
+// Gestionnaire global des erreurs
+window.addEventListener('error', (e) => {
+    console.error('Erreur JavaScript:', e.error);
+});
+</script>
+{% endblock %}

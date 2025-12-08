@@ -1,0 +1,34 @@
+<!-- membres/templates/membres/mes_bons.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mes Bons de Soin</title>
+</head>
+<body>
+    <h1>Mes Bons de Soin</h1>
+    {% if bons %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Numéro</th>
+                    <th>Date</th>
+                    <th>Médecin</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bon in bons %}
+                <tr>
+                    <td>{{ bon.numero_bon }}</td>
+                    <td>{{ bon.date_creation }}</td>
+                    <td>{{ bon.medecin.nom_complet }}</td>
+                    <td>{{ bon.get_statut_display }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Aucun bon de soin trouvé.</p>
+    {% endif %}
+</body>
+</html>

@@ -1,0 +1,31 @@
+
+┌────────────────────────────────────────────────┐
+│              FICHE COTISATION                 │
+├────────────────────────────────────────────────┤
+│ 📊 Système Mutuelle - {date_jour}             │
+│                                                │
+│ 👤 INFORMATIONS MEMBRE                         │
+│    • Nom: {nom_complet}                        │
+│    • Numéro: {numero_unique}                   │
+│    • Téléphone: {telephone}                    │
+│    • Catégorie: {categorie}                    │
+│                                                │
+│ 💰 ÉTAT DES COTISATIONS                        │
+│    {statut_icone} {statut_message}             │
+│                                                │
+│ 💳 DÉTAILS FINANCIERS                          │
+│    • Dernier paiement: {dernier_paiement}      │
+│    • Prochaine échéance: {prochaine_echeance}  │
+│    • Montant dû: {montant_du} FCFA             │
+{jours_retard_ligne}
+│                                                │
+│ 📄 COTISATION ACTIVE                           │
+│    • Référence: {reference_cotisation}         │
+│    • Montant: {montant_cotisation} FCFA        │
+│    • Échéance: {echeance_cotisation}           │
+│    • Statut: {statut_cotisation}               │
+│                                                │
+│ 🔍 Vérification: #{verification_id}            │
+│ 🕐 Dernière mise à jour: {date_maj}            │
+└────────────────────────────────────────────────┘
+        

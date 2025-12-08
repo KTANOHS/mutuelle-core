@@ -1,0 +1,85 @@
+<!-- templates/agents/communication/liste_messages.html -->
+{% extends 'agents/base_agent.html' %}
+
+{% block title %}Mes Messages - Agents{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">
+                        <i class="fas fa-envelope"></i>
+                        Mes Messages
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs" id="messagesTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="recus-tab" data-bs-toggle="tab" 
+                                    data-bs-target="#recus" type="button" role="tab">
+                                Messages Reçus ({{ messages_recus.count }})
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="envoyes-tab" data-bs-toggle="tab" 
+                                    data-bs-target="#envoyes" type="button" role="tab">
+                                Messages Envoyés ({{ messages_envoyes.count }})
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content mt-3" id="messagesTabContent">
+                        <!-- Messages Reçus -->
+                        <div class="tab-pane fade show active" id="recus" role="tabpanel">
+                            {% if messages_recus %}
+                                {% for message in messages_recus %}
+                                <div class="card mb-3">
+                                    <div class="card-header d-flex justify-content-between">
+                                        <strong>De : {{ message.expediteur.get_full_name|default:message.expediteur.username }}</strong>
+                                        <small class="text-muted">{{ message.date_envoi|date:"d/m/Y H:i" }}</small>
+                                    </div>
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ message.titre }}</h6>
+                                        <p class="card-text">{{ message.contenu }}</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    Aucun message reçu.
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Messages Envoyés -->
+                        <div class="tab-pane fade" id="envoyes" role="tabpanel">
+                            {% if messages_envoyes %}
+                                {% for message in messages_envoyes %}
+                                <div class="card mb-3">
+                                    <div class="card-header d-flex justify-content-between">
+                                        <strong>À : {{ message.destinataire.get_full_name|default:message.destinataire.username }}</strong>
+                                        <small class="text-muted">{{ message.date_envoi|date:"d/m/Y H:i" }}</small>
+                                    </div>
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ message.titre }}</h6>
+                                        <p class="card-text">{{ message.contenu }}</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    Aucun message envoyé.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

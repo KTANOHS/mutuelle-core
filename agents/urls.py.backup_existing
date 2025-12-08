@@ -1,0 +1,15 @@
+from django.urls import path
+from . import views
+
+app_name = 'agents'
+
+urlpatterns = [
+    # Pages principales
+    path('verification-cotisations/', views.verification_cotisations, name='verification_cotisations'),
+    path('tableau-de-bord/', views.tableau_de_bord_agent, name='tableau_de_bord'),
+    
+    # API endpoints
+    path('api/test-simple/', views.test_simple_api, name='test_simple_api'),
+    path('api/recherche-membres/', views.recherche_membres_api, name='recherche_membres_api'),
+    path('api/verifier-cotisation/<int:membre_id>/', views.verifier_cotisation_api, name='verifier_cotisation_api'),
+]

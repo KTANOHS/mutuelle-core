@@ -1,0 +1,21 @@
+{% extends 'assureur/base_assureur.html' %}
+
+{% block title %}Créer Cotisation - Assureur{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2>Créer une Cotisation</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Membre</label>
+            <p class="form-control-plaintext">
+                <strong>{{ membre.nom }} {{ membre.prenom }}</strong> 
+                ({{ membre.numero_unique }})
+            </p>
+        </div>
+        <!-- Ajoutez les autres champs du formulaire ici -->
+        <button type="submit" class="btn btn-primary">Créer la cotisation</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+<div class="notifications-container">
+    <h3>Notifications</h3>
+    {% for notification in notifications %}
+    <div class="notification {% if not notification.lu %}notification-unread{% endif %}">
+        <p>{{ notification.message }}</p>
+        <small>{{ notification.date_creation|timesince }}</small>
+        <a href="{% if notification.type_document == 'ORD' %}{% url 'membres:detail_ordonnance' notification.document_id %}{% else %}{% url 'membres:mes_bons' %}{% endif %}">
+            Voir
+        </a>
+    </div>
+    {% empty %}
+    <p>Aucune notification</p>
+    {% endfor %}
+</div>

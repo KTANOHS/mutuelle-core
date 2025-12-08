@@ -1,0 +1,215 @@
+{% extends 'agents/base_agent.html' %}
+{% load static %}
+
+{% block title %}Notifications - Agent{% endblock %}
+{% block page_title %}Notifications{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-bell me-2"></i>Mes notifications
+                </h5>
+                <div>
+                    <button class="btn btn-sm btn-outline-success" id="marquerToutesLues">
+                        <i class="fas fa-check-double me-1"></i>Tout marquer comme lu
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                {% if notifications %}
+                <div class="list-group list-group-flush">
+                    {% for notification in notifications %}
+                    <div class="list-group-item {% if not notification.est_lue %}notification-unread{% endif %}">
+                        <div class="d-flex w-100 justify-content-between">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">
+                                    {{ notification.titre }}
+                                    {% if not notification.est_lue %}
+                                    <span class="badge bg-primary ms-1">Nouveau</span>
+                                    {% endif %}
+                                </h6>
+                                <p class="mb-1">{{ notification.message }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-{{ notification.type_notification|lower }}">
+                                        <i class="fas fa-{{ notification.get_icon }} me-1"></i>
+                                        {{ notification.get_type_notification_display }}
+                                    </small>
+                                    <small class="text-muted">{{ notification.date_creation|date:"d/m/Y H:i" }}</small>
+                                </div>
+                            </div>
+                            <div class="ms-3">
+                                {% if not notification.est_lue %}
+                                <button class="btn btn-sm btn-outline-primary marquer-lue" 
+                                        data-notification-id="{{ notification.id }}">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                {% endif %}
+                                {% if notification.lien %}
+                                <a href="{{ notification.lien }}" class="btn btn-sm btn-outline-info">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Aucune notification</h5>
+                    <p class="text-muted">Vous serez notifié des nouvelles activités</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <nav aria-label="Pagination" class="mt-3">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">Premier</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a>
+                </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Dernier</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+
+    <!-- Filtres et statistiques -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-filter me-2"></i>Filtres
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Type de notification</label>
+                    <select class="form-select" id="filterType">
+                        <option value="">Tous les types</option>
+                        <option value="INFO">Informations</option>
+                        <option value="ALERTE">Alertes</option>
+                        <option value="SUCCES">Succès</option>
+                        <option value="BON_SOIN">Bons de soin</option>
+                        <option value="COTISATION">Cotisations</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Statut</label>
+                    <select class="form-select" id="filterStatut">
+                        <option value="">Tous</option>
+                        <option value="non_lu">Non lues seulement</option>
+                        <option value="lu">Lues seulement</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary w-100" id="appliquerFiltres">
+                    <i class="fas fa-filter me-1"></i>Appliquer les filtres
+                </button>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-pie me-2"></i>Statistiques
+                </h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Total des notifications
+                        <span class="badge bg-primary rounded-pill">{{ notifications.count }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Non lues
+                        <span class="badge bg-warning rounded-pill">{{ notifications_non_lues.count }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Cette semaine
+                        <span class="badge bg-info rounded-pill">{{ notifications_semaine.count }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Marquer une notification comme lue
+document.querySelectorAll('.marquer-lue').forEach(button => {
+    button.addEventListener('click', function() {
+        const notificationId = this.dataset.notificationId;
+        const listItem = this.closest('.list-group-item');
+        
+        fetch(`/agents/notifications/${notificationId}/marquer-lue/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    listItem.classList.remove('notification-unread');
+                    this.remove();
+                    
+                    // Mettre à jour le badge "Nouveau"
+                    const nouveauBadge = listItem.querySelector('.badge');
+                    if (nouveauBadge) {
+                        nouveauBadge.remove();
+                    }
+                }
+            });
+    });
+});
+
+// Marquer toutes comme lues
+document.getElementById('marquerToutesLues').addEventListener('click', function() {
+    fetch('/agents/notifications/marquer-toutes-lues/')
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            }
+        });
+});
+
+// Filtres
+document.getElementById('appliquerFiltres').addEventListener('click', function() {
+    const type = document.getElementById('filterType').value;
+    const statut = document.getElementById('filterStatut').value;
+    
+    let url = '?';
+    if (type) url += `type=${type}&`;
+    if (statut) url += `statut=${statut}&`;
+    
+    window.location.href = url.slice(0, -1); // Retirer le dernier '&'
+});
+</script>
+{% endblock %}

@@ -1,0 +1,115 @@
+<!-- templates/inscription/confirmation_rappel.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow border-0">
+                <div class="card-header bg-gradient-success text-white text-center py-4">
+                    <h1 class="mb-3"><i class="fas fa-check-circle"></i> Demande enregistrée</h1>
+                    <p class="lead mb-0">Nous allons vous rappeler très prochainement</p>
+                </div>
+                
+                <div class="card-body text-center p-5">
+                    <div class="alert alert-success rounded-4 p-4 mb-4">
+                        <i class="fas fa-phone-volume fa-3x text-success mb-3"></i>
+                        <h2 class="text-success">Demande confirmée !</h2>
+                        
+                        <div class="confirmation-details mt-4 p-4 bg-white rounded-3">
+                            <h4 class="text-primary mb-4">
+                                <i class="fas fa-user-check me-2"></i>Récapitulatif de votre demande
+                            </h4>
+                            
+                            <div class="row text-start">
+                                <div class="col-md-6 mb-3">
+                                    <p><strong>Nom :</strong> {{ demande.nom }}</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <p><strong>Prénom :</strong> {{ demande.prenom }}</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <p><strong>Téléphone :</strong> {{ demande.telephone }}</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <p><strong>Créneau :</strong> {{ creneau_text }}</p>
+                                </div>
+                                {% if demande.email %}
+                                <div class="col-12 mb-3">
+                                    <p><strong>Email :</strong> {{ demande.email }}</p>
+                                </div>
+                                {% endif %}
+                                {% if demande.message %}
+                                <div class="col-12 mb-3">
+                                    <p><strong>Message :</strong> {{ demande.message }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="next-steps mt-5 pt-4 border-top">
+                            <h4 class="text-primary mb-4">
+                                <i class="fas fa-calendar-check me-2"></i>À quoi s'attendre ?
+                            </h4>
+                            
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <div class="p-3">
+                                        <i class="fas fa-phone fa-2x text-primary mb-3"></i>
+                                        <h5>Appel sous 24h</h5>
+                                        <p class="text-muted small">Nous vous appellerons dans le créneau choisi</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="p-3">
+                                        <i class="fas fa-file-alt fa-2x text-primary mb-3"></i>
+                                        <h5>Préparation</h5>
+                                        <p class="text-muted small">Préparez vos pièces d'identité</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="p-3">
+                                        <i class="fas fa-clock fa-2x text-primary mb-3"></i>
+                                        <h5>Durée estimée</h5>
+                                        <p class="text-muted small">Comptez 15-20 minutes pour l'inscription</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="urgent-contact mt-5 pt-4 border-top">
+                            <p class="text-muted mb-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Besoin de nous joindre rapidement ?
+                            </p>
+                            <div class="d-flex flex-column flex-md-row justify-content-center gap-3">
+                                <a href="tel:+33798910912" class="btn btn-primary">
+                                    <i class="fas fa-phone-alt me-2"></i>Appeler maintenant
+                                </a>
+                                <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-home me-2"></i>Retour à l'accueil
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-center">
+                        <p class="text-muted small">
+                            <i class="fas fa-shield-alt me-1"></i>
+                            Vos données sont traitées de manière confidentielle et sécurisée.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-gradient-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+</style>
+{% endblock %}

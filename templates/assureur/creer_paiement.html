@@ -1,0 +1,369 @@
+{% extends 'assureur/base_assureur.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            {% if bon %}
+                Paiement pour le bon {{ bon.numero_bon }}
+            {% else %}
+                Créer un Paiement
+            {% endif %}
+        </h1>
+        <a href="{% url 'assureur:liste_paiements' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Retour à la liste
+        </a>
+    </div>
+
+    {% if bon %}
+    <div class="alert alert-info mb-4">
+        <div class="d-flex justify-content-between">
+            <div>
+                <strong>Bon:</strong> {{ bon.numero_bon }}<br>
+                <strong>Membre:</strong> {{ bon.membre.nom }} {{ bon.membre.prenom }}<br>
+                <strong>Montant total:</strong> {{ bon.montant_total|floatformat:0 }} FCFA<br>
+                <strong>Montant prise en charge:</strong> {{ bon.montant_prise_charge|floatformat:0 }} FCFA
+            </div>
+            <div class="text-end">
+                <strong>Statut:</strong> 
+                <span class="badge bg-{% if bon.statut == 'valide' %}success{% elif bon.statut == 'en_attente' %}warning{% else %}danger{% endif %}">
+                    {{ bon.get_statut_display }}
+                </span><br>
+                <strong>Date création:</strong> {{ bon.date_creation|date:"d/m/Y" }}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-money-bill-wave me-2"></i>
+                        Informations du paiement
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                    <div class="messages mb-3">
+                        {% for message in messages %}
+                        <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <form method="post" id="paiementForm" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Champ caché pour s'assurer que mode_paiement est bien 'espece' par défaut -->
+                        {% if not form.mode_paiement.value %}
+                        <input type="hidden" name="mode_paiement_debug" value="espece">
+                        {% endif %}
+                        
+                        <div class="row">
+                            <!-- Membre -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.membre.id_for_label }}" class="form-label">Membre *</label>
+                                {{ form.membre }}
+                                {% if form.membre.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.membre.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Soin (optionnel) -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.soin.id_for_label }}" class="form-label">Soin associé</label>
+                                {{ form.soin }}
+                                {% if form.soin.errors %}
+                                <div class="text-danger small mt-1">{{ form.soin.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Montant -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.montant.id_for_label }}" class="form-label">Montant (FCFA) *</label>
+                                {{ form.montant }}
+                                {% if form.montant.errors %}
+                                <div class="text-danger small mt-1">{{ form.montant.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Mode de paiement - IMPORTANT : afficher les options disponibles -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.mode_paiement.id_for_label }}" class="form-label">Mode de paiement *</label>
+                                {{ form.mode_paiement }}
+                                {% if form.mode_paiement.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.mode_paiement.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <small class="text-muted">
+                                    Options disponibles : 
+                                    {% for value, label in form.fields.mode_paiement.choices %}
+                                        {% if value %}{{ label }}{% if not forloop.last %}, {% endif %}{% endif %}
+                                    {% endfor %}
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Date de paiement -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.date_paiement.id_for_label }}" class="form-label">Date de paiement *</label>
+                                {{ form.date_paiement }}
+                                {% if form.date_paiement.errors %}
+                                <div class="text-danger small mt-1">{{ form.date_paiement.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Statut -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.statut.id_for_label }}" class="form-label">Statut *</label>
+                                {{ form.statut }}
+                                {% if form.statut.errors %}
+                                <div class="text-danger small mt-1">{{ form.statut.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Champs conditionnels -->
+                        <div id="champs-bancaires" class="d-none">
+                            <div class="row">
+                                <!-- Banque -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.banque.id_for_label }}" class="form-label">Banque</label>
+                                    {{ form.banque }}
+                                    {% if form.banque.errors %}
+                                    <div class="text-danger small mt-1">{{ form.banque.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Numéro de compte -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.numero_compte.id_for_label }}" class="form-label">Numéro de compte</label>
+                                    {{ form.numero_compte }}
+                                    {% if form.numero_compte.errors %}
+                                    <div class="text-danger small mt-1">{{ form.numero_compte.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="champs-transaction" class="d-none">
+                            <div class="row">
+                                <!-- Numéro de transaction -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.numero_transaction.id_for_label }}" class="form-label">Numéro de transaction</label>
+                                    {{ form.numero_transaction }}
+                                    {% if form.numero_transaction.errors %}
+                                    <div class="text-danger small mt-1">{{ form.numero_transaction.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">Notes</label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                            <div class="text-danger small mt-1">{{ form.notes.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Référence (toujours visible) -->
+                        <div class="mb-3">
+                            <label for="{{ form.reference.id_for_label }}" class="form-label">Référence</label>
+                            {{ form.reference }}
+                            <small class="text-muted">{{ form.reference.help_text }}</small>
+                            {% if form.reference.errors %}
+                            <div class="text-danger small mt-1">{{ form.reference.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check me-1"></i>Enregistrer le paiement
+                            </button>
+                            <button type="button" id="btn-debug" class="btn btn-info">
+                                <i class="fas fa-bug me-1"></i>Déboguer
+                            </button>
+                            <a href="{% url 'assureur:liste_paiements' %}" class="btn btn-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Informations importantes
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h6 class="alert-heading">Mode de paiement</h6>
+                        <p class="mb-0">
+                            <strong>"Espèces" doit être écrit "espece" (sans 's')</strong><br>
+                            Valeur à envoyer : <code>espece</code>
+                        </p>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading">Champs obligatoires</h6>
+                        <ul class="mb-0">
+                            <li>Membre</li>
+                            <li>Montant</li>
+                            <li>Date de paiement</li>
+                            <li>Mode de paiement</li>
+                            <li>Statut</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="alert alert-light">
+                        <h6 class="alert-heading">Valeurs de statut acceptées</h6>
+                        <ul class="mb-0">
+                            <li><code>brouillon</code> - Brouillon</li>
+                            <li><code>initie</code> - Initié</li>
+                            <li><code>valide</code> - Validé</li>
+                            <li><code>annule</code> - Annulé</li>
+                            <li><code>rembourse</code> - Remboursé</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Initialiser Select2
+    $('.select2').select2({
+        theme: 'bootstrap4',
+        placeholder: function() {
+            return $(this).data('placeholder');
+        },
+        allowClear: true
+    });
+    
+    // Fonction pour gérer la visibilité des champs
+    function toggleChampsPaiement() {
+        var mode = $('#id_mode_paiement').val();
+        var champsBancaires = $('#champs-bancaires');
+        var champsTransaction = $('#champs-transaction');
+        
+        // Réinitialiser
+        champsBancaires.addClass('d-none');
+        champsTransaction.addClass('d-none');
+        
+        // Afficher les champs appropriés
+        if (mode === 'virement' || mode === 'cheque') {
+            champsBancaires.removeClass('d-none');
+            champsTransaction.removeClass('d-none');
+        } else if (mode === 'mobile_money') {
+            champsTransaction.removeClass('d-none');
+        }
+        
+        console.log('Mode de paiement sélectionné:', mode);
+    }
+    
+    // Gestion des champs en fonction du mode de paiement
+    $('#id_mode_paiement').change(toggleChampsPaiement);
+    
+    // Déclencher le changement initial
+    toggleChampsPaiement();
+    
+    // Bouton de débogage
+    $('#btn-debug').click(function() {
+        var formData = $('#paiementForm').serializeArray();
+        console.log('=== DÉBOGAGE FORMULAIRE ===');
+        console.log('Données du formulaire:');
+        formData.forEach(function(field) {
+            console.log(field.name + ': ' + field.value);
+        });
+        
+        // Afficher les valeurs dans une alerte
+        var debugInfo = "=== DÉBOGAGE FORMULAIRE ===\n\n";
+        formData.forEach(function(field) {
+            debugInfo += field.name + ': ' + field.value + '\n';
+        });
+        
+        alert(debugInfo);
+    });
+    
+    // Auto-remplir les valeurs par défaut
+    function setDefaultValues() {
+        // Si mode_paiement est vide, le définir sur 'espece'
+        if (!$('#id_mode_paiement').val()) {
+            $('#id_mode_paiement').val('espece');
+        }
+        
+        // Si statut est vide, le définir sur 'initie'
+        if (!$('#id_statut').val()) {
+            $('#id_statut').val('initie');
+        }
+        
+        // Si date_paiement est vide, définir sur aujourd'hui
+        if (!$('#id_date_paiement').val()) {
+            var today = new Date().toISOString().split('T')[0];
+            $('#id_date_paiement').val(today);
+        }
+    }
+    
+    // Appeler la fonction au chargement
+    setDefaultValues();
+    
+    // Afficher les valeurs sélectionnées
+    console.log('Valeur initiale mode_paiement:', $('#id_mode_paiement').val());
+    console.log('Valeur initiale statut:', $('#id_statut').val());
+});
+</script>
+
+<style>
+.select2-container--bootstrap4 .select2-selection {
+    height: calc(2.25rem + 2px);
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border: 1px solid #d1d3e2;
+    border-radius: 0.35rem;
+}
+
+.select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+    line-height: 1.5;
+}
+
+.alert-light {
+    background-color: #f8f9fa;
+    border-color: #e9ecef;
+}
+
+code {
+    background-color: #f8f9fa;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+}
+</style>
+{% endblock %}

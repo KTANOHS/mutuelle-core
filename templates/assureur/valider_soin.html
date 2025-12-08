@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Valider le Soin</h2>
+    
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Confirmation de validation</h5>
+            <p>Êtes-vous sûr de vouloir valider le soin suivant ?</p>
+            
+            <div class="soin-info">
+                <p><strong>Patient:</strong> {{ soin.patient.get_full_name }}</p>
+                <p><strong>Type de soin:</strong> {{ soin.type_soin.nom }}</p>
+                <p><strong>Médecin:</strong> {{ soin.medecin.get_full_name }}</p>
+                <p><strong>Date:</strong> {{ soin.date_realisation }}</p>
+                <p><strong>Coût:</strong> {{ soin.cout }} €</p>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next }}">
+                <button type="submit" class="btn btn-success">Confirmer la validation</button>
+                <a href="{{ next }}" class="btn btn-secondary">Annuler</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

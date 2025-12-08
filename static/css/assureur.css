@@ -1,0 +1,40 @@
+.assureur-theme {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.assureur-card {
+    border-left: 4px solid #667eea;
+}
+/* Communication styles */
+.badge-notification {
+    font-size: 0.7em;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+}
+
+.sidebar-link {
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.sidebar-link:hover {
+    background-color: #495057;
+    padding-left: 15px;
+}
+
+.communication-alert {
+    border-left: 4px solid #0dcaf0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .communication-buttons {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .communication-buttons .btn {
+        width: 100%;
+    }
+}

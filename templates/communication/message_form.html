@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Nouveau Message - Mutuelle App{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Nouveau Message</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <strong>Erreur!</strong> Veuillez corriger les erreurs ci-dessous.
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.destinataire.id_for_label }}" class="form-label">
+                            <strong>Destinataire *</strong>
+                        </label>
+                        {{ form.destinataire }}
+                        {% if form.destinataire.errors %}
+                        <div class="text-danger">{{ form.destinataire.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.titre.id_for_label }}" class="form-label">
+                            <strong>Sujet *</strong>
+                        </label>
+                        {{ form.titre }}
+                        {% if form.titre.errors %}
+                        <div class="text-danger">{{ form.titre.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.contenu.id_for_label }}" class="form-label">
+                            <strong>Message *</strong>
+                        </label>
+                        {{ form.contenu }}
+                        {% if form.contenu.errors %}
+                        <div class="text-danger">{{ form.contenu.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.type_message.id_for_label }}" class="form-label">
+                            <strong>Type de message</strong>
+                        </label>
+                        {{ form.type_message }}
+                        {% if form.type_message.errors %}
+                        <div class="text-danger">{{ form.type_message.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="{{ form.pieces_jointes.id_for_label }}" class="form-label">
+                            <strong>Pièces jointes</strong>
+                        </label>
+                        {{ form.pieces_jointes }}
+                        <div class="form-text">{{ form.pieces_jointes.help_text }}</div>
+                        {% if form.pieces_jointes.errors %}
+                        <div class="text-danger">{{ form.pieces_jointes.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'communication:message_list' %}" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-times me-1"></i>Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i>Envoyer le message
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

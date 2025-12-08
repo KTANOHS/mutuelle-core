@@ -1,0 +1,133 @@
+<!-- communication/templates/communication/envoyer_message.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Envoyer un message - Agent{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0 text-gray-800">
+                    <i class="fas fa-paper-plane me-2"></i>Envoyer un message
+                </h1>
+                <a href="{% url 'agents:liste_messages' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour aux messages
+                </a>
+            </div>
+
+            {% if error %}
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Erreur: {{ error }}
+            </div>
+            {% endif %}
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-edit me-2"></i>Nouveau message
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if form %}
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Affichage des erreurs du formulaire -->
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <strong>Veuillez corriger les erreurs ci-dessous:</strong>
+                            {{ form.errors }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Champ Destinataire -->
+                        <div class="form-group mb-3">
+                            <label for="{{ form.destinataire.id_for_label }}" class="form-label">
+                                <strong>Destinataire</strong>
+                            </label>
+                            {{ form.destinataire }}
+                            {% if form.destinataire.help_text %}
+                            <small class="form-text text-muted">{{ form.destinataire.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <!-- Champ Contenu -->
+                        <div class="form-group mb-4">
+                            <label for="{{ form.contenu.id_for_label }}" class="form-label">
+                                <strong>Message</strong>
+                            </label>
+                            {{ form.contenu }}
+                            {% if form.contenu.help_text %}
+                            <small class="form-text text-muted">{{ form.contenu.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <!-- Boutons -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Envoyer le message
+                            </button>
+                            <a href="{% url 'agents:liste_messages' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                        </div>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Le formulaire n'est pas disponible pour le moment.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Contacts rapides -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-users me-2"></i>Contacts rapides
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <a href="?destinataire=assureur" class="btn btn-outline-primary btn-block">
+                                <i class="fas fa-building me-2"></i>Contacter l'assureur
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <a href="?destinataire=medecin" class="btn btn-outline-success btn-block">
+                                <i class="fas fa-user-md me-2"></i>Contacter un médecin
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <a href="?destinataire=pharmacien" class="btn btn-outline-info btn-block">
+                                <i class="fas fa-prescription-bottle me-2"></i>Contacter pharmacie
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control {
+    border-radius: 0.35rem;
+    border: 1px solid #d1d3e2;
+}
+
+.form-control:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+.btn-block {
+    width: 100%;
+}
+</style>
+{% endblock %}

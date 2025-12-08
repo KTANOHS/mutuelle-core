@@ -1,0 +1,42 @@
+<!-- assureur/templates/assureur/repondre_message.html -->
+{% extends 'assureur/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Répondre au message</h2>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            Message original
+        </div>
+        <div class="card-body">
+            <p><strong>De:</strong> {{ message_original.expediteur.get_full_name }}</p>
+            <p><strong>Sujet:</strong> {{ message_original.sujet }}</p>
+            <p><strong>Date:</strong> {{ message_original.date_envoi }}</p>
+            <div class="border p-3 bg-light">
+                {{ message_original.contenu|linebreaks }}
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            Votre réponse
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    {{ form.contenu.label_tag }}
+                    {{ form.contenu }}
+                    {% if form.contenu.errors %}
+                        <div class="text-danger">{{ form.contenu.errors }}</div>
+                    {% endif %}
+                </div>
+                <button type="submit" class="btn btn-primary">Envoyer la réponse</button>
+                <a href="{% url 'assureur:liste_messages' %}" class="btn btn-secondary">Annuler</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+# ===========================================
+# SURVEILLANCE SYNCHRONISATION - MUTUELLE CORE
+# ===========================================
+
+# Surveillance quotidienne à 8h00
+0 8 * * * cd /Users/koffitanohsoualiho/Documents/P\ FINALE\ AVANT\ SYNCHRO/projet\ 21.49.30 && /Users/koffitanohsoualiho/Documents/P\ FINALE\ AVANT\ SYNCHRO/projet\ 21.49.30/venv/bin/python surveillance_simple.py --mode auto >> /tmp/surveillance_sync.log 2>&1
+
+# Diagnostic hebdomadaire le lundi à 9h00
+0 9 * * 1 cd /Users/koffitanohsoualiho/Documents/P\ FINALE\ AVANT\ SYNCHRO/projet\ 21.49.30 && /Users/koffitanohsoualiho/Documents/P\ FINALE\ AVANT\ SYNCHRO/projet\ 21.49.30/venv/bin/python diagnostic_sync_final.py >> /tmp/diagnostic_hebdo.log 2>&1
+
+# Nettoyage des logs mensuel
+0 6 1 * * find /tmp -name "*surveillance*" -mtime +30 -delete
+
+# ===========================================

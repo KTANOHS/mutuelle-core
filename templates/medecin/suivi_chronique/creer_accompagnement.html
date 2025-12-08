@@ -1,0 +1,567 @@
+{% extends 'medecin/base.html' %}
+
+{% block title %}Créer un Programme d'Accompagnement{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-highlight {
+        background-color: #fff3cd;
+        font-weight: bold;
+    }
+    .filter-section {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .patient-card, .maladie-card {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .patient-card:hover, .maladie-card:hover {
+        background-color: #e9ecef;
+        border-color: #007bff;
+    }
+    .patient-card.selected, .maladie-card.selected {
+        background-color: #d1ecf1;
+        border-color: #17a2b8;
+    }
+    .search-results {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        display: none;
+    }
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    .badge-category {
+        font-size: 0.75em;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">Créer un Programme d'Accompagnement</h1>
+                <a href="{% url 'medecin:liste_accompagnements' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" id="accompagnementForm">
+                        {% csrf_token %}
+                        
+                        <!-- Section Recherche Patient -->
+                        <div class="filter-section">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-user me-2"></i>Recherche et Sélection du Patient
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    <label for="patientSearch" class="form-label">Rechercher un patient</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-search"></i>
+                                        </span>
+                                        <input type="text" 
+                                               id="patientSearch" 
+                                               class="form-control" 
+                                               placeholder="Tapez le nom, prénom ou numéro du patient..."
+                                               onkeyup="filterPatients()">
+                                    </div>
+                                    <div id="patientSearchResults" class="search-results mt-2"></div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="patient_id" class="form-label">Patient sélectionné *</label>
+                                    <select name="patient_id" id="patient_id" class="form-select" required>
+                                        <option value="">-- Aucun patient sélectionné --</option>
+                                        {% for p in patients %}
+                                            <option value="{{ p.id }}" data-info="{{ p.get_full_name }} - {{ p.numero_unique }}">
+                                                {{ p.get_full_name }} - {{ p.numero_unique }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <div id="selectedPatientInfo" class="mt-2 p-2 bg-light rounded" style="display: none;">
+                                        <small class="text-success">
+                                            <i class="fas fa-check-circle"></i> 
+                                            <span id="patientInfoText"></span>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section Recherche Maladie -->
+                        <div class="filter-section">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-disease me-2"></i>Recherche et Sélection de la Maladie
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    <label for="maladieSearch" class="form-label">Rechercher une maladie</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-search"></i>
+                                        </span>
+                                        <input type="text" 
+                                               id="maladieSearch" 
+                                               class="form-control" 
+                                               placeholder="Tapez le nom de la maladie..."
+                                               onkeyup="filterMaladies()">
+                                    </div>
+                                    <div id="maladieSearchResults" class="search-results mt-2"></div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="maladie" class="form-label">Maladie sélectionnée *</label>
+                                    <select name="maladie" id="maladie" class="form-select" required>
+                                        <option value="">-- Aucune maladie sélectionnée --</option>
+                                        {% for m in maladies %}
+                                            <option value="{{ m.id }}" data-categorie="{{ m.categorie|default:'Non spécifiée' }}">
+                                                {{ m.nom }} {% if m.categorie %}({{ m.categorie }}){% endif %}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <div id="selectedMaladieInfo" class="mt-2 p-2 bg-light rounded" style="display: none;">
+                                        <small class="text-success">
+                                            <i class="fas fa-check-circle"></i> 
+                                            <span id="maladieInfoText"></span>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Dates -->
+                            <div class="col-md-4 mb-3">
+                                <label for="date_debut" class="form-label">Date de Début *</label>
+                                <input type="date" name="date_debut" id="date_debut" 
+                                       class="form-control" value="{{ today|date:'Y-m-d' }}" required>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="date_fin_prevue" class="form-label">Date de Fin Prévue</label>
+                                <input type="date" name="date_fin_prevue" id="date_fin_prevue" class="form-control">
+                                <small class="form-text text-muted">Laissé vide si indéterminée</small>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="frequence_controle" class="form-label">Fréquence des Contrôles (jours)</label>
+                                <input type="number" name="frequence_controle" id="frequence_controle" 
+                                       class="form-control" value="30" min="1" max="365">
+                                <small class="form-text text-muted">Intervalle entre les contrôles</small>
+                            </div>
+                        </div>
+
+                        <!-- Objectifs Thérapeutiques -->
+                        <div class="mb-3">
+                            <label class="form-label">Objectifs Thérapeutiques *</label>
+                            <small class="form-text text-muted d-block mb-2">
+                                Définissez les objectifs principaux de l'accompagnement
+                            </small>
+                            <div id="objectifs-container">
+                                <div class="input-group mb-2">
+                                    <input type="text" name="objectifs[]" class="form-control" 
+                                           placeholder="Ex: Contrôle de la glycémie, amélioration de la qualité de vie..." required>
+                                    <button type="button" class="btn btn-outline-danger remove-objectif" disabled>
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="button" id="add-objectif" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-plus"></i> Ajouter un objectif
+                            </button>
+                        </div>
+
+                        <!-- Protocole de Suivi -->
+                        <div class="mb-3">
+                            <label for="protocole_suivi" class="form-label">Protocole de Suivi</label>
+                            <textarea name="protocole_suivi" id="protocole_suivi" rows="4" 
+                                      class="form-control" placeholder="Décrire le protocole de suivi, les examens à réaliser, les consultations prévues..."></textarea>
+                        </div>
+
+                        <!-- Prochain Contrôle -->
+                        <div class="mb-3">
+                            <label for="prochain_controle" class="form-label">Prochain Contrôle</label>
+                            <input type="date" name="prochain_controle" id="prochain_controle" class="form-control">
+                            <small class="form-text text-muted">Date du prochain rendez-vous de suivi</small>
+                        </div>
+
+                        <!-- Observations -->
+                        <div class="mb-3">
+                            <label for="observations" class="form-label">Observations Initiales</label>
+                            <textarea name="observations" id="observations" rows="3" 
+                                      class="form-control" placeholder="Observations médicales, contexte particulier, antécédents..."></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="button" id="validateForm" class="btn btn-success me-2">
+                                <i class="fas fa-check"></i> Valider le Formulaire
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Créer le Programme
+                            </button>
+                            <a href="{% url 'medecin:liste_accompagnements' %}" class="btn btn-secondary">
+                                Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Données globales pour le filtrage
+let allPatients = [];
+let allMaladies = [];
+
+// Initialisation au chargement
+document.addEventListener('DOMContentLoaded', function() {
+    // Stocker les données des patients
+    const patientSelect = document.getElementById('patient_id');
+    for (let i = 0; i < patientSelect.options.length; i++) {
+        const option = patientSelect.options[i];
+        if (option.value) {
+            allPatients.push({
+                id: option.value,
+                text: option.text,
+                info: option.dataset.info || ''
+            });
+        }
+    }
+
+    // Stocker les données des maladies
+    const maladieSelect = document.getElementById('maladie');
+    for (let i = 0; i < maladieSelect.options.length; i++) {
+        const option = maladieSelect.options[i];
+        if (option.value) {
+            allMaladies.push({
+                id: option.value,
+                text: option.text,
+                categorie: option.dataset.categorie || ''
+            });
+        }
+    }
+
+    // Événements de sélection
+    patientSelect.addEventListener('change', function() {
+        updateSelectedPatientInfo();
+    });
+
+    maladieSelect.addEventListener('change', function() {
+        updateSelectedMaladieInfo();
+    });
+
+    // Gestion des objectifs dynamiques
+    const container = document.getElementById('objectifs-container');
+    const addButton = document.getElementById('add-objectif');
+    
+    addButton.addEventListener('click', function() {
+        const newInput = document.createElement('div');
+        newInput.className = 'input-group mb-2';
+        newInput.innerHTML = `
+            <input type="text" name="objectifs[]" class="form-control" placeholder="Nouvel objectif..." required>
+            <button type="button" class="btn btn-outline-danger remove-objectif">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        container.appendChild(newInput);
+        updateRemoveButtons();
+    });
+    
+    // Validation du formulaire
+    document.getElementById('validateForm').addEventListener('click', function() {
+        validateForm(true);
+    });
+});
+
+// Filtrage des patients
+function filterPatients() {
+    const searchTerm = document.getElementById('patientSearch').value.toLowerCase();
+    const resultsContainer = document.getElementById('patientSearchResults');
+    
+    if (searchTerm.length < 2) {
+        resultsContainer.style.display = 'none';
+        return;
+    }
+
+    const filteredPatients = allPatients.filter(patient => 
+        patient.text.toLowerCase().includes(searchTerm) ||
+        patient.info.toLowerCase().includes(searchTerm)
+    );
+
+    displayPatientResults(filteredPatients, searchTerm);
+}
+
+// Affichage des résultats patients
+function displayPatientResults(patients, searchTerm) {
+    const resultsContainer = document.getElementById('patientSearchResults');
+    
+    if (patients.length === 0) {
+        resultsContainer.innerHTML = '<div class="p-2 text-muted">Aucun patient trouvé</div>';
+        resultsContainer.style.display = 'block';
+        return;
+    }
+
+    let html = '';
+    patients.forEach(patient => {
+        const highlightedText = highlightText(patient.text, searchTerm);
+        html += `
+            <div class="p-2 border-bottom patient-result" 
+                 onclick="selectPatient('${patient.id}', '${patient.text.replace(/'/g, "\\'")}')"
+                 style="cursor: pointer;">
+                <div class="fw-bold">${highlightedText}</div>
+                <small class="text-muted">${patient.info}</small>
+            </div>
+        `;
+    });
+
+    resultsContainer.innerHTML = html;
+    resultsContainer.style.display = 'block';
+}
+
+// Filtrage des maladies
+function filterMaladies() {
+    const searchTerm = document.getElementById('maladieSearch').value.toLowerCase();
+    const resultsContainer = document.getElementById('maladieSearchResults');
+    
+    if (searchTerm.length < 2) {
+        resultsContainer.style.display = 'none';
+        return;
+    }
+
+    const filteredMaladies = allMaladies.filter(maladie => 
+        maladie.text.toLowerCase().includes(searchTerm) ||
+        maladie.categorie.toLowerCase().includes(searchTerm)
+    );
+
+    displayMaladieResults(filteredMaladies, searchTerm);
+}
+
+// Affichage des résultats maladies
+function displayMaladieResults(maladies, searchTerm) {
+    const resultsContainer = document.getElementById('maladieSearchResults');
+    
+    if (maladies.length === 0) {
+        resultsContainer.innerHTML = '<div class="p-2 text-muted">Aucune maladie trouvée</div>';
+        resultsContainer.style.display = 'block';
+        return;
+    }
+
+    let html = '';
+    maladies.forEach(maladie => {
+        const highlightedText = highlightText(maladie.text, searchTerm);
+        html += `
+            <div class="p-2 border-bottom maladie-result" 
+                 onclick="selectMaladie('${maladie.id}', '${maladie.text.replace(/'/g, "\\'")}', '${maladie.categorie.replace(/'/g, "\\'")}')"
+                 style="cursor: pointer;">
+                <div class="fw-bold">${highlightedText}</div>
+                <small class="text-muted">Catégorie: ${maladie.categorie}</small>
+            </div>
+        `;
+    });
+
+    resultsContainer.innerHTML = html;
+    resultsContainer.style.display = 'block';
+}
+
+// Sélection d'un patient
+function selectPatient(patientId, patientText) {
+    document.getElementById('patient_id').value = patientId;
+    document.getElementById('patientSearchResults').style.display = 'none';
+    document.getElementById('patientSearch').value = '';
+    updateSelectedPatientInfo();
+}
+
+// Sélection d'une maladie
+function selectMaladie(maladieId, maladieText, categorie) {
+    document.getElementById('maladie').value = maladieId;
+    document.getElementById('maladieSearchResults').style.display = 'none';
+    document.getElementById('maladieSearch').value = '';
+    updateSelectedMaladieInfo();
+}
+
+// Mise à jour des informations du patient sélectionné
+function updateSelectedPatientInfo() {
+    const patientSelect = document.getElementById('patient_id');
+    const selectedOption = patientSelect.options[patientSelect.selectedIndex];
+    const infoContainer = document.getElementById('selectedPatientInfo');
+    const infoText = document.getElementById('patientInfoText');
+    
+    if (patientSelect.value) {
+        infoText.textContent = selectedOption.dataset.info || selectedOption.text;
+        infoContainer.style.display = 'block';
+    } else {
+        infoContainer.style.display = 'none';
+    }
+}
+
+// Mise à jour des informations de la maladie sélectionnée
+function updateSelectedMaladieInfo() {
+    const maladieSelect = document.getElementById('maladie');
+    const selectedOption = maladieSelect.options[maladieSelect.selectedIndex];
+    const infoContainer = document.getElementById('selectedMaladieInfo');
+    const infoText = document.getElementById('maladieInfoText');
+    
+    if (maladieSelect.value) {
+        const categorie = selectedOption.dataset.categorie || 'Non spécifiée';
+        infoText.textContent = `${selectedOption.text} (${categorie})`;
+        infoContainer.style.display = 'block';
+    } else {
+        infoContainer.style.display = 'none';
+    }
+}
+
+// Mise en évidence du texte de recherche
+function highlightText(text, searchTerm) {
+    if (!searchTerm) return text;
+    const regex = new RegExp(`(${searchTerm})`, 'gi');
+    return text.replace(regex, '<span class="search-highlight">$1</span>');
+}
+
+// Gestion des boutons de suppression des objectifs
+function updateRemoveButtons() {
+    const removeButtons = document.querySelectorAll('.remove-objectif');
+    removeButtons.forEach(btn => {
+        btn.disabled = removeButtons.length === 1;
+        btn.onclick = function() {
+            if (removeButtons.length > 1) {
+                this.parentElement.remove();
+                updateRemoveButtons();
+            }
+        };
+    });
+}
+
+// Validation du formulaire
+function validateForm(showAlert = false) {
+    const form = document.getElementById('accompagnementForm');
+    const patientSelect = document.getElementById('patient_id');
+    const maladieSelect = document.getElementById('maladie');
+    const dateDebut = document.getElementById('date_debut');
+    let isValid = true;
+    let errorMessage = '';
+
+    // Validation patient
+    if (!patientSelect.value) {
+        markFieldInvalid(patientSelect, 'Veuillez sélectionner un patient');
+        isValid = false;
+        errorMessage += '• Patient requis\n';
+    } else {
+        markFieldValid(patientSelect);
+    }
+
+    // Validation maladie
+    if (!maladieSelect.value) {
+        markFieldInvalid(maladieSelect, 'Veuillez sélectionner une maladie');
+        isValid = false;
+        errorMessage += '• Maladie requise\n';
+    } else {
+        markFieldValid(maladieSelect);
+    }
+
+    // Validation date début
+    if (!dateDebut.value) {
+        markFieldInvalid(dateDebut, 'Veuillez saisir une date de début');
+        isValid = false;
+        errorMessage += '• Date de début requise\n';
+    } else {
+        markFieldValid(dateDebut);
+    }
+
+    // Validation objectifs
+    const objectifs = document.querySelectorAll('input[name="objectifs[]"]');
+    let objectifValid = true;
+    objectifs.forEach((obj, index) => {
+        if (!obj.value.trim()) {
+            markFieldInvalid(obj, 'L\'objectif ne peut pas être vide');
+            objectifValid = false;
+            if (index === 0) errorMessage += '• Au moins un objectif requis\n';
+        } else {
+            markFieldValid(obj);
+        }
+    });
+
+    if (!objectifValid) {
+        isValid = false;
+    }
+
+    if (showAlert) {
+        if (isValid) {
+            alert('✅ Formulaire valide ! Vous pouvez maintenant le soumettre.');
+        } else {
+            alert('❌ Veuillez corriger les erreurs suivantes :\n' + errorMessage);
+        }
+    }
+
+    return isValid;
+}
+
+// Marquer un champ comme invalide
+function markFieldInvalid(field, message) {
+    field.classList.add('is-invalid');
+    field.classList.remove('is-valid');
+    
+    let feedback = field.parentNode.querySelector('.invalid-feedback');
+    if (!feedback) {
+        feedback = document.createElement('div');
+        feedback.className = 'invalid-feedback';
+        field.parentNode.appendChild(feedback);
+    }
+    feedback.textContent = message;
+}
+
+// Marquer un champ comme valide
+function markFieldValid(field) {
+    field.classList.remove('is-invalid');
+    field.classList.add('is-valid');
+    const feedback = field.parentNode.querySelector('.invalid-feedback');
+    if (feedback) {
+        feedback.remove();
+    }
+}
+
+// Validation à la soumission
+document.getElementById('accompagnementForm').addEventListener('submit', function(e) {
+    if (!validateForm()) {
+        e.preventDefault();
+        // Scroll vers le premier champ en erreur
+        const firstError = document.querySelector('.is-invalid');
+        if (firstError) {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+});
+
+// Cacher les résultats quand on clique ailleurs
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('#patientSearch') && !e.target.closest('#patientSearchResults')) {
+        document.getElementById('patientSearchResults').style.display = 'none';
+    }
+    if (!e.target.closest('#maladieSearch') && !e.target.closest('#maladieSearchResults')) {
+        document.getElementById('maladieSearchResults').style.display = 'none';
+    }
+});
+
+// Initialiser les boutons de suppression
+updateRemoveButtons();
+</script>
+{% endblock %}

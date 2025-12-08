@@ -1,0 +1,52 @@
+================================================================================
+RAPPORT DE MIGRATION DES TEMPLATES
+================================================================================
+
+RÉSUMÉ DES CHANGEMENTS:
+----------------------------------------
+[2025-10-17 09:49:08] ✅ Sauvegarde créée: /Users/koffitanohsoualiho/Documents/projet/templates_backup
+[2025-10-17 09:49:08] 🔍 medecin/detail_ordonnance_public.html - 9 problème(s) détecté(s)
+[2025-10-17 09:49:08] ✅ medecin/detail_ordonnance_public.html - Mis à jour
+[2025-10-17 09:49:08] 🔍 medecin/historique_ordonnances.html - 3 problème(s) détecté(s)
+[2025-10-17 09:49:08] ✅ medecin/historique_ordonnances.html - Mis à jour
+[2025-10-17 09:49:08] 🔍 medecin/liste_ordonnances.html - 4 problème(s) détecté(s)
+[2025-10-17 09:49:08] ✅ medecin/liste_ordonnances.html - Mis à jour
+[2025-10-17 09:49:08] 🔍 medecin/detail_ordonnance.html - 9 problème(s) détecté(s)
+[2025-10-17 09:49:08] ✅ medecin/detail_ordonnance.html - Mis à jour
+[2025-10-17 09:49:08] 🔍 medecin/mes_ordonnances.html - 4 problème(s) détecté(s)
+[2025-10-17 09:49:08] ✅ medecin/mes_ordonnances.html - Mis à jour
+[2025-10-17 09:49:08] 🔍 membres/mes_ordonnances.html - 4 problème(s) détecté(s)
+[2025-10-17 09:49:08] ✅ membres/mes_ordonnances.html - Mis à jour
+[2025-10-17 09:49:08] 🔍 assureur/mes_ordonnances.html - 4 problème(s) détecté(s)
+[2025-10-17 09:49:08] ✅ assureur/mes_ordonnances.html - Mis à jour
+[2025-10-17 09:49:08] 🔍 pharmacien/liste_ordonnances.html - 3 problème(s) détecté(s)
+[2025-10-17 09:49:08] ✅ pharmacien/liste_ordonnances.html - Mis à jour
+[2025-10-17 09:49:08] 🔍 pharmacien/refuser_ordonnance.html - 2 problème(s) détecté(s)
+[2025-10-17 09:49:08] ✅ pharmacien/refuser_ordonnance.html - Mis à jour
+[2025-10-17 09:49:08] 🔍 pharmacien/historique_validation.html - 3 problème(s) détecté(s)
+[2025-10-17 09:49:08] ✅ pharmacien/historique_validation.html - Mis à jour
+[2025-10-17 09:49:08] 🔍 pharmacien/dashboard.html - 3 problème(s) détecté(s)
+[2025-10-17 09:49:08] ✅ pharmacien/dashboard.html - Mis à jour
+[2025-10-17 09:49:08] 🔍 pharmacien/valider_ordonnance.html - 3 problème(s) détecté(s)
+[2025-10-17 09:49:08] ✅ pharmacien/valider_ordonnance.html - Mis à jour
+[2025-10-17 09:49:08] 🔍 pharmacien/detail_ordonnance.html - 3 problème(s) détecté(s)
+[2025-10-17 09:49:08] ✅ pharmacien/detail_ordonnance.html - Mis à jour
+[2025-10-17 09:49:08] 🔍 pharmacien/filtre_ordonnances.html - 2 problème(s) détecté(s)
+[2025-10-17 09:49:08] ✅ pharmacien/filtre_ordonnances.html - Mis à jour
+[2025-10-17 09:49:08] 🔍 pharmacien/recherche_ordonnances.html - 2 problème(s) détecté(s)
+[2025-10-17 09:49:08] ✅ pharmacien/recherche_ordonnances.html - Mis à jour
+
+================================================================================
+CHANGEMENTS EFFECTUÉS:
+================================================================================
+
+- ordonnance.numero → ordonnance.ordonnance_medecin.numero
+- ordonnance.patient → ordonnance.ordonnance_medecin.patient
+- ordonnance.medecin → ordonnance.ordonnance_medecin.medecin
+- ordonnance.date_prescription → ordonnance.ordonnance_medecin.date_prescription
+- ordonnance.date_expiration → ordonnance.ordonnance_medecin.date_expiration
+- ordonnance.diagnostic → ordonnance.ordonnance_medecin.diagnostic
+- ordonnance.medicaments → ordonnance.ordonnance_medecin.medicaments
+- ordonnance.posologie → ordonnance.ordonnance_medecin.posologie
+- ordonnance.duree_traitement → ordonnance.ordonnance_medecin.duree_traitement
+- ordonnance.bon_de_soin → ordonnance.bon_prise_charge

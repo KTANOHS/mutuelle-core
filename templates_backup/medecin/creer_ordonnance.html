@@ -1,0 +1,392 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Créer une Ordonnance - Dashboard Médecin{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- En-tête -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h2 class="h4 mb-0">
+                                <i class="fas fa-file-prescription text-primary me-2"></i>
+                                Créer une Ordonnance
+                            </h2>
+                            <p class="text-muted mb-0">Rédiger une nouvelle ordonnance médicale</p>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <a href="{% url 'medecin:historique_ordonnances' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>
+                                Retour aux ordonnances
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulaire de création -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-edit me-2"></i>
+                        Informations de l'ordonnance
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="ordonnanceForm" method="POST" action="{% url 'medecin:creer_ordonnance' %}">
+                        {% csrf_token %}
+                        
+                        <!-- Informations de base -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="patient" class="form-label fw-bold">
+                                        Patient <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="patient" name="patient" required>
+                                        <option value="">Sélectionner un patient</option>
+                                        {% for patient in patients %}
+                                            <option value="{{ patient.id }}">
+                                                {{ patient.nom }} {{ patient.prenom }} 
+                                                {% if patient.date_naissance %}
+                                                    - {{ patient.date_naissance|date:"d/m/Y" }}
+                                                {% endif %}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="type_ordonnance" class="form-label fw-bold">
+                                        Type d'ordonnance <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="type_ordonnance" name="type_ordonnance" required>
+                                        <option value="">Sélectionner le type</option>
+                                        <option value="MEDICAMENT">Médicaments</option>
+                                        <option value="EXAMEN">Examens</option>
+                                        <option value="SOINS">Soins</option>
+                                        <option value="AUTRE">Autre</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Consultation liée -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="consultation" class="form-label fw-bold">
+                                        Consultation associée (optionnel)
+                                    </label>
+                                    <select class="form-select" id="consultation" name="consultation">
+                                        <option value="">Aucune consultation associée</option>
+                                        {% for consultation in consultations %}
+                                            <option value="{{ consultation.id }}">
+                                                {{ consultation.membre.nom }} {{ consultation.membre.prenom }} 
+                                                - {{ consultation.date_consultation|date:"d/m/Y H:i" }}
+                                                - {{ consultation.get_type_consultation_display }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Diagnostic -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="diagnostic" class="form-label fw-bold">
+                                        Diagnostic <span class="text-danger">*</span>
+                                    </label>
+                                    <textarea class="form-control" id="diagnostic" name="diagnostic" 
+                                              rows="4" placeholder="Décrire le diagnostic..." required></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section Médicaments -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-pills text-primary me-2"></i>
+                                        Médicaments prescrits
+                                    </h5>
+                                    <button type="button" id="ajouterMedicament" class="btn btn-success btn-sm">
+                                        <i class="fas fa-plus me-1"></i>
+                                        Ajouter un médicament
+                                    </button>
+                                </div>
+                                
+                                <div id="medicamentsContainer">
+                                    <!-- Premier médicament -->
+                                    <div class="medicament-item card mb-3">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-5">
+                                                    <div class="form-group">
+                                                        <label class="form-label">Médicament</label>
+                                                        <input type="text" class="form-control medicament-nom" 
+                                                               name="medicaments[]" placeholder="Nom du médicament" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label class="form-label">Posologie</label>
+                                                        <input type="text" class="form-control medicament-posologie" 
+                                                               name="posologie[]" placeholder="Ex: 1 comprimé matin et soir" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label">Durée</label>
+                                                        <input type="text" class="form-control medicament-duree" 
+                                                               name="duree_traitement[]" placeholder="Ex: 7 jours" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-1">
+                                                    <label class="form-label">&nbsp;</label>
+                                                    <button type="button" class="btn btn-danger btn-sm supprimer-medicament" disabled>
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Options supplémentaires -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">Options de renouvellement</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" id="renouvelable" name="renouvelable">
+                                            <label class="form-check-label" for="renouvelable">
+                                                Ordonnance renouvelable
+                                            </label>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="nombre_renouvellements" class="form-label">Nombre de renouvellements</label>
+                                            <input type="number" class="form-control" id="nombre_renouvellements" 
+                                                   name="nombre_renouvellements" value="0" min="0" max="12">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">Options supplémentaires</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" id="est_urgent" name="est_urgent">
+                                            <label class="form-check-label" for="est_urgent">
+                                                Ordonnance urgente
+                                            </label>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="notes" class="form-label">Notes complémentaires</label>
+                                            <textarea class="form-control" id="notes" name="notes" 
+                                                      rows="3" placeholder="Instructions supplémentaires..."></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Boutons d'action -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button type="reset" class="btn btn-outline-secondary">
+                                        <i class="fas fa-undo me-1"></i>
+                                        Réinitialiser
+                                    </button>
+                                    <button type="submit" class="btn btn-primary" id="btnSubmit">
+                                        <i class="fas fa-save me-1"></i>
+                                        Créer l'ordonnance
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Template HTML pour un nouveau médicament
+    const medicamentTemplate = `
+        <div class="medicament-item card mb-3">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label class="form-label">Médicament</label>
+                            <input type="text" class="form-control medicament-nom" 
+                                   name="medicaments[]" placeholder="Nom du médicament" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Posologie</label>
+                            <input type="text" class="form-control medicament-posologie" 
+                                   name="posologie[]" placeholder="Ex: 1 comprimé matin et soir" required>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label class="form-label">Durée</label>
+                            <input type="text" class="form-control medicament-duree" 
+                                   name="duree_traitement[]" placeholder="Ex: 7 jours" required>
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="button" class="btn btn-danger btn-sm supprimer-medicament">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Ajouter un médicament
+    $('#ajouterMedicament').click(function() {
+        $('#medicamentsContainer').append(medicamentTemplate);
+        updateDeleteButtons();
+    });
+
+    // Mettre à jour l'état des boutons de suppression
+    function updateDeleteButtons() {
+        const items = $('.medicament-item');
+        items.each(function(index) {
+            const deleteBtn = $(this).find('.supprimer-medicament');
+            if (items.length > 1) {
+                deleteBtn.prop('disabled', false);
+            } else {
+                deleteBtn.prop('disabled', true);
+            }
+        });
+    }
+
+    // Supprimer un médicament
+    $(document).on('click', '.supprimer-medicament', function() {
+        if ($('.medicament-item').length > 1) {
+            $(this).closest('.medicament-item').remove();
+            updateDeleteButtons();
+        }
+    });
+
+    // Soumission du formulaire avec AJAX
+    $('#ordonnanceForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        const submitBtn = $('#btnSubmit');
+        const originalText = submitBtn.html();
+        
+        // Désactiver le bouton et afficher le loader
+        submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Création...');
+        
+        // Vérifier qu'il y a au moins un médicament
+        if ($('.medicament-item').length === 0) {
+            alert('Veuillez ajouter au moins un médicament.');
+            submitBtn.prop('disabled', false).html(originalText);
+            return;
+        }
+
+        // Soumission AJAX
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: $(this).serialize(),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Redirection vers la page de détail de l'ordonnance
+                    window.location.href = "{% url 'medecin:historique_ordonnances' %}";
+                } else {
+                    alert('Erreur: ' + response.message);
+                    submitBtn.prop('disabled', false).html(originalText);
+                }
+            },
+            error: function(xhr) {
+                let errorMessage = 'Une erreur est survenue lors de la création.';
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.message) {
+                        errorMessage = response.message;
+                    }
+                } catch (e) {
+                    // Utiliser le message par défaut
+                }
+                alert(errorMessage);
+                submitBtn.prop('disabled', false).html(originalText);
+            }
+        });
+    });
+
+    // Initialiser l'état des boutons
+    updateDeleteButtons();
+
+    // Améliorer l'UX avec Select2 si disponible
+    if ($.fn.select2) {
+        $('#patient, #consultation, #type_ordonnance').select2({
+            theme: 'bootstrap-5',
+            placeholder: "Sélectionner...",
+            allowClear: true
+        });
+    }
+});
+</script>
+
+<style>
+.medicament-item {
+    border-left: 4px solid #007bff;
+    transition: all 0.3s ease;
+}
+
+.medicament-item:hover {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.supprimer-medicament:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.card-header {
+    border-bottom: 1px solid rgba(0,0,0,0.125);
+}
+</style>
+{% endblock %}

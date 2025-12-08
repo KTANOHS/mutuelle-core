@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Résultats de Recherche - Mutuelle App{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-search me-2"></i>Résultats de Recherche</h1>
+    <a href="{% url 'communication:message_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Retour aux messages
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    Recherche pour : "{{ query }}"
+                    <span class="badge bg-secondary ms-2">{{ messages.count }} résultat{{ messages.count|pluralize }}</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if messages %}
+                <div class="list-group list-group-flush">
+                    {% for message in messages %}
+                    <a href="{% url 'communication:message_detail' message.pk %}" 
+                       class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between align-items-start">
+                            <div class="flex-grow-1 me-3">
+                                <div class="d-flex align-items-center mb-1">
+                                    {% if not message.est_lu %}
+                                    <span class="badge bg-primary me-2">Nouveau</span>
+                                    {% endif %}
+                                    <h6 class="mb-0">{{ message.titre }}</h6>
+                                </div>
+                                <p class="mb-1 text-muted">{{ message.contenu|truncatewords:30 }}</p>
+                                <small class="text-muted">
+                                    <i class="fas fa-user me-1"></i>
+                                    De : {{ message.expediteur.get_full_name|default:message.expediteur.username }}
+                                    • {{ message.date_envoi|date:"d/m/Y H:i" }}
+                                </small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-info">{{ message.get_type_message_display }}</span>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Aucun résultat trouvé</h5>
+                    <p class="text-muted">Aucun message ne correspond à votre recherche "{{ query }}".</p>
+                    <div class="mt-3">
+                        <a href="{% url 'communication:message_list' %}" class="btn btn-primary me-2">
+                            <i class="fas fa-list me-1"></i>Voir tous les messages
+                        </a>
+                        <a href="{% url "communication:message_create" %}" class="btn btn-outline-primary">
+                            <i class="fas fa-plus me-1"></i>Nouveau message
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if messages %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h6>Conseils de recherche :</h6>
+                <ul class="mb-0">
+                    <li>Utilisez des termes plus généraux pour élargir votre recherche</li>
+                    <li>Vérifiez l'orthographe des mots-clés</li>
+                    <li>Essayez des synonymes ou des termes associés</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

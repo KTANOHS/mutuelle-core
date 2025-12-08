@@ -1,0 +1,47 @@
+<div class="list-group">
+  <!-- NAVIGATION PRINCIPALE -->
+  <a href="{% url 'agents:dashboard_class' %}" class="list-group-item list-group-item-action">
+    <i class="fas fa-tachometer-alt me-2"></i>Tableau de Bord
+  </a>
+  <a href="{% url 'agents:liste_membres' %}" class="list-group-item list-group-item-action">
+    <i class="fas fa-users me-2"></i>Gestion Membres
+  </a>
+          <a href="{% url 'agents:creer_membre' %}" class="list-group-item list-group-item-action">
+            <i class="fas fa-user-plus me-2"></i>Créer Membre
+          </a>
+  <a href="{% url 'agents:creer_bon_soin' %}" class="list-group-item list-group-item-action">
+    <i class="fas fa-file-medical me-2"></i>Créer Bon de Soin
+  </a>
+  <a href="{% url 'agents:historique_bons_soin' %}" class="list-group-item list-group-item-action">
+    <i class="fas fa-history me-2"></i>Historique Bons
+  </a>
+  
+  <!-- SÉPARATEUR COMMUNICATION -->
+  <div class="list-group-item bg-light fw-bold text-uppercase small">
+    <i class="fas fa-comments me-1"></i>Communication
+  </div>
+  
+  <!-- 🆕 MESSAGERIE - ÉLÉMENT IMPORTANT -->
+  <a href="{% url 'communication:messagerie_agent' %}" class="list-group-item list-group-item-action list-group-item-warning">
+    <i class="fas fa-envelope me-2"></i><strong>Messagerie</strong>
+    <span class="badge bg-warning rounded-pill float-end" id="sidebar-message-count">0</span>
+  </a>
+  
+  <!-- AUTRES LIENS COMMUNICATION -->
+  <a href="{% url 'agents:notifications_liste' %}" class="list-group-item list-group-item-action">
+    <i class="fas fa-bell me-2"></i>Notifications
+    <span class="badge bg-danger rounded-pill float-end" id="notification-count">0</span>
+  </a>
+  
+  <!-- SÉPARATEUR AUTRES -->
+  <div class="list-group-item bg-light fw-bold text-uppercase small">
+    <i class="fas fa-cog me-1"></i>Autres
+  </div>
+  
+  <a href="{% url 'agents:rapport_performance' %}" class="list-group-item list-group-item-action">
+    <i class="fas fa-chart-line me-2"></i>Rapports Performance
+  </a>
+  <a href="#" class="list-group-item list-group-item-action">
+    <i class="fas fa-credit-card me-2"></i>Gestion Paiements
+  </a>
+</div>

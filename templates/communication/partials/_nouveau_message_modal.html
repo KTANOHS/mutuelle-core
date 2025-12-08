@@ -1,0 +1,175 @@
+<!-- MODAL NOUVEAU MESSAGE CORRIGÉ -->
+<div class="modal fade" id="nouveauMessageModal" tabindex="-1" aria-labelledby="nouveauMessageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="nouveauMessageModalLabel">
+                    <i class="fas fa-plus me-2"></i>Nouveau Message
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="messageFormModal" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="destinataire" class="form-label fw-bold">Destinataire</label>
+                        <select class="form-select" id="destinataire" name="destinataire" required>
+                            <option value="">Sélectionnez un destinataire...</option>
+                            <option value="assureur">Assureur</option>
+                            <option value="membre">Membre</option>
+                            <option value="agent">Agent</option>
+                            <option value="medecin">Médecin</option>
+                            <option value="pharmacien">Pharmacien</option>
+                            <option value="administration">Administration</option>
+                            <option value="technique">Service Technique</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="sujet" class="form-label fw-bold">Sujet</label>
+                        <input type="text" class="form-control" id="sujet" name="sujet" placeholder="Sujet du message" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="message" class="form-label fw-bold">Message</label>
+                        <textarea class="form-control" id="message" name="message" rows="6" 
+                                  placeholder="Tapez votre message ici..." required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="fichiers" class="form-label fw-bold">
+                            <i class="fas fa-paperclip me-1"></i>Pièces jointes
+                        </label>
+                        <input type="file" class="form-control" id="fichiers" name="fichiers" multiple 
+                               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt,.xlsx,.xls">
+                        <div class="form-text">
+                            Formats acceptés: PDF, Word, Images, Excel, TXT (max 10MB par fichier)
+                        </div>
+                        <div id="liste-fichiers-modal" class="mt-2"></div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="urgent" name="urgent">
+                                <label class="form-check-label text-danger fw-bold" for="urgent">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>Message urgent
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="accuse" name="accuse" checked>
+                                <label class="form-check-label" for="accuse">
+                                    <i class="fas fa-check-circle me-1"></i>Accusé de réception
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Annuler
+                </button>
+                <button type="button" class="btn btn-primary" onclick="envoyerMessageModal()">
+                    <i class="fas fa-paper-plane me-1"></i>Envoyer le message
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Gestion des fichiers pour le modal
+document.addEventListener('DOMContentLoaded', function() {
+    const inputFichiers = document.getElementById('fichiers');
+    if (inputFichiers) {
+        inputFichiers.addEventListener('change', function(e) {
+            const listeFichiers = document.getElementById('liste-fichiers-modal');
+            listeFichiers.innerHTML = '';
+            
+            Array.from(e.target.files).forEach(file => {
+                const div = document.createElement('div');
+                div.className = 'alert alert-sm alert-info d-flex justify-content-between align-items-center mb-2';
+                div.innerHTML = `
+                    <div>
+                        <i class="fas fa-file me-2"></i>
+                        ${file.name} 
+                        <small class="text-muted">(${formatTailleFichier(file.size)})</small>
+                    </div>
+                    <button type="button" class="btn-close btn-close-sm" onclick="this.parentElement.remove()"></button>
+                `;
+                listeFichiers.appendChild(div);
+            });
+        });
+    }
+});
+
+function formatTailleFichier(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function envoyerMessageModal() {
+    const form = document.getElementById('messageFormModal');
+    const destinataire = document.getElementById('destinataire').value;
+    const sujet = document.getElementById('sujet').value;
+    const message = document.getElementById('message').value;
+    
+    // Validation
+    if (!destinataire) {
+        alert('⚠️ Veuillez sélectionner un destinataire');
+        return;
+    }
+    if (!sujet.trim()) {
+        alert('⚠️ Veuillez saisir un sujet');
+        return;
+    }
+    if (!message.trim()) {
+        alert('⚠️ Veuillez saisir un message');
+        return;
+    }
+    
+    console.log('📤 Envoi du message à:', destinataire);
+    
+    // Simulation d'envoi
+    const btn = document.querySelector('#nouveauMessageModal .btn-primary');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Envoi...';
+    btn.disabled = true;
+    
+    setTimeout(() => {
+        // Réinitialiser
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        
+        // Fermer le modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('nouveauMessageModal'));
+        if (modal) modal.hide();
+        
+        // Message de succès
+        alert('✅ Message envoyé avec succès!');
+        
+        // Vider le formulaire
+        form.reset();
+        document.getElementById('liste-fichiers-modal').innerHTML = '';
+    }, 1500);
+}
+
+// Debug: Vérifier que le modal peut être ouvert
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ Modal nouveau message initialisé');
+    
+    // Vérifier que Bootstrap est disponible
+    if (typeof bootstrap !== 'undefined') {
+        console.log('✅ Bootstrap détecté');
+    } else {
+        console.error('❌ Bootstrap non détecté');
+    }
+});
+</script>

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Assureur - Mutuelle{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-bg: #f8f9fa;
+        }
+        
+        .sidebar {
+            background: var(--primary-color);
+            color: white;
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 20px;
+            margin: 4px 0;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .sidebar .nav-link.active {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .main-content {
+            background: var(--light-bg);
+            min-height: 100vh;
+        }
+        
+        .stat-card {
+            border-radius: 12px;
+            border: none;
+            transition: transform 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card .card-body {
+            padding: 1.5rem;
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .activity-item {
+            border-left: 3px solid transparent;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .activity-item:hover {
+            border-left-color: var(--secondary-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .alert-card {
+            border-left: 4px solid;
+            border-radius: 8px;
+        }
+        
+        .alert-warning {
+            border-left-color: var(--warning-color);
+        }
+        
+        .alert-info {
+            border-left-color: var(--secondary-color);
+        }
+        
+        .badge-notification {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 0.7rem;
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--secondary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white">
+                            <i class="fas fa-shield-alt me-2"></i>
+                            Panel Assureur
+                        </h4>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'assureur:dashboard' %}">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'assureur:liste_membres' %}">
+                                <i class="fas fa-users me-2"></i>
+                                Membres
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'assureur:liste_bons' %}">
+                                <i class="fas fa-file-medical me-2"></i>
+                                Bons de Soin
+                                {% if stats and stats.bons_attente > 0 %}
+                                <span class="badge bg-danger badge-notification">{{ stats.bons_attente }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'assureur:liste_paiements' %}">
+                                <i class="fas fa-money-bill-wave me-2"></i>
+                                Paiements
+                            </a>
+                        </li>
+                        
+                        <!-- LIEN COMMUNICATION AJOUTÉ ICI -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'assureur:messagerie_assureur' %}">
+                                <i class="fas fa-envelope me-2"></i>
+                                Communication
+                                {% if unread_messages_count and unread_messages_count > 0 %}
+                                <span class="badge bg-warning badge-notification">{{ unread_messages_count }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'assureur:rapport_statistiques' %}">
+                                <i class="fas fa-chart-bar me-2"></i>
+                                Rapports
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'assureur:configuration' %}">
+                                <i class="fas fa-cog me-2"></i>
+                                Configuration
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <!-- Section rapide -->
+                    <div class="mt-5">
+                        <h6 class="text-white-50 text-uppercase small mb-3">Actions Rapides</h6>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'assureur:recherche_membre' %}" class="btn btn-outline-light btn-sm">
+                                <i class="fas fa-search me-1"></i> Rechercher Membre
+                            </a>
+                            <a href="{% url 'assureur:creer_paiement' %}" class="btn btn-outline-light btn-sm">
+                                <i class="fas fa-plus me-1"></i> Nouveau Paiement
+                            </a>
+                            <a href="{% url 'assureur:envoyer_message_assureur' %}" class="btn btn-outline-light btn-sm">
+                                <i class="fas fa-paper-plane me-1"></i> Envoyer Message
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 main-content">
+                <!-- Top Navbar -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+                    <div class="container-fluid">
+                        <button class="navbar-toggler d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        
+                        <div class="d-flex align-items-center">
+                            <span class="navbar-brand mb-0 h1">
+                                <i class="fas fa-hospital-user me-2"></i>
+                                {% block page_title %}Dashboard Assureur{% endblock %}
+                            </span>
+                            <span class="badge bg-primary ms-2">{{ date_aujourdhui|date:"d/m/Y" }}</span>
+                        </div>
+
+                        <div class="navbar-nav ms-auto">
+                            {% if unread_messages_count and unread_messages_count > 0 %}
+                            <div class="nav-item dropdown">
+                                <a class="nav-link position-relative" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-bell text-warning"></i>
+                                    <span class="badge bg-danger badge-notification">{{ unread_messages_count }}</span>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <a class="dropdown-item" href="{% url 'assureur:messagerie_assureur' %}">
+                                        <i class="fas fa-envelope me-2"></i>
+                                        {{ unread_messages_count }} message(s) non lu(s)
+                                    </a>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                                    <div class="user-avatar me-2">
+                                        {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                                    </div>
+                                    <span>{{ user.get_full_name|default:user.username }}</span>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <span class="dropdown-item-text">
+                                        <small>Connecté en tant que <strong>Assureur</strong></small>
+                                    </span>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-user me-2"></i>Mon Profil
+                                    </a>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-cog me-2"></i>Paramètres
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+
+                <!-- Messages -->
+                {% if messages %}
+                <div class="container-fluid mt-3">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Page Content -->
+                <div class="container-fluid py-4">
+                    {% block content %}
+                    <!-- Le contenu spécifique à chaque page viendra ici -->
+                    {% endblock %}
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Script pour le sidebar responsive
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.querySelector('[data-bs-target="#sidebar"]');
+            
+            // Gestion du responsive
+            function handleResize() {
+                if (window.innerWidth < 768) {
+                    sidebar.classList.remove('show');
+                } else {
+                    sidebar.classList.add('show');
+                }
+            }
+            
+            window.addEventListener('resize', handleResize);
+            handleResize(); // Appel initial
+            
+            // Auto-refresh des statistiques toutes les 2 minutes
+            setInterval(function() {
+                fetch('/assureur/api/statistiques/')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Mettre à jour les compteurs en temps réel
+                        if (data.bons_attente > 0) {
+                            const badge = document.querySelector('.nav-link[href*="bons"] .badge');
+                            if (badge) {
+                                badge.textContent = data.bons_attente;
+                            }
+                        }
+                        
+                        // Mettre à jour les notifications de messages
+                        if (data.unread_messages && data.unread_messages > 0) {
+                            const messageBadges = document.querySelectorAll('.badge-notification');
+                            messageBadges.forEach(badge => {
+                                if (badge.parentElement.href.includes('messagerie')) {
+                                    badge.textContent = data.unread_messages;
+                                }
+                            });
+                        }
+                    })
+                    .catch(error => console.error('Erreur refresh:', error));
+            }, 120000); // 2 minutes
+            
+            // Mettre en évidence le lien actif dans le menu
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.sidebar .nav-link');
+            
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') && currentPath.includes(link.getAttribute('href').replace('/assureur/', ''))) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
+    </script>
+    
+    {% block extra_scripts %}
+    {% endblock %}
+</body>
+</html>

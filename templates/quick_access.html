@@ -1,0 +1,73 @@
+
+<!-- Sauvegardez ceci comme quick_access.html dans templates/ -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Accès Rapide - Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+        .user-card { background: #e9f7fe; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #007bff; }
+        .btn { display: inline-block; padding: 12px 24px; margin: 5px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        .btn:hover { background: #0056b3; }
+        .btn-success { background: #28a745; }
+        .btn-warning { background: #ffc107; color: black; }
+        .btn-danger { background: #dc3545; }
+        .section { margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Accès Rapide - Tableaux de Bord</h1>
+        
+        <div class="section">
+            <h2>🔐 Comptes de Test</h2>
+            
+            <div class="user-card">
+                <h3>Agent</h3>
+                <p><strong>Identifiant:</strong> leti</p>
+                <p><strong>Mot de passe:</strong> leti123</p>
+                <p><strong>Dashboard:</strong> <a href="/agents/dashboard/" class="btn">Espace Agent</a></p>
+            </div>
+            
+            <div class="user-card">
+                <h3>Assureur</h3>
+                <p><strong>Identifiant:</strong> alia</p>
+                <p><strong>Mot de passe:</strong> alia123</p>
+                <p><strong>Dashboard:</strong> <a href="assureur:dashboard" class="btn btn-success">Espace Assureur</a></p>
+            </div>
+            
+            <div class="user-card">
+                <h3>Administrateur</h3>
+                <p><strong>Identifiant:</strong> soualiho</p>
+                <p><strong>Mot de passe:</strong> soualiho123</p>
+                <p><strong>Dashboard:</strong> <a href="admin:index" class="btn btn-warning">Admin Django</a></p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🎯 URLs Directes</h2>
+            <a href="/agents/dashboard/" class="btn">Dashboard Agent</a>
+            <a href="assureur:dashboard" class="btn btn-success">Dashboard Assureur</a>
+            <a href="medecin:dashboard" class="btn">Dashboard Médecin</a>
+            <a href="pharmacien:dashboard" class="btn">Dashboard Pharmacien</a>
+            <a href="membres:dashboard" class="btn">Dashboard Membre</a>
+            <a href="/dashboard/" class="btn btn-warning">Dashboard Principal</a>
+        </div>
+
+        <div class="section">
+            <h2>🔧 Outils de Debug</h2>
+            <a href="/accounts/login/" class="btn">Page de Connexion</a>
+            <a href="/logout/" class="btn btn-danger">Déconnexion</a>
+        </div>
+
+        <div class="section">
+            <h2>📊 Statut Actuel</h2>
+            <p><strong>Problème identifié:</strong> La fonction de détection des groupes utilisateur</p>
+            <p><strong>Solution appliquée:</strong> Correction de get_user_primary_group()</p>
+            <p><strong>Status:</strong> ✅ FONCTIONNEL - Utilisez les URLs directes</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,32 @@
+# create_pharmacie_public_templates.py
+import os
+
+def create_templates_structure():
+    """Crée la structure complète des templates"""
+    
+    base_dir = 'pharmacie_public/templates/pharmacie_public'
+    includes_dir = os.path.join(base_dir, 'includes')
+    
+    # Créer les dossiers
+    os.makedirs(includes_dir, exist_ok=True)
+    
+    print("✅ Structure des templates créée!")
+    print(f"📁 Dossier principal: {base_dir}")
+    print(f"📁 Dossier includes: {includes_dir}")
+    
+    print("\n🎯 Templates à créer:")
+    print("   ✅ base_pharmacie_public.html")
+    print("   ✅ inscription.html") 
+    print("   ✅ inscription_success.html")
+    print("   ✅ liste_pharmacies.html")
+    print("   ✅ pharmacies_garde.html")
+    print("   ✅ detail_pharmacie.html")
+    print("   ✅ passer_commande.html")
+    print("   ✅ mes_commandes.html")
+    print("   ✅ detail_commande.html")
+    print("   ✅ includes/_pharmacie_card.html")
+    print("   ✅ includes/_search_form.html")
+    print("   ✅ includes/_medicament_list.html")
+
+if __name__ == "__main__":
+    create_templates_structure()

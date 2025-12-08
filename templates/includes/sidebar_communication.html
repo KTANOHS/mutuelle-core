@@ -1,0 +1,55 @@
+<!-- templates/includes/sidebar_communication.html -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h6 class="mb-0">
+            <i class="fas fa-comments me-2 text-primary"></i>Communication
+        </h6>
+    </div>
+    <div class="card-body p-0">
+        <div class="list-group list-group-flush">
+            <a href="{% url 'communication:messagerie' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-inbox me-2"></i>Messagerie</span>
+                <span class="badge bg-danger sidebar-msg-count" style="display: none;">0</span>
+            </a>
+            <a href="{% url 'communication:notification_list' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-bell me-2"></i>Notifications</span>
+                <span class="badge bg-warning sidebar-notif-count" style="display: none;">0</span>
+            </a>
+            <a href="{% url "communication:message_create" %}" class="list-group-item list-group-item-action">
+                <i class="fas fa-edit me-2"></i>Nouveau message
+            </a>
+            <a href="{% url 'communication:liste_groupes' %}" class="list-group-item list-group-item-action">
+                <i class="fas fa-users me-2"></i>Groupes de discussion
+            </a>
+            <a href="{% url 'communication:liste_fichiers' %}" class="list-group-item list-group-item-action">
+                <i class="fas fa-file me-2"></i>Fichiers partagés
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+// Synchroniser les badges de la sidebar
+document.addEventListener('DOMContentLoaded', function() {
+    function updateSidebarBadges() {
+        const msgCount = document.querySelector('#navMsgCount')?.textContent || '0';
+        const notifCount = document.querySelector('#navNotifCount')?.textContent || '0';
+        
+        const sidebarMsg = document.querySelector('.sidebar-msg-count');
+        const sidebarNotif = document.querySelector('.sidebar-notif-count');
+        
+        if (parseInt(msgCount) > 0 && sidebarMsg) {
+            sidebarMsg.textContent = msgCount;
+            sidebarMsg.style.display = 'inline';
+        }
+        if (parseInt(notifCount) > 0 && sidebarNotif) {
+            sidebarNotif.textContent = notifCount;
+            sidebarNotif.style.display = 'inline';
+        }
+    }
+    
+    // Mettre à jour immédiatement et périodiquement
+    updateSidebarBadges();
+    setInterval(updateSidebarBadges, 30000);
+});
+</script>

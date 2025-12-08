@@ -1,0 +1,206 @@
+================================================================================
+RAPPORT D'ANALYSE COMPLÈTE DU PROJET
+================================================================================
+
+Projet: /Users/koffitanohsoualiho/Documents/P FINALE AVANT SYNCHRO/pf erreur/projet 21.49.30
+Date d'analyse: 2025-12-06 13:32:37
+
+📊 STATISTIQUES GLOBALES
+----------------------------------------
+Fichiers totaux: 2,106
+Taille totale: 58.3 MB
+Applications Django: 18
+
+📁 APPLICATIONS DJANGO
+----------------------------------------
+
+mutuelle_core:
+  - models.py: 2 modèles
+  - views.py: 50 vues
+  - urls.py: 38 URLs
+  - admin.py: ✓
+  - apps.py: ✓
+
+core:
+  - models.py: 3 modèles
+  - views.py: 13 vues
+  - urls.py: 1 URLs
+  - admin.py: ✓
+  - apps.py: ✓
+
+soins:
+  - models.py: 6 modèles
+  - views.py: 10 vues
+  - urls.py: 6 URLs
+  - admin.py: ✓
+  - apps.py: ✓
+
+medecin:
+  - models.py: 14 modèles
+  - views.py: 37 vues
+  - urls.py: 35 URLs
+  - admin.py: ✓
+  - apps.py: ✓
+
+agents:
+  - models.py: 8 modèles
+  - views.py: 36 vues
+  - urls.py: 26 URLs
+  - admin.py: ✓
+  - apps.py: ✓
+
+pharmacie_public:
+  - models.py: 5 modèles
+  - views.py: 9 vues
+  - urls.py: 8 URLs
+  - admin.py: ✓
+  - apps.py: ✓
+
+dashboard:
+  - apps.py: ✓
+
+membres:
+  - models.py: 7 modèles
+  - views.py: 37 vues
+  - urls.py: 30 URLs
+  - admin.py: ✓
+  - apps.py: ✓
+
+assureur:
+  - models.py: 10 modèles
+  - views.py: 51 vues
+  - urls.py: 55 URLs
+  - admin.py: ✓
+  - apps.py: ✓
+
+inscription:
+  - models.py: 0 modèles
+  - views.py: 2 vues
+  - urls.py: 2 URLs
+  - admin.py: ✓
+  - apps.py: ✓
+
+ia_detection:
+  - models.py: 2 modèles
+  - admin.py: ✓
+  - apps.py: ✓
+
+scoring:
+  - models.py: 2 modèles
+  - admin.py: ✓
+  - apps.py: ✓
+
+api:
+  - models.py: 0 modèles
+  - views.py: 9 vues
+  - urls.py: 4 URLs
+  - admin.py: ✓
+  - apps.py: ✓
+
+paiements:
+  - models.py: 3 modèles
+  - views.py: 11 vues
+  - urls.py: 0 URLs
+  - admin.py: ✓
+  - apps.py: ✓
+
+pharmacien:
+  - models.py: 5 modèles
+  - views.py: 32 vues
+  - urls.py: 25 URLs
+  - admin.py: ✓
+  - apps.py: ✓
+
+communication:
+  - models.py: 6 modèles
+  - views.py: 52 vues
+  - urls.py: 55 URLs
+  - admin.py: ✓
+  - apps.py: ✓
+
+relances:
+  - models.py: 2 modèles
+  - admin.py: ✓
+  - apps.py: ✓
+
+notifications:
+  - models.py: 2 modèles
+  - views.py: 0 vues
+  - admin.py: ✓
+  - apps.py: ✓
+
+🔧 FICHIERS DE CORRECTION/TEST
+----------------------------------------
+
+CORRECTION (299 fichiers):
+  - corrections_finales_mutuelle.py (10.7 KB)
+  - repair.py (3.9 KB)
+  - fix_final_historique.py (4.6 KB)
+  - correction_template.py (3.7 KB)
+  - dashboard_quick_fix.py (701 B)
+  - fix_all_templates.py (1.6 KB)
+  - correction_assureurs.py (1.9 KB)
+  - repair_ultimate.py (8.6 KB)
+  - correction_recherche.py (3.6 KB)
+  - test_cotisations_correct.py (7.1 KB)
+  - correction_finale2.py (16.6 KB)
+  - correction_finale_template2.py (13.3 KB)
+  - correction_finale_liste_membres.py (2.0 KB)
+  - correction_complete.py (12.8 KB)
+  - correction_assureur_final.py (20.4 KB)
+  - correction_doublons.py (5.4 KB)
+  - test_without_server_fixed.py (6.2 KB)
+  - check_video_fixed.py (6.2 KB)
+  - fix_video_simple.sh (2.6 KB)
+  - fix_test_issues.py (3.9 KB)
+  ... et 279 autres
+
+TEST (286 fichiers):
+  - test_acces_temps_reel.py (3.4 KB)
+  - test_assureur_final.py (2.0 KB)
+  - test_manuel_rapide.py (667 B)
+  - test_final.sh (1.5 KB)
+  - test_formulaire_message1.py (1.6 KB)
+  - test_interactions_temps_reel.py (2.2 KB)
+  - test_creation_cotisation.py (19.2 KB)
+  - test_cotisations_correct.py (7.1 KB)
+  - test_final_confirmation.py (1.3 KB)
+  - test_solution.py (797 B)
+  - test_api_finale_complete.py (3.0 KB)
+  - demarrer_et_tester.py (2.6 KB)
+  - adapter_tests_existants.py (954 B)
+  - create_test_users.py (2.7 KB)
+  - test_without_server_fixed.py (6.2 KB)
+  - test_api_mobile.py (1.4 KB)
+  - creer_donnees_test2.py (2.6 KB)
+  - fix_test_issues.py (3.9 KB)
+  - test_cotisations_shell.py (0 B)
+  - config_test_mutuelle.py (1.0 KB)
+  ... et 266 autres
+
+DIAGNOSTIC (343 fichiers):
+  - analyze_project2.py (18.0 KB)
+  - analyse_assureur.py (17.4 KB)
+  - diagnostic_choix_membre.py (1.0 KB)
+  - diagnostic_modeles.py (1.4 KB)
+  - diagnostic_final_vue.py (2.1 KB)
+  - analyse_urgence.py (10.0 KB)
+  - python diagnostic_global_applications.py --auto (35.6 KB)
+  - lancer_analyse_complete.sh (1.3 KB)
+  - diagnostic_global_applications.py (35.6 KB)
+  - diagnostic_membres1.py (5.9 KB)
+  - rapport_analyse_projet.json (931 B)
+  - check_current_view.py (839 B)
+  - check_missing_urls.py (835 B)
+  - urls_analyzer.py (1.5 KB)
+  - run_analyse_configuration3.py (1.6 KB)
+  - analyze_agents_app.py (13.7 KB)
+  - diagnostic_cotisations.py (7.2 KB)
+  - diagnostic_complet_filtres_corrige.py (6.5 KB)
+  - diagnostic_complet_final.py (7.8 KB)
+  - analyse_dependances.py (1.3 KB)
+  ... et 323 autres
+
+⚠️  PROBLÈMES IDENTIFIÉS
+----------------------------------------
+Aucun problème majeur détecté

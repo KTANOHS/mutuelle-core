@@ -1,0 +1,276 @@
+<!-- templates/membres/detail_ordonnance.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Détail de l'Ordonnance - {{ ordonnance.id }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- En-tête -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Détail de l'Ordonnance</h1>
+                    <p class="text-muted mb-0">N° {{ ordonnance.id }}</p>
+                </div>
+                <div>
+                    <a href="{% url 'membres:mes_ordonnances' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+                    </a>
+                    <button onclick="window.print()" class="btn btn-primary">
+                        <i class="fas fa-print me-2"></i>Imprimer
+                    </button>
+                </div>
+            </div>
+
+            <!-- Carte principale -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-file-prescription me-2"></i>
+                        Ordonnance Médicale
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Informations générales -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">Informations Patient</h6>
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <td class="fw-bold" width="40%">Nom complet:</td>
+                                    <td>
+                                        {% if ordonnance.consultation.membre %}
+                                            {{ ordonnance.consultation.membre.nom_complet }}
+                                        {% elif ordonnance.patient %}
+                                            {{ ordonnance.patient.get_full_name }}
+                                        {% else %}
+                                            Non spécifié
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Date de naissance:</td>
+                                    <td>
+                                        {% if ordonnance.consultation.membre and ordonnance.consultation.membre.date_naissance %}
+                                            {{ ordonnance.consultation.membre.date_naissance|date:"d/m/Y" }}
+                                        {% else %}
+                                            Non spécifié
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Numéro membre:</td>
+                                    <td>
+                                        {% if ordonnance.consultation.membre %}
+                                            {{ ordonnance.consultation.membre.numero_unique }}
+                                        {% else %}
+                                            Non applicable
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary">Informations Médecin</h6>
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <td class="fw-bold" width="40%">Docteur:</td>
+                                    <td>
+                                        {% if ordonnance.medecin %}
+                                            Dr. {{ ordonnance.medecin.prenom }} {{ ordonnance.medecin.nom }}
+                                        {% else %}
+                                            Non spécifié
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Spécialité:</td>
+                                    <td>
+                                        {% if ordonnance.medecin and ordonnance.medecin.specialite %}
+                                            {{ ordonnance.medecin.specialite.nom }}
+                                        {% else %}
+                                            Non spécifiée
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Date prescription:</td>
+                                    <td>{{ ordonnance.date_creation|date:"d/m/Y" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Diagnostic -->
+                    {% if ordonnance.diagnostic %}
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-primary">Diagnostic</h6>
+                            <div class="alert alert-light border">
+                                <p class="mb-0">{{ ordonnance.diagnostic }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Médicaments -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-primary">Médicaments Prescrits</h6>
+                            {% if ordonnance.medicaments.all %}
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-sm">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Médicament</th>
+                                                <th>Posologie</th>
+                                                <th>Durée</th>
+                                                <th>Quantité</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for medicament in ordonnance.medicaments.all %}
+                                            <tr>
+                                                <td>
+                                                    <strong>{{ medicament.nom }}</strong>
+                                                    {% if medicament.dci %}
+                                                        <br><small class="text-muted">DCI: {{ medicament.dci }}</small>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ medicament.posologie|default:"Non spécifié" }}</td>
+                                                <td>{{ medicament.duree_traitement|default:"Non spécifié" }}</td>
+                                                <td>{{ medicament.quantite|default:"Non spécifié" }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Aucun médicament prescrit sur cette ordonnance.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Instructions supplémentaires -->
+                    {% if ordonnance.instructions_speciales %}
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-primary">Instructions Spéciales</h6>
+                            <div class="alert alert-info">
+                                <p class="mb-0">{{ ordonnance.instructions_speciales }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Informations de validation -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">Statut</h6>
+                            <div class="d-flex align-items-center">
+                                {% if ordonnance.est_valide %}
+                                    <span class="badge bg-success me-2">
+                                        <i class="fas fa-check-circle me-1"></i>Validée
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-warning me-2">
+                                        <i class="fas fa-clock me-1"></i>En attente
+                                    </span>
+                                {% endif %}
+                                <small class="text-muted">
+                                    Créée le {{ ordonnance.date_creation|date:"d/m/Y à H:i" }}
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary">Signature</h6>
+                            <div class="border-top pt-2">
+                                <p class="mb-0 text-muted">
+                                    {% if ordonnance.medecin %}
+                                        Dr. {{ ordonnance.medecin.prenom }} {{ ordonnance.medecin.nom }}
+                                    {% else %}
+                                        Signature non disponible
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="text-primary mb-3">Actions</h6>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a href="{% url 'membres:mes_ordonnances' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-list me-2"></i>Voir toutes mes ordonnances
+                                </a>
+                                <button onclick="window.print()" class="btn btn-outline-primary">
+                                    <i class="fas fa-print me-2"></i>Imprimer l'ordonnance
+                                </button>
+                                {% if ordonnance.medicaments.all %}
+                                <a href="#" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#pharmaciesModal">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Trouver une pharmacie
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour les pharmacies -->
+<div class="modal fade" id="pharmaciesModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Pharmacies à Proximité</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Cette fonctionnalité vous permettra de trouver les pharmacies les plus proches disposant de vos médicaments.</p>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Fonctionnalité en cours de développement.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                <a href="{% url 'pharmacie_public:liste_pharmacies' %}" class="btn btn-primary">
+                    Voir toutes les pharmacies
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .btn, .modal, .card-header .btn {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+    
+    .card-header {
+        background: #fff !important;
+        color: #000 !important;
+        border-bottom: 2px solid #000 !important;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Messagerie Avancée{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Messagerie Avancée</h1>
+        <div>
+            <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#newMessageModal">
+                <i class="fas fa-plus me-1"></i>Nouveau Message
+            </button>
+            <a href="{% url 'communication:liste_fichiers' %}" class="btn btn-outline-info">
+                <i class="fas fa-folder me-1"></i>Fichiers Partagés
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Sidebar avec conversations et groupes -->
+        <div class="col-md-3">
+            <!-- Liste des conversations -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Conversations</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" id="conversations-list">
+                        {% for conversation in conversations %}
+                        <a href="#" class="list-group-item list-group-item-action conversation-item"
+                           data-conversation-id="{{ conversation.id }}"
+                           data-user-id="{{ conversation.get_autre_participant.user.id }}">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ conversation.get_autre_participant.user.get_full_name }}</h6>
+                                {% if conversation.nb_messages_non_lus > 0 %}
+                                <span class="badge bg-primary rounded-pill">{{ conversation.nb_messages_non_lus }}</span>
+                                {% endif %}
+                            </div>
+                            <small class="text-muted">
+                                {{ conversation.dernier_message.contenu|truncatechars:30 }}
+                            </small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Groupes de communication -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Groupes</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" id="groupes-list">
+                        {% for groupe in request.user.groupes_communication.all %}
+                        <a href="#" class="list-group-item list-group-item-action groupe-item"
+                           data-groupe-id="{{ groupe.id }}">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ groupe.nom }}</h6>
+                                <span class="badge bg-secondary rounded-pill">{{ groupe.membres.count }}</span>
+                            </div>
+                            <small class="text-muted">{{ groupe.description|truncatechars:30 }}</small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Zone de conversation principale -->
+        <div class="col-md-9">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0" id="conversation-title">
+                        <i class="fas fa-comments me-2"></i>
+                        Sélectionnez une conversation
+                    </h5>
+                    <div id="conversation-actions" style="display: none;">
+                        <button class="btn btn-sm btn-outline-secondary" id="btn-attacher-fichier">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <!-- Zone sans conversation sélectionnée -->
+                    <div id="no-conversation" class="text-center py-5">
+                        <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Bienvenue dans la messagerie</h5>
+                        <p class="text-muted">Sélectionnez une conversation ou créez-en une nouvelle</p>
+                    </div>
+
+                    <!-- Zone de conversation active -->
+                    <div id="conversation-area" style="display: none;">
+                        <!-- En-tête de la conversation -->
+                        <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded">
+                            <div>
+                                <h6 id="current-conversation-with"></h6>
+                                <small class="text-muted" id="conversation-info"></small>
+                            </div>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" 
+                                        data-bs-toggle="dropdown">
+                                    <i class="fas fa-cog"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" id="btn-vider-conversation">
+                                        <i class="fas fa-trash me-2"></i>Vider la conversation
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" id="btn-fichiers-conversation">
+                                        <i class="fas fa-folder me-2"></i>Fichiers partagés
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Messages -->
+                        <div id="messages-container" class="mb-3 border rounded" 
+                             style="height: 400px; overflow-y: auto; background: #f8f9fa;">
+                            <div id="messages-list" class="p-3"></div>
+                        </div>
+
+                        <!-- Zone de pièces jointes -->
+                        <div id="pieces-jointes-preview" class="mb-3" style="display: none;">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white py-2">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-paperclip me-2"></i>
+                                        Fichiers à envoyer
+                                    </h6>
+                                </div>
+                                <div class="card-body py-2" id="fichiers-selectionnes">
+                                    <!-- Fichiers sélectionnés apparaîtront ici -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Formulaire d'envoi -->
+                        <form id="message-form" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="hidden" id="destinataire_id" name="destinataire_id">
+                            <input type="hidden" id="conversation_id" name="conversation_id">
+                            
+                            <div class="input-group">
+                                <textarea class="form-control" id="message-text" name="contenu" 
+                                          placeholder="Tapez votre message..." rows="2"></textarea>
+                                
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-outline-secondary" id="btn-ajouter-fichier"
+                                            title="Ajouter un fichier">
+                                        <i class="fas fa-paperclip"></i>
+                                    </button>
+                                    <input type="file" id="fichier-input" name="pieces_jointes" 
+                                           multiple style="display: none;" 
+                                           accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.txt,.zip">
+                                    <button type="submit" class="btn btn-primary" id="send-btn">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="form-text">
+                                <small>
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Formats acceptés: PDF, Word, Excel, images, texte, archives (max 10MB par fichier)
+                                </small>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal nouveau message -->
+{% include "communication/partials/_nouveau_message_modal.html" %}
+
+<!-- Modal visualisation fichier -->
+{% include "communication/partials/_modal_fichier.html" %}
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.message-fichier {
+    border-left: 3px solid #007bff;
+    background: #f8f9fa;
+}
+.fichier-item {
+    transition: background-color 0.2s;
+}
+.fichier-item:hover {
+    background-color: #e9ecef;
+}
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/communication/messagerie_avancee.js' %}"></script>
+{% endblock %}

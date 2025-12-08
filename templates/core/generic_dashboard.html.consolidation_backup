@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord - {{ APP_NAME }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .user-info {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #3498db;
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .nav-links a {
+            padding: 10px 15px;
+            background: #34495e;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .nav-links a:hover {
+            background: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Tableau de Bord Générique</h1>
+            <p>Bienvenue dans {{ APP_NAME }}</p>
+        </div>
+
+        <div class="user-info">
+            <h2>Informations de compte</h2>
+            <p><strong>Utilisateur :</strong> {{ user.username }}</p>
+            <p><strong>Email :</strong> {{ user.email|default:"Non spécifié" }}</p>
+            <p><strong>Type :</strong> {{ user_type|default:"Générique" }}</p>
+            <p><strong>Superutilisateur :</strong> {{ user.is_superuser|yesno:"Oui,Non" }}</p>
+            <p><strong>Staff :</strong> {{ user.is_staff|yesno:"Oui,Non" }}</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Statut</h3>
+                <p>Utilisateur Générique</p>
+            </div>
+            <div class="stat-card" style="background: #e74c3c;">
+                <h3>Action Requise</h3>
+                <p>Contactez l'administrateur</p>
+            </div>
+        </div>
+
+        <div class="nav-links">
+            <a href="{% url 'home' %}">Accueil</a>
+            <a href="{% url 'logout' %}">Déconnexion</a>
+            {% if user.is_staff %}
+            <a href="/admin/">Administration</a>
+            {% endif %}
+        </div>
+
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+            <h3>Informations importantes</h3>
+            <p>Votre compte n'est actuellement associé à aucun groupe spécifique (Assureur, Médecin, Pharmacien, Membre).</p>
+            <p>Veuillez contacter l'administrateur du système pour obtenir les permissions appropriées.</p>
+        </div>
+    </div>
+</body>
+</html>

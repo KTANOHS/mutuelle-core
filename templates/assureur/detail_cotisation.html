@@ -1,0 +1,214 @@
+{% extends 'assureur/base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"Détail Cotisation" }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- En-tête avec navigation -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-file-invoice-dollar text-primary me-2"></i>
+                    Cotisation {{ cotisation.reference }}
+                </h1>
+                <div class="btn-group">
+                    <a href="{% url 'assureur:liste_cotisations' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Retour
+                    </a>
+                    {% if cotisation.statut != 'payee' %}
+                    <a href="{% url 'assureur:marquer_cotisation_payee' cotisation.id %}" 
+                       class="btn btn-success"
+                       onclick="return confirm('Marquer cette cotisation comme payée ?')">
+                        <i class="fas fa-check me-1"></i> Marquer payée
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Alertes -->
+            {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Carte principale -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Informations de la Cotisation</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Informations de base -->
+                        <div class="col-md-6">
+                            <h4 class="h6 text-muted mb-3">Informations Générales</h4>
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <td class="text-muted" width="40%">Référence:</td>
+                                    <td><strong>{{ cotisation.reference }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Membre:</td>
+                                    <td>
+                                        <strong>
+                                            {{ cotisation.membre.prenom }} {{ cotisation.membre.nom }}
+                                        </strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ cotisation.membre.numero_unique }}
+                                        </small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Période:</td>
+                                    <td><strong>{{ cotisation.periode }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Type:</td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            {{ cotisation.get_type_cotisation_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Statut et montants -->
+                        <div class="col-md-6">
+                            <h4 class="h6 text-muted mb-3">Statut et Paiement</h4>
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <td class="text-muted" width="40%">Statut:</td>
+                                    <td>
+                                        {% if cotisation.statut == 'payee' %}
+                                        <span class="badge bg-success">Payée</span>
+                                        {% elif cotisation.statut == 'en_retard' %}
+                                        <span class="badge bg-danger">En retard</span>
+                                        {% else %}
+                                        <span class="badge bg-warning">Due</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Montant total:</td>
+                                    <td><strong class="h5">{{ cotisation.montant }} FCFA</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Date échéance:</td>
+                                    <td>
+                                        <strong>{{ cotisation.date_echeance|date:"d/m/Y" }}</strong>
+                                        {% if cotisation.est_en_retard %}
+                                        <span class="badge bg-danger ms-2">
+                                            {{ cotisation.jours_retard }} jour(s) de retard
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% if cotisation.date_paiement %}
+                                <tr>
+                                    <td class="text-muted">Date paiement:</td>
+                                    <td><strong>{{ cotisation.date_paiement|date:"d/m/Y" }}</strong></td>
+                                </tr>
+                                {% endif %}
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Répartition des fonds -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h4 class="h6 text-muted mb-3">Répartition des Fonds</h4>
+                            <div class="row">
+                                <div class="col-md-3 col-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center py-3">
+                                            <div class="h5 text-primary mb-1">{{ cotisation.montant_clinique }} FCFA</div>
+                                            <div class="text-muted small">Clinique</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center py-3">
+                                            <div class="h5 text-success mb-1">{{ cotisation.montant_pharmacie }} FCFA</div>
+                                            <div class="text-muted small">Pharmacie</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center py-3">
+                                            <div class="h5 text-info mb-1">{{ cotisation.montant_charges_mutuelle }} FCFA</div>
+                                            <div class="text-muted small">Charges mutuelle</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if cotisation.montant > 5000 %}
+                                <div class="col-md-3 col-6">
+                                    <div class="card bg-warning">
+                                        <div class="card-body text-center py-3">
+                                            <div class="h5 mb-1">{{ cotisation.montant|add:"-5000" }} FCFA</div>
+                                            <div class="small">Surplus femme enceinte</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Informations additionnelles -->
+                    {% if cotisation.notes or cotisation.enregistre_par %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h4 class="h6 text-muted mb-3">Informations Additionnelles</h4>
+                            <div class="row">
+                                {% if cotisation.enregistre_par %}
+                                <div class="col-md-6">
+                                    <p class="mb-1">
+                                        <strong>Enregistré par:</strong> 
+                                        <!-- ✅ CORRECTION : Utilisation sécurisée de user.username -->
+                                        {{ cotisation.enregistre_par.get_full_name|default:cotisation.enregistre_par.username }}
+                                    </p>
+                                </div>
+                                {% endif %}
+                                {% if cotisation.notes %}
+                                <div class="col-12 mt-2">
+                                    <p class="mb-1"><strong>Notes:</strong></p>
+                                    <div class="border rounded p-3 bg-light">
+                                        {{ cotisation.notes|linebreaks }}
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-light">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                Créé le: {{ cotisation.created_at|date:"d/m/Y à H:i" }}
+                            </small>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <small class="text-muted">
+                                Dernière modification: {{ cotisation.updated_at|date:"d/m/Y à H:i" }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

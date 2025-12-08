@@ -1,0 +1,387 @@
+{% extends 'assureur/base.html' %}
+{% load humanize %}
+
+{% block title %}Statistiques - {{ assureur.user.get_full_name|default:assureur.user.username }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-chart-bar mr-2"></i>Tableau de Bord Statistique
+        </h1>
+        <div>
+            <span class="badge badge-info">Période: {{ periode_debut }} - {{ periode_fin }}</span>
+        </div>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-danger">
+        <strong>Erreur:</strong> {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- Cartes de résumé -->
+    <div class="row mb-4">
+        <!-- Membres -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Membres Totaux
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ stats_membres.total|intcomma }}
+                            </div>
+                            <div class="mt-2">
+                                <span class="badge badge-success">Actifs: {{ stats_membres.actifs }}</span>
+                                <span class="badge badge-secondary">Inactifs: {{ stats_membres.inactifs }}</span>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cotisations -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Cotisations (12 mois)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ stats_financieres.cotisations_total|intcomma }} FCFA
+                            </div>
+                            <div class="mt-2">
+                                <span class="text-success">
+                                    <i class="fas fa-check-circle"></i> Payées: {{ stats_financieres.cotisations_payees|intcomma }} FCFA
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-money-bill-wave fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Taux de recouvrement -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Taux de Recouvrement
+                            </div>
+                            <div class="row no-gutters align-items-center">
+                                <div class="col-auto">
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
+                                        {{ stats_financieres.taux_recouvrement|floatformat:1 }}%
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="progress progress-sm mr-2">
+                                        <div class="progress-bar bg-info" role="progressbar"
+                                            style="width: {{ stats_financieres.taux_recouvrement }}%"
+                                            aria-valuenow="{{ stats_financieres.taux_recouvrement }}"
+                                            aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-2 text-xs">
+                                Cotisations en attente: {{ stats_financieres.cotisations_en_attente|intcomma }} FCFA
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-percentage fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Taux de participation -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Taux de Participation
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ stats_membres.taux_participation|floatformat:1 }}%
+                            </div>
+                            <div class="mt-2">
+                                <span class="text-success">
+                                    <i class="fas fa-user-check"></i> Avec cotisations: {{ stats_membres.avec_cotisations }}
+                                </span><br>
+                                <span class="text-danger">
+                                    <i class="fas fa-user-times"></i> Sans cotisations: {{ stats_membres.sans_cotisations }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-pie fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphiques et tableaux -->
+    <div class="row">
+        <!-- Évolution mensuelle -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        Évolution Mensuelle (12 derniers mois)
+                    </h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Mois</th>
+                                    <th>Nouveaux Membres</th>
+                                    <th>Cotisations</th>
+                                    <th>Remboursements</th>
+                                    <th>Bons Émis</th>
+                                    <th>Soins Soumis</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for mois in evolution %}
+                                <tr>
+                                    <td>{{ mois.mois }}</td>
+                                    <td class="text-center">{{ mois.nouveaux_membres }}</td>
+                                    <td class="text-right">{{ mois.cotisations|intcomma }} FCFA</td>
+                                    <td class="text-right">{{ mois.remboursements|intcomma }} FCFA</td>
+                                    <td class="text-center">{{ mois.bons_emis }}</td>
+                                    <td class="text-center">{{ mois.soins_soumis }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques de traitement -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Traitement des Soins</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <div class="mb-4">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Taux de Validation
+                            </div>
+                            <div class="h2 mb-0 font-weight-bold text-gray-800">
+                                {{ stats_traitement.taux_validation }}%
+                            </div>
+                            <div class="mt-2 mb-0 text-xs">
+                                <span class="text-success mr-2">
+                                    <i class="fas fa-check"></i> {{ stats_traitement.soins_valides }} validés
+                                </span>
+                                <span class="text-warning mr-2">
+                                    <i class="fas fa-clock"></i> {{ stats_traitement.soins_en_cours }} en cours
+                                </span>
+                                <span class="text-danger">
+                                    <i class="fas fa-times"></i> {{ stats_traitement.soins_rejetes }} rejetés
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Délai Moyen de Traitement
+                            </div>
+                            <div class="h2 mb-0 font-weight-bold text-gray-800">
+                                {{ stats_traitement.delai_moyen_jours }} jours
+                            </div>
+                            <div class="mt-2 text-xs text-muted">
+                                Temps moyen entre soumission et validation
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top contributeurs -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Top 5 Cotisants</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Membre</th>
+                                    <th class="text-right">Montant</th>
+                                    <th class="text-center">Cotisations</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for membre in stats_supplementaires.top_membres_cotisations %}
+                                <tr>
+                                    <td>{{ membre.membre__prenom }} {{ membre.membre__nom }}</td>
+                                    <td class="text-right font-weight-bold">{{ membre.total|intcomma }} FCFA</td>
+                                    <td class="text-center">{{ membre.count }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">Aucune donnée</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques en temps réel (AJAX) -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Statistiques en Temps Réel</h6>
+                    <button id="refreshStats" class="btn btn-sm btn-primary">
+                        <i class="fas fa-sync-alt"></i> Rafraîchir
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="realTimeStats" class="row">
+                        <!-- Rempli par JavaScript -->
+                    </div>
+                    <div class="text-center mt-3">
+                        <small class="text-muted" id="lastUpdate">
+                            Dernière mise à jour: --
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+$(document).ready(function() {
+    // Fonction pour charger les stats en temps réel
+    function loadRealTimeStats() {
+        $.ajax({
+            url: "{% url 'api_statistiques' %}",
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                if (data.success) {
+                    updateStatsDisplay(data.stats);
+                    $('#lastUpdate').text('Dernière mise à jour: ' + data.mise_a_jour);
+                } else {
+                    showError('Erreur de chargement: ' + data.message);
+                }
+            },
+            error: function() {
+                showError('Erreur de connexion au serveur');
+            }
+        });
+    }
+
+    // Mettre à jour l'affichage des stats
+    function updateStatsDisplay(stats) {
+        let html = `
+            <div class="col-md-3 mb-3">
+                <div class="card border-left-success h-100">
+                    <div class="card-body">
+                        <div class="text-xs font-weight-bold text-success mb-1">Membres Actifs</div>
+                        <div class="h5 mb-0">${stats.membres_actifs}</div>
+                        <small>Total: ${stats.membres_total}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card border-left-warning h-100">
+                    <div class="card-body">
+                        <div class="text-xs font-weight-bold text-warning mb-1">Cotisations ce mois</div>
+                        <div class="h5 mb-0">${parseInt(stats.cotisations_payees_mois).toLocaleString()} FCFA</div>
+                        <small>Retard: ${stats.cotisations_en_retard}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card border-left-info h-100">
+                    <div class="card-body">
+                        <div class="text-xs font-weight-bold text-info mb-1">Bons de soin</div>
+                        <div class="h5 mb-0">${parseInt(stats.montant_total_bons).toLocaleString()} FCFA</div>
+                        <small>En attente: ${stats.bons_en_attente} | Validés: ${stats.bons_valides}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card border-left-primary h-100">
+                    <div class="card-body">
+                        <div class="text-xs font-weight-bold text-primary mb-1">Soins en cours</div>
+                        <div class="h5 mb-0">${stats.soins_en_cours}</div>
+                        <small>Total cotisations: ${parseInt(stats.montant_total_cotisations).toLocaleString()} FCFA</small>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        $('#realTimeStats').html(html);
+    }
+
+    // Afficher une erreur
+    function showError(message) {
+        $('#realTimeStats').html(`
+            <div class="col-12">
+                <div class="alert alert-danger">${message}</div>
+            </div>
+        `);
+    }
+
+    // Charger initialement
+    loadRealTimeStats();
+
+    // Rafraîchir au clic
+    $('#refreshStats').click(function() {
+        $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Chargement...');
+        loadRealTimeStats();
+        setTimeout(() => {
+            $(this).prop('disabled', false).html('<i class="fas fa-sync-alt"></i> Rafraîchir');
+        }, 1000);
+    });
+
+    // Auto-rafraîchissement toutes les 5 minutes
+    setInterval(loadRealTimeStats, 300000);
+});
+</script>
+{% endblock %}

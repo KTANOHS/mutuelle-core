@@ -1,0 +1,199 @@
+{% extends 'assureur/cotisations/base_cotisations.html' %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Création</li>
+{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'assureur:liste_cotisations' %}" class="btn btn-secondary">
+    <i class="fas fa-arrow-left"></i> Retour à la liste
+</a>
+{% endblock %}
+
+{% block cotisations_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Nouvelle Cotisation</h6>
+            </div>
+            <div class="card-body">
+                <form method="post" id="cotisationForm">
+                    {% csrf_token %}
+                    
+                    {% if messages %}
+                    <div class="mb-4">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="row g-3">
+                        <!-- Sélection du membre -->
+                        <div class="col-md-12">
+                            <label for="membre" class="form-label">Membre <span class="text-danger">*</span></label>
+                            <select name="membre" id="membre" class="form-select" required>
+                                <option value="">Sélectionnez un membre...</option>
+                                {% for membre in membres %}
+                                <option value="{{ membre.id }}" 
+                                        {% if membre_pre_selectionne and membre.id == membre_pre_selectionne.id %}selected{% endif %}
+                                        data-est-femme-enceinte="{{ membre.est_femme_enceinte|yesno:'true,false' }}"
+                                        data-montant-normal="5000" 
+                                        data-montant-femme-enceinte="7500">
+                                    {{ membre.nom }} {{ membre.prenom }} - {{ membre.numero_membre }}
+                                    {% if membre.est_femme_enceinte %} (Femme enceinte){% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">Seuls les membres actifs sont affichés</div>
+                        </div>
+
+                        <!-- Période -->
+                        <div class="col-md-6">
+                            <label for="periode" class="form-label">Période <span class="text-danger">*</span></label>
+                            <input type="month" name="periode" id="periode" class="form-control" 
+                                   value="{{ periode_par_defaut }}" required>
+                            <div class="form-text">Mois et année de la cotisation</div>
+                        </div>
+
+                        <!-- Type de cotisation -->
+                        <div class="col-md-6">
+                            <label for="type_cotisation" class="form-label">Type de cotisation</label>
+                            <select name="type_cotisation" id="type_cotisation" class="form-select">
+                                <option value="normale">Cotisation normale</option>
+                                <option value="femme_enceinte">Femme enceinte</option>
+                            </select>
+                        </div>
+
+                        <!-- Montant -->
+                        <div class="col-md-6">
+                            <label for="montant" class="form-label">Montant (FCFA) <span class="text-danger">*</span></label>
+                            <input type="number" name="montant" id="montant" class="form-control" 
+                                   value="5000" step="100" min="0" required>
+                            <div class="form-text" id="montantInfo">
+                                Cotisation normale: 5 000 FCFA
+                            </div>
+                        </div>
+
+                        <!-- Date d'échéance -->
+                        <div class="col-md-6">
+                            <label for="date_echeance" class="form-label">Date d'échéance <span class="text-danger">*</span></label>
+                            <input type="date" name="date_echeance" id="date_echeance" class="form-control" 
+                                   value="{{ date_echeance_par_defaut|date:'Y-m-d' }}" required>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="col-12">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea name="notes" id="notes" class="form-control" rows="3" 
+                                      placeholder="Informations supplémentaires..."></textarea>
+                        </div>
+
+                        <!-- Résumé -->
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <h6 class="alert-heading">Résumé de la cotisation</h6>
+                                <div id="resumeCotisation">
+                                    Sélectionnez un membre pour voir le résumé...
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Boutons -->
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'assureur:liste_cotisations' %}" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Annuler
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Créer la cotisation
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    function updateResume() {
+        const membreSelect = $('#membre');
+        const typeSelect = $('#type_cotisation');
+        const montantInput = $('#montant');
+        const periodeInput = $('#periode');
+        const dateEcheanceInput = $('#date_echeance');
+        
+        const selectedOption = membreSelect.find('option:selected');
+        const estFemmeEnceinte = selectedOption.data('est-femme-enceinte') === true;
+        const montantNormal = selectedOption.data('montant-normal') || 5000;
+        const montantFemmeEnceinte = selectedOption.data('montant-femme-enceinte') || 7500;
+        
+        let montant = parseInt(montantInput.val());
+        let typeCotisation = typeSelect.val();
+        
+        // Ajustement automatique pour femme enceinte
+        if (estFemmeEnceinte && typeCotisation === 'femme_enceinte') {
+            montant = montantFemmeEnceinte;
+            montantInput.val(montant);
+            $('#montantInfo').text(`Femme enceinte: ${montantFemmeEnceinte.toLocaleString()} FCFA`);
+        } else {
+            montant = montantNormal;
+            montantInput.val(montant);
+            $('#montantInfo').text(`Cotisation normale: ${montantNormal.toLocaleString()} FCFA`);
+        }
+        
+        if (selectedOption.val()) {
+            const nomMembre = selectedOption.text().split(' - ')[0];
+            const resume = `
+                <strong>Membre:</strong> ${nomMembre}<br>
+                <strong>Période:</strong> ${periodeInput.val()}<br>
+                <strong>Type:</strong> ${typeSelect.find('option:selected').text()}<br>
+                <strong>Montant:</strong> ${montant.toLocaleString()} FCFA<br>
+                <strong>Échéance:</strong> ${new Date(dateEcheanceInput.val()).toLocaleDateString('fr-FR')}
+            `;
+            $('#resumeCotisation').html(resume);
+        } else {
+            $('#resumeCotisation').html('Sélectionnez un membre pour voir le résumé...');
+        }
+    }
+
+    // Événements de mise à jour
+    $('#membre, #type_cotisation, #montant, #periode, #date_echeance').on('change input', updateResume);
+    
+    // Initialisation
+    updateResume();
+
+    // Validation du formulaire
+    $('#cotisationForm').on('submit', function(e) {
+        const membre = $('#membre').val();
+        const periode = $('#periode').val();
+        const dateEcheance = $('#date_echeance').val();
+        
+        if (!membre || !periode || !dateEcheance) {
+            e.preventDefault();
+            alert('Veuillez remplir tous les champs obligatoires');
+            return false;
+        }
+        
+        const dateEcheanceObj = new Date(dateEcheance);
+        const aujourdHui = new Date();
+        
+        if (dateEcheanceObj < aujourdHui) {
+            if (!confirm('La date d\'échéance est dans le passé. Voulez-vous continuer ?')) {
+                e.preventDefault();
+                return false;
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

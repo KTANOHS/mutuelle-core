@@ -1,0 +1,134 @@
+<!-- MODAL UNIVERSEL POUR TOUS LES ACTEURS -->
+<div class="modal fade" id="nouveauMessageModal" tabindex="-1" aria-labelledby="nouveauMessageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="nouveauMessageModalLabel">
+                    <i class="fas fa-plus me-2"></i>Nouveau Message
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="messageForm">
+                    <!-- Destinataire -->
+                    <div class="mb-3">
+                        <label for="destinataire" class="form-label fw-bold">Destinataire</label>
+                        <select class="form-select" id="destinataire" name="destinataire" required>
+                            <option value="">Sélectionnez un destinataire...</option>
+                            <optgroup label="Membres">
+                                <option value="membre1">Jean Dupont (Membre)</option>
+                                <option value="membre2">Marie Martin (Membre)</option>
+                            </optgroup>
+                            <optgroup label="Assureurs">
+                                <option value="assureur1">AXA Assurance</option>
+                                <option value="assureur2">Allianz Mutuelle</option>
+                            </optgroup>
+                            <optgroup label="Médecins">
+                                <option value="medecin1">Dr. Sophie Bernard</option>
+                                <option value="medecin2">Dr. Michel Lambert</option>
+                            </optgroup>
+                            <optgroup label="Agents">
+                                <option value="agent1">Agent Service Client</option>
+                                <option value="agent2">Agent Réclamation</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    
+                    <!-- Sujet -->
+                    <div class="mb-3">
+                        <label for="sujet" class="form-label fw-bold">Sujet</label>
+                        <input type="text" class="form-control" id="sujet" name="sujet" placeholder="Sujet du message" required>
+                    </div>
+                    
+                    <!-- Message -->
+                    <div class="mb-3">
+                        <label for="message" class="form-label fw-bold">Message</label>
+                        <textarea class="form-control" id="message" name="message" rows="6" 
+                                  placeholder="Tapez votre message ici..." required></textarea>
+                    </div>
+                    
+                    <!-- Pièces jointes -->
+                    <div class="mb-3">
+                        <label for="fichiers" class="form-label fw-bold">
+                            <i class="fas fa-paperclip me-1"></i>Pièces jointes
+                        </label>
+                        <input type="file" class="form-control" id="fichiers" name="fichiers" multiple>
+                        <div class="form-text">
+                            Formats acceptés: PDF, Word, Images, Excel, TXT
+                        </div>
+                    </div>
+                    
+                    <!-- Options -->
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="urgent" name="urgent">
+                            <label class="form-check-label text-danger fw-bold" for="urgent">
+                                <i class="fas fa-exclamation-triangle me-1"></i>Message urgent
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Annuler
+                </button>
+                <button type="button" class="btn btn-primary" onclick="envoyerMessage()">
+                    <i class="fas fa-paper-plane me-1"></i>Envoyer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function envoyerMessage() {
+    const destinataire = document.getElementById('destinataire').value;
+    const sujet = document.getElementById('sujet').value;
+    const message = document.getElementById('message').value;
+    
+    // Validation
+    if (!destinataire) {
+        alert('Veuillez sélectionner un destinataire');
+        return;
+    }
+    if (!sujet.trim()) {
+        alert('Veuillez saisir un sujet');
+        return;
+    }
+    if (!message.trim()) {
+        alert('Veuillez saisir un message');
+        return;
+    }
+    
+    console.log('Envoi du message à:', destinataire);
+    
+    // Simulation d'envoi
+    const btn = document.querySelector('#nouveauMessageModal .btn-primary');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Envoi...';
+    btn.disabled = true;
+    
+    setTimeout(() => {
+        // Réinitialiser
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        
+        // Fermer le modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('nouveauMessageModal'));
+        if (modal) modal.hide();
+        
+        // Message de succès
+        alert('Message envoyé avec succès!');
+        
+        // Vider le formulaire
+        document.getElementById('messageForm').reset();
+        
+    }, 1500);
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Modal universel initialisé');
+});
+</script>

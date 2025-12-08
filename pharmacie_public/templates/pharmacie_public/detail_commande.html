@@ -1,0 +1,133 @@
+<!-- pharmacie_public/templates/pharmacie_public/detail_commande.html -->
+{% extends 'pharmacie_public/base_pharmacie_public.html' %}
+
+{% block title %}Commande {{ commande.numero_commande }} - Mutuelle Santé{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-file-invoice"></i>
+                    Commande {{ commande.numero_commande }}
+                </h3>
+            </div>
+            <div class="card-body">
+                <!-- Statut -->
+                <div class="alert 
+                    {% if commande.statut == 'en_attente' %}alert-warning
+                    {% elif commande.statut == 'confirmee' %}alert-info
+                    {% elif commande.statut == 'en_preparation' %}alert-primary
+                    {% elif commande.statut == 'pret' %}alert-success
+                    {% elif commande.statut == 'retiree' %}alert-secondary
+                    {% elif commande.statut == 'annulee' %}alert-danger
+                    {% endif %}">
+                    <h5 class="alert-heading">
+                        Statut: {{ commande.get_statut_display }}
+                    </h5>
+                    {% if commande.date_retrait_prevu %}
+                    <p class="mb-0">
+                        <i class="fas fa-calendar"></i>
+                        Retrait prévu: {{ commande.date_retrait_prevu|date:"d/m/Y H:i" }}
+                    </p>
+                    {% endif %}
+                </div>
+
+                <!-- Détails de la commande -->
+                <h5 class="mb-3">Détails de la commande</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Médicament</th>
+                                <th>Quantité</th>
+                                <th>Prix unitaire</th>
+                                <th>Sous-total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ligne in commande.lignes.all %}
+                            <tr>
+                                <td>
+                                    <strong>{{ ligne.medicament.nom }}</strong><br>
+                                    <small class="text-muted">
+                                        {{ ligne.medicament.principe_actif }} - {{ ligne.medicament.dosage }}
+                                    </small>
+                                </td>
+                                <td>{{ ligne.quantite }}</td>
+                                <td>{{ ligne.prix_unitaire }} €</td>
+                                <td>{{ ligne.sous_total }} €</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-primary">
+                                <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                <td><strong>{{ commande.montant_total }} €</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Notes -->
+                {% if commande.notes %}
+                <div class="mt-4">
+                    <h5>Notes:</h5>
+                    <div class="alert alert-light">
+                        {{ commande.notes|linebreaks }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Informations pharmacie -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Pharmacie</h5>
+            </div>
+            <div class="card-body">
+                <h6>{{ commande.pharmacie.nom_pharmacie }}</h6>
+                <p class="mb-1">
+                    <i class="fas fa-map-marker-alt"></i> 
+                    {{ commande.pharmacie.adresse }}<br>
+                    {{ commande.pharmacie.code_postal }} {{ commande.pharmacie.ville }}
+                </p>
+                <p class="mb-1">
+                    <i class="fas fa-phone"></i> 
+                    {{ commande.pharmacie.telephone }}
+                </p>
+                <p class="mb-0">
+                    <i class="fas fa-clock"></i> 
+                    {{ commande.pharmacie.horaires_ouverture }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Actions</h5>
+            </div>
+            <div class="card-body">
+                <a href="{% url 'pharmacie_public:mes_commandes' %}" 
+                   class="btn btn-outline-primary w-100 mb-2">
+                    <i class="fas fa-arrow-left"></i> Retour aux commandes
+                </a>
+                <a href="{% url 'pharmacie_public:detail_pharmacie' commande.pharmacie.id %}" 
+                   class="btn btn-outline-success w-100 mb-2">
+                    <i class="fas fa-store"></i> Voir la pharmacie
+                </a>
+                {% if commande.statut == 'pret' %}
+                <button class="btn btn-success w-100">
+                    <i class="fas fa-check"></i> Marquer comme retirée
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

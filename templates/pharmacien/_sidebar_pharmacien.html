@@ -1,0 +1,62 @@
+<!-- templates/pharmacien/_sidebar_pharmacien.html -->
+{% load communication_global %}
+
+<div class="sidebar">
+    <!-- Menu pharmacien principal -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h6 class="mb-0">Menu Pharmacien</h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="list-group list-group-flush">
+                <a href="{% url 'pharmacien:dashboard' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tachometer-alt me-2"></i>Tableau de bord
+                </a>
+                <a href="{% url 'pharmacien:liste_ordonnances_attente' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-prescription me-2"></i>Ordonnances
+                </a>
+                <a href="{% url 'pharmacien:rechercher_ordonnances' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-search me-2"></i>Recherche
+                </a>
+                <a href="{% url 'pharmacien:historique_validation' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-history me-2"></i>Historique
+                </a>
+                <a href="{% url 'pharmacien:stock' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-boxes me-2"></i>Gestion stock
+                </a>
+                <a href="{% url 'pharmacien:profil_pharmacien' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-user me-2"></i>Mon profil
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section Communication -->
+    <div class="card">
+        <div class="card-header">
+            <h6 class="mb-0">Communication</h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="list-group list-group-flush">
+                <!-- Messagerie avec compteur SIMPLIFIÉ -->
+                <a href="{% url 'communication:messagerie' %}" class="list-group-item list-group-item-action position-relative">
+                    <i class="fas fa-envelope me-2"></i>
+                    Messagerie
+                    <!-- SOLUTION CORRECTE : Utilisation du template tag -->
+                    {% get_unread_notifications_count request.user as unread_count %}
+                    {% if unread_count > 0 %}
+                    <span class="position-absolute top-50 end-0 translate-middle-y badge rounded-pill bg-danger me-2">
+                        {{ unread_count }}
+                    </span>
+                    {% endif %}
+                </a>
+
+                <!-- Notifications -->
+                <a href="{% url 'communication:notification_list' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-bell me-2"></i>
+                    Notifications
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

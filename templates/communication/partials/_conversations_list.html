@@ -1,0 +1,75 @@
+<div class="conversations-list">
+    {% if conversations %}
+        {% for conversation in conversations %}
+        <div class="conversation-item border-bottom {% if conversation.id == active_conversation_id %}active-conversation bg-light{% endif %}">
+            <a href="{% url 'communication:conversation' conversation.id %}" 
+               class="text-decoration-none text-dark">
+                <div class="p-3">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="avatar me-3">
+                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                         style="width: 40px; height: 40px;">
+                                        {{ conversation.destinataire.get_full_name|first|upper }}
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0">{{ conversation.destinataire.get_full_name }}</h6>
+                                    <small class="text-muted">{{ conversation.destinataire.groups.first.name|default:"Utilisateur" }}</small>
+                                </div>
+                                {% if conversation.non_lus > 0 %}
+                                <span class="badge bg-primary rounded-pill">{{ conversation.non_lus }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <p class="mb-1 text-muted conversation-preview">
+                                {% if conversation.dernier_message.expediteur == request.user %}
+                                    <strong>Vous:</strong>
+                                {% endif %}
+                                {{ conversation.dernier_message.contenu|truncatechars:60 }}
+                            </p>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    {{ conversation.dernier_message.date_envoi|timesince }}
+                                </small>
+                                {% if conversation.dernier_message.pieces_jointes.exists %}
+                                <small class="text-primary">
+                                    <i class="fas fa-paperclip"></i>
+                                </small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">Aucune conversation</h5>
+            <p class="text-muted">Commencez une nouvelle conversation.</p>
+            <a href="{% url "communication:message_create" %}" class="btn btn-primary" id="nouveau-message-btn">
+                <i class="fas fa-plus me-1"></i>Nouveau message
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.conversation-item:hover {
+    background-color: #f8f9fa !important;
+}
+.active-conversation {
+    border-left: 4px solid #007bff;
+}
+.conversation-preview {
+    font-size: 0.9rem;
+    line-height: 1.3;
+}
+.avatar {
+    flex-shrink: 0;
+}
+</style>

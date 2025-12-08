@@ -1,0 +1,44 @@
+<!-- pharmacie_public/templates/pharmacie_public/inscription_success.html -->
+{% extends 'pharmacie_public/base_pharmacie_public.html' %}
+
+{% block title %}Inscription Envoyée - Mutuelle Santé{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card text-center">
+            <div class="card-body py-5">
+                <div class="mb-4">
+                    <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                </div>
+                
+                <h2 class="card-title text-success">Inscription Envoyée !</h2>
+                
+                <p class="card-text lead my-4">
+                    Votre demande d'inscription a été reçue avec succès.
+                </p>
+                
+                <div class="alert alert-info text-start">
+                    <h5><i class="fas fa-info-circle"></i> Prochaines étapes :</h5>
+                    <ul class="mb-0">
+                        <li>Notre équipe va examiner votre demande sous 48h</li>
+                        <li>Vous recevrez un email de confirmation</li>
+                        <li>Une fois validée, vous pourrez gérer vos médicaments et commandes</li>
+                    </ul>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="{% url 'pharmacie_public:liste_pharmacies' %}" class="btn btn-primary">
+                        <i class="fas fa-search"></i>
+                        Rechercher des pharmacies
+                    </a>
+                    <a href="{% url 'login' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Se connecter
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

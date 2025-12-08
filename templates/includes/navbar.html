@@ -1,0 +1,198 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'home' %}">
+            <i class="fas fa-heartbeat"></i> HealthApp
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <!-- Navigation principale -->
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'core:dashboard' %}">
+                        <i class="fas fa-tachometer-alt"></i> Tableau de bord
+                    </a>
+                </li>
+                
+                <!-- ACCÈS COMMUNICATION - Visible pour tous les utilisateurs connectés -->
+                {% if user.is_authenticated %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarCommunication" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-comments"></i> Communication
+                        <span class="badge bg-danger communication-badge" id="navCommBadge" style="display: none;">
+                            <i class="fas fa-circle"></i>
+                        </span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" href="{% url 'communication:messagerie' %}">
+                                <i class="fas fa-inbox"></i> Messagerie
+                                <span class="badge bg-danger msg-count" id="navMsgCount" style="display: none;">0</span>
+                            </a>
+                        </li>
+            <!-- Widget Messagerie Rapide -->
+            <li class="nav-item dropdown no-arrow mx-1">
+                <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-envelope fa-fw"></i>
+                    <!-- Counter - Messages -->
+                    <span class="badge badge-danger badge-counter" id="navbar-message-count">0</span>
+                </a>
+                <!-- Dropdown - Messages -->
+                <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                    aria-labelledby="messagesDropdown">
+                    <h6 class="dropdown-header">
+                        Centre de Messages
+                    </h6>
+                    <a class="dropdown-item d-flex align-items-center" href="#">
+                        <div class="dropdown-list-image mr-3">
+                            <div class="status-indicator bg-success"></div>
+                            <i class="fas fa-comments fa-2x text-primary"></i>
+                        </div>
+                        <div class="font-weight-bold">
+                            <div class="text-truncate">Nouveau système de messagerie</div>
+                            <div class="small text-gray-500">Communiquez avec tous les acteurs</div>
+                        </div>
+                    </a>
+                    <a class="dropdown-item text-center small text-gray-500" href="{% url 'communication:test_messagerie' %}">
+                        Tester la messagerie
+                    </a>
+                </div>
+            </li>
+
+                        <li>
+                            <a class="dropdown-item" href="{% url 'communication:notification_list' %}">
+                                <i class="fas fa-bell"></i> Notifications
+                                <span class="badge bg-warning notif-count" id="navNotifCount" style="display: none;">0</span>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'communication:liste_groupes' %}">
+                                <i class="fas fa-users"></i> Groupes
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'communication:liste_fichiers' %}">
+                                <i class="fas fa-file"></i> Fichiers partagés
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                {% endif %}
+            </ul>
+            
+            <!-- Menu utilisateur -->
+            <ul class="navbar-nav">
+                {% if user.is_authenticated %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarUser" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle"></i> {{ user.get_full_name|default:user.username }}
+                        <span class="badge bg-danger user-msg-badge" id="userMsgBadge" style="display: none;"></span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="{% url 'communication:messagerie' %}">
+                                <i class="fas fa-envelope"></i> Messagerie
+                                <span class="badge bg-danger msg-count-sm" id="userMsgCount" style="display: none;">0</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'communication:notification_list' %}">
+                                <i class="fas fa-bell"></i> Notifications
+                                <span class="badge bg-warning notif-count-sm" id="userNotifCount" style="display: none;">0</span>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Déconnexion</a></li>
+                    </ul>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">
+                        <i class="fas fa-sign-in-alt"></i> Connexion
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Script pour charger les compteurs de messages -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Charger les compteurs via AJAX
+    function loadCommunicationCounts() {
+        // Charger le compteur de notifications
+        fetch('{% url "communication:notification_count" %}')
+            .then(response => response.json())
+            .then(data => {
+                updateBadges('notif', data.count);
+            })
+            .catch(error => console.error('Error loading notification count:', error));
+            
+        // Charger le compteur de messages non lus
+        fetch('{% url "communication:api_messages_count" %}')
+            .then(response => response.json())
+            .then(data => {
+                updateBadges('msg', data.unread_count);
+            })
+            .catch(error => console.error('Error loading message count:', error));
+    }
+    
+    function updateBadges(type, count) {
+        const badges = document.querySelectorAll(\`.${type}-count, .${type}-count-sm\`);
+        const mainBadge = document.querySelector('.communication-badge');
+        const userBadge = document.querySelector('.user-msg-badge');
+        
+        badges.forEach(badge => {
+            if (count > 0) {
+                badge.textContent = count;
+                badge.style.display = 'inline';
+            } else {
+                badge.style.display = 'none';
+            }
+        });
+        
+        // Mettre à jour le badge principal
+        if (type === 'msg' && count > 0) {
+            mainBadge.style.display = 'inline';
+            userBadge.textContent = count;
+            userBadge.style.display = 'inline';
+        } else if (type === 'msg' && count === 0) {
+            mainBadge.style.display = 'none';
+            userBadge.style.display = 'none';
+        }
+    }
+    
+    // Charger les compteurs au chargement de la page
+    loadCommunicationCounts();
+    
+    // Recharger toutes les 30 secondes
+    setInterval(loadCommunicationCounts, 30000);
+});
+</script>
+
+<style>
+.communication-badge, .user-msg-badge {
+    font-size: 0.6em;
+    padding: 0.2em 0.4em;
+    position: relative;
+    top: -8px;
+    left: -5px;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.badge.bg-danger {
+    animation: pulse 2s infinite;
+}
+</style>

@@ -1,0 +1,40 @@
+<!-- pharmacie_public/templates/pharmacie_public/includes/_medicament_list.html -->
+<div class="row">
+    {% for medicament in medicaments %}
+    <div class="col-md-6 mb-3">
+        <div class="card medicament-card h-100">
+            <div class="card-body">
+                <h6 class="card-title">{{ medicament.nom }}</h6>
+                <p class="card-text small text-muted mb-1">
+                    {{ medicament.principe_actif }} - {{ medicament.dosage }}
+                </p>
+                <p class="card-text small text-muted mb-1">
+                    {{ medicament.forme_galenique }} - {{ medicament.laboratoire }}
+                </p>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-bold text-primary">{{ medicament.prix }} €</span>
+                    
+                    {% if medicament.stock > 10 %}
+                        <span class="stock-high small">Stock: {{ medicament.stock }}</span>
+                    {% elif medicament.stock > 3 %}
+                        <span class="stock-medium small">Stock: {{ medicament.stock }}</span>
+                    {% else %}
+                        <span class="stock-low small">Stock: {{ medicament.stock }}</span>
+                    {% endif %}
+                </div>
+                
+                {% if medicament.necessite_ordonnance %}
+                <span class="badge bg-warning text-dark small">
+                    <i class="fas fa-prescription"></i> Ordonnance requise
+                </span>
+                {% else %}
+                <span class="badge bg-success small">
+                    <i class="fas fa-check"></i> Vente libre
+                </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>

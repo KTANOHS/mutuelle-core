@@ -1,0 +1,124 @@
+<!-- Cartes de statistiques réutilisables -->
+<div class="row">
+    <!-- Carte Bons en Attente -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Bons en Attente
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ bons_attente|default:0 }}
+                        </div>
+                        <div class="mt-2">
+                            <a href="{% url 'medecin:liste_bons_attente' %}" class="text-decoration-none small">
+                                Voir détails <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-file-medical fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carte Ordonnances Aujourd'hui -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Ordonnances Aujourd'hui
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ ordonnances_aujourdhui|default:0 }}
+                        </div>
+                        <div class="mt-2 text-muted small">
+                            {{ date_aujourdhui|default:"Aujourd'hui" }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-prescription-bottle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carte Total Ordonnances -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Total Ordonnances
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ total_ordonnances|default:0 }}
+                        </div>
+                        <div class="mt-2">
+                            <a href="{% url 'medecin:historique_ordonnances' %}" class="text-decoration-none small">
+                                Voir historique <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-history fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carte Satisfaction Patients -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Satisfaction Patients
+                        </div>
+                        <div class="row no-gutters align-items-center">
+                            <div class="col-auto">
+                                <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">94%</div>
+                            </div>
+                            <div class="col">
+                                <div class="progress progress-sm mr-2">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: 94%" aria-valuenow="94" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-2 text-muted small">
+                            Taux de satisfaction
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-smile fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stat-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 10px;
+}
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+.border-left-primary { border-left: 4px solid #007bff !important; }
+.border-left-success { border-left: 4px solid #28a745 !important; }
+.border-left-warning { border-left: 4px solid #ffc107 !important; }
+.border-left-info { border-left: 4px solid #17a2b8 !important; }
+</style>

@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+{% load static humanize %}
+
+{% block title %}Tableau de Bord - Membres{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-header bg-primary text-white p-4 rounded">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-tachometer-alt me-2"></i>
+                    Tableau de Bord Membre
+                </h1>
+
+
+    <!-- Accès rapide Messagerie Membre -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-envelope me-2"></i>Nouvelle Messagerie
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <p class="card-text">
+                        Communiquez facilement avec les autres acteurs du système de santé.
+                        Envoyez des messages, partagez des fichiers et recevez des notifications.
+                    </p>
+                    <a href="{% url 'communication:messagerie_membre' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-inbox me-2"></i>Ouvrir ma Messagerie
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+                <p class="mb-0 mt-2">Bienvenue, {{ user.get_full_name|default:user.username }}!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cartes de statistiques -->
+    <div class="row mb-4">
+
+        <!-- Carte Messagerie Membre -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Messagerie
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <span id="unread-messages">0</span> messages
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <a href="{% url 'communication:messagerie_membre' %}" class="btn btn-primary btn-circle">
+                                <i class="fas fa-envelope"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Solde Actuel
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ solde_membre|default:0|intcomma }} FCFA
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-wallet fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Soins du Mois
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ nb_soins_mois|default:0 }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-stethoscope fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Dernier Paiement
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if dernier_paiement %}
+                                    {{ dernier_paiement.montant|intcomma }} FCFA
+                                {% else %}
+                                    Aucun
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-money-bill-wave fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Statut
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ statut_membre|default:"Actif" }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-check fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bolt me-2"></i>Actions Rapides
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                            <a href="{% url 'membres:mes_paiements' %}" class="btn btn-outline-primary btn-block w-100">
+                                <i class="fas fa-credit-card me-2"></i>Mes Paiements
+                            </a>
+                        </div>
+                        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                            <a href="{% url 'membres:mes_ordonnances' %}" class="btn btn-outline-success btn-block w-100">
+                                <i class="fas fa-file-medical me-2"></i>Mes Ordonnances
+                            </a>
+                        </div>
+                        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                            <a href="{% url 'membres:solde_remboursements' %}" class="btn btn-outline-info btn-block w-100">
+                                <i class="fas fa-chart-line me-2"></i>Mon Solde
+                            </a>
+                        </div>
+                        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                            <a href="{% url 'membres:mon_profil' %}" class="btn btn-outline-warning btn-block w-100">
+                                <i class="fas fa-user me-2"></i>Mon Profil
+                            </a>
+                        </div>
+                        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                            <a href="{% url 'membres:mes_soins' %}" class="btn btn-outline-secondary btn-block w-100">
+                                <i class="fas fa-history me-2"></i>Mes Soins
+                            </a>
+                        </div>
+                        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                            <a href="#" class="btn btn-outline-danger btn-block w-100">
+                                <i class="fas fa-headset me-2"></i>Support
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dernières activités -->
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-history me-2"></i>Derniers Soins
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if derniers_soins %}
+                        <div class="list-group list-group-flush">
+                            {% for soin in derniers_soins %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ soin.type_soin }}</h6>
+                                    <small class="text-muted">{{ soin.date_soin|date:"d/m/Y" }}</small>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">{{ soin.montant|intcomma }} FCFA</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">Aucun soin récent</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bell me-2"></i>Notifications
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if notifications %}
+                        <div class="list-group list-group-flush">
+                            {% for notif in notifications %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ notif.titre }}</h6>
+                                    <small class="text-muted">{{ notif.date_creation|timesince }}</small>
+                                </div>
+                                <p class="mb-1">{{ notif.message }}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">Aucune notification</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    console.log('Dashboard membre chargé');
+    
+    // Actualiser les données toutes les 30 secondes
+    setInterval(function() {
+        $.ajax({
+            url: '{% url "membres:dashboard" %}',
+            success: function(data) {
+                console.log('Données actualisées');
+                // Ici vous pouvez mettre à jour des éléments spécifiques si nécessaire
+            }
+        });
+    }, 30000);
+});
+</script>
+{% endblock %}

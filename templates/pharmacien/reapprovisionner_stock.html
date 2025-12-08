@@ -1,0 +1,90 @@
+{% extends 'pharmacien/base_pharmacien.html' %}
+{% load static %}
+
+{% block title %}Réapprovisionner - Pharmacien{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 text-gray-800">
+                    <i class="fas fa-truck-loading text-info me-2"></i>
+                    Réapprovisionner le Stock
+                </h1>
+                <a href="{% url 'pharmacien:stock' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour au stock
+                </a>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-xl-8 col-lg-10">
+                    <div class="card pharmacien-card">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-pills me-2"></i>
+                                Réapprovisionner {{ stock.nom_medicament }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-primary">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Stock actuel :</strong> {{ stock.quantite_stock }} unités
+                            </div>
+
+                            <form method="POST">
+                                {% csrf_token %}
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="quantite" class="form-label">
+                                            Quantité à ajouter <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="number" class="form-control" id="quantite" 
+                                               name="quantite" value="1" min="1" required>
+                                        <div class="form-text">Nombre d'unités à ajouter au stock</div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="nouveau_prix_achat" class="form-label">
+                                            Nouveau prix d'achat (F) <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="number" step="0.01" class="form-control" id="nouveau_prix_achat" 
+                                               name="nouveau_prix_achat" value="{{ stock.prix_achat }}" min="0" required>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="nouveau_prix_vente" class="form-label">
+                                            Nouveau prix de vente (F) <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="number" step="0.01" class="form-control" id="nouveau_prix_vente" 
+                                               name="nouveau_prix_vente" value="{{ stock.prix_vente }}" min="0" required>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="date_peremption" class="form-label">Nouvelle date de péremption</label>
+                                        <input type="date" class="form-control" id="date_peremption" 
+                                               name="date_peremption" 
+                                               value="{{ stock.date_peremption|date:'Y-m-d'|default:'' }}">
+                                    </div>
+                                </div>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <a href="{% url 'pharmacien:stock' %}" class="btn btn-outline-secondary me-md-2">
+                                        <i class="fas fa-times me-2"></i>Annuler
+                                    </a>
+                                    <button type="submit" class="btn btn-info">
+                                        <i class="fas fa-truck me-2"></i>Réapprovisionner
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

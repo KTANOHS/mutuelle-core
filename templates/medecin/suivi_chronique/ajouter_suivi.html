@@ -1,0 +1,133 @@
+{% extends 'medecin/base.html' %}
+
+{% block title %}Ajouter un Suivi - {{ programme.patient.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Ajouter un Suivi</h1>
+                    <p class="text-muted mb-0">{{ programme.patient.get_full_name }} - {{ programme.maladie.nom }}</p>
+                </div>
+                <a href="{% url 'medecin:detail_accompagnement' programme.id %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <!-- Informations de base -->
+                            <div class="col-md-6 mb-3">
+                                <label for="date_suivi" class="form-label">Date du Suivi *</label>
+                                <input type="date" name="date_suivi" id="date_suivi" 
+                                       class="form-control" value="{{ today|date:'Y-m-d' }}" required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="type_suivi" class="form-label">Type de Suivi *</label>
+                                <select name="type_suivi" id="type_suivi" class="form-select" required>
+                                    <option value="">Sélectionner un type</option>
+                                    <option value="consultation">Consultation</option>
+                                    <option value="teleconsultation">Téléconsultation</option>
+                                    <option value="controle">Contrôle de routine</option>
+                                    <option value="urgence">Urgence</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Paramètres vitaux -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="mb-3">Paramètres Vitaux</h5>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="tension_arterielle" class="form-label">Tension Artérielle</label>
+                                <input type="text" name="tension_arterielle" id="tension_arterielle" 
+                                       class="form-control" placeholder="Ex: 12/8">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="glycemie" class="form-label">Glycémie (g/L)</label>
+                                <input type="number" step="0.1" name="glycemie" id="glycemie" 
+                                       class="form-control" placeholder="Ex: 1.2">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="poids" class="form-label">Poids (kg)</label>
+                                <input type="number" step="0.1" name="poids" id="poids" 
+                                       class="form-control" placeholder="Ex: 70.5">
+                            </div>
+                        </div>
+
+                        <!-- Observance et symptômes -->
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label for="observance_traitement" class="form-label">Observance du Traitement</label>
+                                <select name="observance_traitement" id="observance_traitement" class="form-select">
+                                    <option value="">Non renseigné</option>
+                                    <option value="bonne">Bonne</option>
+                                    <option value="moyenne">Moyenne</option>
+                                    <option value="mauvaise">Mauvaise</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="prochain_rdv" class="form-label">Prochain Rendez-vous</label>
+                                <input type="date" name="prochain_rdv" id="prochain_rdv" class="form-control">
+                            </div>
+                        </div>
+
+                        <!-- Symptômes observés -->
+                        <div class="mb-3">
+                            <label for="symptomes_observes" class="form-label">Symptômes Observés</label>
+                            <textarea name="symptomes_observes" id="symptomes_observes" rows="3" 
+                                      class="form-control" placeholder="Décrire les symptômes observés..."></textarea>
+                        </div>
+
+                        <!-- Observations -->
+                        <div class="mb-3">
+                            <label for="observations" class="form-label">Observations *</label>
+                            <textarea name="observations" id="observations" rows="4" 
+                                      class="form-control" placeholder="Observations détaillées..." required></textarea>
+                        </div>
+
+                        <!-- Actions et recommandations -->
+                        <div class="mb-3">
+                            <label for="actions_prises" class="form-label">Actions Prises</label>
+                            <textarea name="actions_prises" id="actions_prises" rows="3" 
+                                      class="form-control" placeholder="Actions entreprises lors de ce suivi..."></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="recommendations" class="form-label">Recommandations</label>
+                            <textarea name="recommendations" id="recommendations" rows="3" 
+                                      class="form-control" placeholder="Recommandations pour le patient..."></textarea>
+                        </div>
+
+                        <!-- Transmission pharmacien -->
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" name="transmission_pharmacien" id="transmission_pharmacien" 
+                                   class="form-check-input" value="on">
+                            <label for="transmission_pharmacien" class="form-check-label">
+                                Transmettre ce suivi au pharmacien référent
+                            </label>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Enregistrer le Suivi
+                            </button>
+                            <a href="{% url 'medecin:detail_accompagnement' programme.id %}" class="btn btn-secondary">
+                                Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

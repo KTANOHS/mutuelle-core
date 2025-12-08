@@ -1,0 +1,256 @@
+{% extends 'assureur/base_assureur.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- En-tête -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'assureur:dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Configuration</li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h3 mb-0">{{ title }}</h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-header py-3 bg-primary text-white">
+                    <h6 class="m-0 font-weight-bold">Paramètres du système d'assurance</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if messages %}
+                        <div class="mb-4">
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="row g-3">
+                            <!-- Informations générales -->
+                            <div class="col-12">
+                                <h5 class="text-primary mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>Informations générales
+                                </h5>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="nom_assureur" class="form-label">Nom de l'assureur</label>
+                                <input type="text" name="nom_assureur" id="nom_assureur" class="form-control" 
+                                       value="{{ config.nom_assureur }}" required>
+                                <div class="form-text">Nom qui apparaîtra dans les documents</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="taux_couverture_defaut" class="form-label">Taux de couverture par défaut (%)</label>
+                                <input type="number" name="taux_couverture_defaut" id="taux_couverture_defaut" 
+                                       class="form-control" value="{{ config.taux_couverture_defaut }}" 
+                                       min="0" max="100" step="0.01" required>
+                                <div class="form-text">Pourcentage de couverture des soins par défaut</div>
+                            </div>
+
+                            <!-- Paramètres des bons -->
+                            <div class="col-12 mt-4">
+                                <h5 class="text-primary mb-3">
+                                    <i class="fas fa-file-medical me-2"></i>Paramètres des bons de soin
+                                </h5>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="delai_validite_bon" class="form-label">Délai de validité des bons (jours)</label>
+                                <input type="number" name="delai_validite_bon" id="delai_validite_bon" 
+                                       class="form-control" value="{{ config.delai_validite_bon }}" 
+                                       min="1" max="365" required>
+                                <div class="form-text">Nombre de jours de validité d'un bon après sa création</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="montant_plafond_annuel" class="form-label">Plafond annuel par membre (FCFA)</label>
+                                <input type="number" name="montant_plafond_annuel" id="montant_plafond_annuel" 
+                                       class="form-control" value="{{ config.montant_plafond_annuel }}" 
+                                       min="0" step="100" required>
+                                <div class="form-text">Montant maximum remboursable par membre et par an</div>
+                            </div>
+
+                            <!-- Alertes et seuils -->
+                            <div class="col-12 mt-4">
+                                <h5 class="text-primary mb-3">
+                                    <i class="fas fa-bell me-2"></i>Alertes et seuils
+                                </h5>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="seuil_alerte_montant" class="form-label">Seuil d'alerte montant (FCFA)</label>
+                                <input type="number" name="seuil_alerte_montant" id="seuil_alerte_montant" 
+                                       class="form-control" value="{{ config.seuil_alerte_montant }}" 
+                                       min="0" step="100" required>
+                                <div class="form-text">Seuil pour les alertes de montants élevés</div>
+                            </div>
+
+                            <!-- Paramètres des cotisations -->
+                            <div class="col-12 mt-4">
+                                <h5 class="text-primary mb-3">
+                                    <i class="fas fa-money-bill-wave me-2"></i>Paramètres des cotisations
+                                </h5>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Cotisation normale</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" value="5000" disabled>
+                                    <span class="input-group-text">FCFA</span>
+                                </div>
+                                <div class="form-text">Montant fixe pour les cotisations normales</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Cotisation femme enceinte</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" value="7500" disabled>
+                                    <span class="input-group-text">FCFA</span>
+                                </div>
+                                <div class="form-text">Montant fixe pour les femmes enceintes</div>
+                            </div>
+
+                            <!-- Informations système -->
+                            <div class="col-12 mt-4">
+                                <h5 class="text-primary mb-3">
+                                    <i class="fas fa-cog me-2"></i>Informations système
+                                </h5>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="alert alert-light border">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <strong>Dernière modification:</strong><br>
+                                            {{ config.updated_at|date:"d/m/Y H:i"|default:"-" }}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Modifié par:</strong><br>
+                                            {{ config.updated_by.get_full_name|default:config.updated_by.username }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Boutons -->
+                            <div class="col-12 mt-4">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'assureur:dashboard' %}" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Annuler
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Enregistrer les modifications
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Cartes d'information -->
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card border-left-info shadow h-100">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        Taux de couverture
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        {{ config.taux_couverture_defaut }}%
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-percentage fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card border-left-success shadow h-100">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Délai validation bons
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        {{ config.delai_validite_bon }} jours
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card border-left-warning shadow h-100">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                        Plafond annuel
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        {{ config.montant_plafond_annuel|floatformat:0 }} FCFA
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Validation des pourcentages
+    $('#taux_couverture_defaut').on('change', function() {
+        let valeur = parseFloat($(this).val());
+        if (valeur < 0) $(this).val(0);
+        if (valeur > 100) $(this).val(100);
+    });
+
+    // Confirmation avant enregistrement
+    $('form').on('submit', function(e) {
+        const nomAssureur = $('#nom_assureur').val();
+        if (!nomAssureur) {
+            e.preventDefault();
+            alert('Le nom de l\'assureur est obligatoire');
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}

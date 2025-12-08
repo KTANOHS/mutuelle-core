@@ -1,0 +1,58 @@
+{% extends 'assureur/base_assureur.html' %}
+{% load static %}
+
+{% block title %}Message : {{ message.sujet }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-envelope me-2"></i>Détail du Message
+                </h6>
+                <div>
+                    <a href="{% url 'assureur:repondre_message' message.id %}" class="btn btn-primary btn-sm me-2">
+                        <i class="fas fa-reply me-1"></i>Répondre
+                    </a>
+                    <a href="{% url 'assureur:liste_messages' %}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i>Retour
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="message-header border-bottom pb-3 mb-3">
+                    <h4 class="text-primary">{{ message.sujet }}</h4>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>De :</strong> {{ message.expediteur.get_full_name|default:message.expediteur.username }}</p>
+                            <p class="mb-1"><strong>À :</strong> {{ message.destinataire.get_full_name|default:message.destinataire.username }}</p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <p class="mb-1"><strong>Date d'envoi :</strong> {{ message.date_envoi|date:"d/m/Y à H:i" }}</p>
+                            {% if message.est_lu %}
+                            <p class="mb-1"><strong>Lu :</strong> Oui</p>
+                            {% else %}
+                            <p class="mb-1"><strong>Lu :</strong> Non</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="message-content py-4 px-3 bg-light rounded">
+                    {{ message.contenu|linebreaks }}
+                </div>
+                
+                {% if message.piece_jointe %}
+                <div class="message-attachments mt-4">
+                    <h6><i class="fas fa-paperclip me-2"></i>Pièce jointe</h6>
+                    <a href="{{ message.piece_jointe.url }}" class="btn btn-outline-primary btn-sm" target="_blank">
+                        <i class="fas fa-download me-1"></i>Télécharger
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends 'pharmacien/base_pharmacien.html' %}
+{% load static %}
+
+{% block title %}Modifier le Stock - Pharmacien{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 text-gray-800">
+                    <i class="fas fa-edit text-warning me-2"></i>
+                    Modifier le Médicament
+                </h1>
+                <a href="{% url 'pharmacien:stock' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour au stock
+                </a>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-xl-8 col-lg-10">
+                    <div class="card pharmacien-card">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-pills me-2"></i>
+                                Modifier {{ stock.nom_medicament }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                {% csrf_token %}
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="nom_medicament" class="form-label">
+                                            Nom du médicament <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="nom_medicament" 
+                                               name="nom_medicament" value="{{ stock.nom_medicament }}" required>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="code_medicament" class="form-label">Code médicament</label>
+                                        <input type="text" class="form-control" id="code_medicament" 
+                                               name="code_medicament" value="{{ stock.code_medicament|default:'' }}">
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="categorie" class="form-label">Catégorie</label>
+                                        <select class="form-control" id="categorie" name="categorie">
+                                            {% for categorie in categories %}
+                                            <option value="{{ categorie.0 }}" 
+                                                    {% if stock.categorie == categorie.0 %}selected{% endif %}>
+                                                {{ categorie.1 }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="quantite_stock" class="form-label">
+                                            Quantité en stock <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="number" class="form-control" id="quantite_stock" 
+                                               name="quantite_stock" value="{{ stock.quantite_stock }}" min="0" required>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="seuil_alerte" class="form-label">
+                                            Seuil d'alerte <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="number" class="form-control" id="seuil_alerte" 
+                                               name="seuil_alerte" value="{{ stock.seuil_alerte }}" min="1" required>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="date_peremption" class="form-label">Date de péremption</label>
+                                        <input type="date" class="form-control" id="date_peremption" 
+                                               name="date_peremption" 
+                                               value="{{ stock.date_peremption|date:'Y-m-d'|default:'' }}">
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="prix_achat" class="form-label">
+                                            Prix d'achat (F) <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="number" step="0.01" class="form-control" id="prix_achat" 
+                                               name="prix_achat" value="{{ stock.prix_achat }}" min="0" required>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="prix_vente" class="form-label">
+                                            Prix de vente (F) <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="number" step="0.01" class="form-control" id="prix_vente" 
+                                               name="prix_vente" value="{{ stock.prix_vente }}" min="0" required>
+                                    </div>
+                                </div>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <a href="{% url 'pharmacien:stock' %}" class="btn btn-outline-secondary me-md-2">
+                                        <i class="fas fa-times me-2"></i>Annuler
+                                    </a>
+                                    <button type="submit" class="btn btn-warning">
+                                        <i class="fas fa-save me-2"></i>Modifier le médicament
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

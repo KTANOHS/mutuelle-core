@@ -1,0 +1,25 @@
+{
+  "periode": "11/2025",
+  "timestamp": "2025-11-27T10:38:15.692143",
+  "performances": {
+    "temps_requete_users": 0.003978,
+    "temps_requete_membres": 0.000447,
+    "nombre_tables": 80,
+    "nombre_indexes": 242
+  },
+  "evolution": {
+    "membres": {
+      "actuel": 22,
+      "croissance": "N/A"
+    },
+    "utilisateurs": {
+      "actuel": 43,
+      "croissance": "N/A"
+    }
+  },
+  "recommandations": [
+    "R\u00e9viser la strat\u00e9gie de sauvegarde",
+    "V\u00e9rifier l'espace disque et la m\u00e9moire",
+    "Planifier les mises \u00e0 jour de s\u00e9curit\u00e9"
+  ]
+}

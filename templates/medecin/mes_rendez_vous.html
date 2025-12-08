@@ -1,0 +1,278 @@
+<!-- templates/medecin/mes_rendez_vous.html -->
+{% extends 'medecin/base.html' %}
+{% load static %}
+
+{% block title %}Mes Rendez-vous - Médecin{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">Mes Rendez-vous</h1>
+                <!-- Bouton avec vérification -->
+                {% if patients %}
+                <button type="button" class="btn btn-primary" id="openPatientModalBtn">
+                    <i class="fas fa-plus me-2"></i>Sélectionner un patient
+                </button>
+                {% else %}
+                <button type="button" class="btn btn-secondary" disabled title="Aucun patient disponible">
+                    <i class="fas fa-plus me-2"></i>Sélectionner un patient
+                </button>
+                {% endif %}
+            </div>
+
+            <!-- Debug info (à retirer en production) -->
+            <div class="alert alert-info d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>Debug:</strong> 
+                    Patients: {{ patients.count }} | 
+                    Consultations: {{ consultations.count }}
+                </div>
+                <button class="btn btn-sm btn-outline-info" onclick="location.reload()">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+
+            <!-- Statistiques -->
+            <div class="row mb-4">
+                <div class="col-xl-3 col-md-6">
+                    <div class="card bg-primary text-white mb-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <div class="text-xs font-weight-bold text-uppercase mb-1">
+                                        Rendez-vous aujourd'hui
+                                    </div>
+                                    <div class="h5 mb-0">{{ rdv_aujourdhui.count }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-calendar-day fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Autres statistiques... -->
+            </div>
+
+            <!-- Liste des rendez-vous -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Liste des Rendez-vous ({{ consultations.count }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if consultations %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Date & Heure</th>
+                                        <th>Type</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for consultation in consultations %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ consultation.membre.nom_complet }}</strong>
+                                            <br>
+                                            <small class="text-muted">{{ consultation.membre.numero_unique }}</small>
+                                        </td>
+                                        <td>
+                                            {{ consultation.date_consultation|date:"d/m/Y" }}
+                                            {% if consultation.heure_consultation %}
+                                                <br>
+                                                <small class="text-muted">{{ consultation.heure_consultation|time:"H:i" }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">{{ consultation.get_type_consultation_display }}</span>
+                                        </td>
+                                        <td>
+                                            {% if consultation.statut == 'PLANIFIEE' %}
+                                                <span class="badge bg-warning">Planifiée</span>
+                                            {% elif consultation.statut == 'EN_COURS' %}
+                                                <span class="badge bg-primary">En cours</span>
+                                            {% elif consultation.statut == 'TERMINEE' %}
+                                                <span class="badge bg-success">Terminée</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ consultation.get_statut_display }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{% url 'medecin:detail_consultation' consultation.id %}" 
+                                                   class="btn btn-outline-primary" 
+                                                   title="Voir les détails">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Aucun rendez-vous planifié</h5>
+                            <p class="text-muted">Utilisez le bouton "Sélectionner un patient" pour créer un nouveau rendez-vous.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de sélection des patients - VERSION CORRIGÉE -->
+<div class="modal fade" id="selectPatientModal" tabindex="-1" aria-labelledby="selectPatientModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="selectPatientModalLabel">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Sélectionner un patient ({{ patients.count }} disponibles)
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Recherche de patients - TOUJOURS AFFICHÉE -->
+                <div class="mb-4">
+                    <div class="input-group">
+                        <input type="text" 
+                               class="form-control" 
+                               id="searchPatient" 
+                               placeholder="Rechercher un patient par nom, prénom ou numéro..."
+                               {% if not patients %}disabled{% endif %}>
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Liste des patients -->
+                <div id="patientsList" style="max-height: 400px; overflow-y: auto;">
+                    {% if patients %}
+                    <div class="list-group">
+                        {% for membre in patients %}
+                        <a href="{% url 'medecin:creer_consultation_patient' membre.id %}" 
+                            class="list-group-item list-group-item-action patient-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ membre.nom_complet }}</h6>
+                                <small class="text-muted">{{ membre.numero_unique }}</small>
+                            </div>
+                            <p class="mb-1">
+                                <small class="text-muted">
+                                    <i class="fas fa-phone me-1"></i>{{ membre.telephone|default:"Non renseigné" }}
+                                    {% if membre.email %}
+                                    <i class="fas fa-envelope ms-2 me-1"></i>{{ membre.email }}
+                                    {% endif %}
+                                </small>
+                            </p>
+                            <small>
+                                {% if membre.statut == 'ACTIF' %}
+                                    <span class="badge bg-success">Actif</span>
+                                {% else %}
+                                    <span class="badge bg-warning">{{ membre.get_statut_display }}</span>
+                                {% endif %}
+                                <span class="badge bg-info ms-1">{{ membre.get_categorie_display }}</span>
+                            </small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-users-slash fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Aucun patient disponible</h5>
+                        <p class="text-muted mb-2">Aucun membre actif trouvé dans la base de données.</p>
+                        <div class="mt-3">
+                            <a href="{% url 'membres:liste_membres' %}" class="btn btn-outline-primary me-2">
+                                <i class="fas fa-external-link-alt me-1"></i>Voir tous les membres
+                            </a>
+                            <a href="{% url 'membres:creer_membre' %}" class="btn btn-primary">
+                                <i class="fas fa-user-plus me-1"></i>Créer un nouveau membre
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                <a href="{% url 'membres:liste_membres' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-external-link-alt me-1"></i>Gérer les patients
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Initialisation du modal des patients');
+    console.log('Nombre de patients:', {{ patients.count }});
+    
+    // Bouton d'ouverture du modal
+    const openBtn = document.getElementById('openPatientModalBtn');
+    if (openBtn) {
+        openBtn.addEventListener('click', function() {
+            console.log('👉 Ouverture du modal des patients');
+            const modalElement = document.getElementById('selectPatientModal');
+            if (modalElement) {
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+            }
+        });
+    }
+
+    // Filtrage des patients
+    const searchInput = document.getElementById('searchPatient');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const filter = this.value.toLowerCase();
+            const patientItems = document.querySelectorAll('.patient-item');
+            
+            console.log(`🔍 Filtrage: "${filter}" - ${patientItems.length} patients`);
+            
+            patientItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(filter)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Focus sur la recherche quand le modal s'ouvre
+    const modalElement = document.getElementById('selectPatientModal');
+    if (modalElement) {
+        modalElement.addEventListener('shown.bs.modal', function () {
+            const searchInput = document.getElementById('searchPatient');
+            if (searchInput && !searchInput.disabled) {
+                searchInput.focus();
+            }
+        });
+    }
+    
+    // Debug: Vérification des éléments
+    console.log('✅ Éléments chargés:');
+    console.log('- Bouton:', document.getElementById('openPatientModalBtn') ? '✅' : '❌');
+    console.log('- Modal:', document.getElementById('selectPatientModal') ? '✅' : '❌');
+    console.log('- Recherche:', document.getElementById('searchPatient') ? '✅' : '❌');
+    console.log('- Items patients:', document.querySelectorAll('.patient-item').length);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,382 @@
+{% extends 'medecin/base.html' %}
+
+{% block title %}Mon Profil - Médecin{% endblock %}
+
+{% block page_title %}Mon Profil Professionnel{% endblock %}
+{% block page_subtitle %}Gérez vos informations et préférences{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-4">
+        <!-- Carte profil -->
+        <div class="card mb-4">
+            <div class="card-header bg-white text-center">
+                <div class="position-relative">
+                    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 100px; height: 100px;">
+                        <i class="fas fa-user-md fa-3x text-white"></i>
+                    </div>
+                    {% if medecin.diplome_verifie %}
+                    <div class="position-absolute bottom-0 end-0 bg-success rounded-circle p-1 border border-3 border-white">
+                        <i class="fas fa-check text-white small"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                <h4 class="card-title mb-1">Dr. {{ medecin.user.get_full_name }}</h4>
+                <p class="text-muted mb-2">{{ medecin.specialite.nom }}</p>
+                <div class="d-flex justify-content-center">
+                    <span class="badge bg-{% if medecin.est_actif %}success{% else %}secondary{% endif %} me-2">
+                        {% if medecin.est_actif %}Actif{% else %}Inactif{% endif %}
+                    </span>
+                    <span class="badge bg-{% if medecin.disponible %}info{% else %}warning{% endif %}">
+                        {% if medecin.disponible %}Disponible{% else %}Indisponible{% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span class="text-muted">N° d'Ordre</span>
+                        <strong>{{ medecin.numero_ordre }}</strong>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span class="text-muted">Expérience</span>
+                        <strong>{{ medecin.experience_text }}</strong>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span class="text-muted">Établissement</span>
+                        <strong>{{ medecin.etablissement.nom }}</strong>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span class="text-muted">Tarif consultation</span>
+                        <strong class="text-success">{{ medecin.tarif_consultation }} FCFA</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques rapides -->
+        <div class="card">
+            <div class="card-header bg-white">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-chart-line me-2"></i>Activité Récente
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span>Consultations ce mois</span>
+                        <span class="badge bg-primary rounded-pill">{{ stats.consultations_mois }}</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span>Ordonnances créées</span>
+                        <span class="badge bg-success rounded-pill">{{ stats.ordonnances_mois }}</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span>Note moyenne</span>
+                        <span class="badge bg-warning rounded-pill">{{ stats.note_moyenne }}/5</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span>Patients suivis</span>
+                        <span class="badge bg-info rounded-pill">{{ stats.patients_suivis }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <!-- Formulaire d'édition -->
+        <div class="card">
+            <div class="card-header bg-white">
+                <ul class="nav nav-tabs card-header-tabs" id="profileTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="info-tab" data-bs-toggle="tab" 
+                                data-bs-target="#info" type="button" role="tab">
+                            Informations Professionnelles
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="contact-tab" data-bs-toggle="tab" 
+                                data-bs-target="#contact" type="button" role="tab">
+                            Contact & Disponibilités
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="security-tab" data-bs-toggle="tab" 
+                                data-bs-target="#security" type="button" role="tab">
+                            Sécurité
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="profileTabsContent">
+                    <!-- Onglet Informations Professionnelles -->
+                    <div class="tab-pane fade show active" id="info" role="tabpanel">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="hidden" name="form_type" value="professional">
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Numéro d'ordre</label>
+                                    <input type="text" class="form-control" name="numero_ordre" 
+                                           value="{{ medecin.numero_ordre }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Spécialité</label>
+                                    <select class="form-select" name="specialite" required>
+                                        {% for spec in specialites %}
+                                        <option value="{{ spec.id }}" 
+                                                {% if medecin.specialite.id == spec.id %}selected{% endif %}>
+                                            {{ spec.nom }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Établissement</label>
+                                    <select class="form-select" name="etablissement" required>
+                                        {% for etab in etablissements %}
+                                        <option value="{{ etab.id }}" 
+                                                {% if medecin.etablissement.id == etab.id %}selected{% endif %}>
+                                            {{ etab.nom }} ({{ etab.get_type_etablissement_display }})
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Années d'expérience</label>
+                                    <input type="number" class="form-control" name="annees_experience" 
+                                           value="{{ medecin.annees_experience }}" min="0" max="60">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Tarif consultation (FCFA)</label>
+                                    <input type="number" class="form-control" name="tarif_consultation" 
+                                           value="{{ medecin.tarif_consultation }}" min="0">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">CV Professionnel</label>
+                                    <input type="file" class="form-control" name="cv_document" 
+                                           accept=".pdf,.doc,.docx">
+                                    {% if medecin.cv_document %}
+                                    <small class="text-muted">
+                                        <a href="{{ medecin.cv_document.url }}" target="_blank">
+                                            <i class="fas fa-file-pdf me-1"></i>CV actuel
+                                        </a>
+                                    </small>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label">Biographie</label>
+                                    <textarea class="form-control" name="biographie" rows="4" 
+                                              placeholder="Présentez votre parcours, compétences...">{{ medecin.biographie|default:'' }}</textarea>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" name="actif" 
+                                               {% if medecin.actif %}checked{% endif %}>
+                                        <label class="form-check-label">Compte actif</label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" name="disponible" 
+                                               {% if medecin.disponible %}checked{% endif %}>
+                                        <label class="form-check-label">Disponible pour nouveaux patients</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i>Enregistrer les modifications
+                                </button>
+                                <a href="#" class="btn btn-outline-secondary">Annuler</a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Onglet Contact & Disponibilités -->
+                    <div class="tab-pane fade" id="contact" role="tabpanel">
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="form_type" value="contact">
+
+                            <h6 class="text-primary mb-3">Coordonnées Professionnelles</h6>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">Téléphone professionnel</label>
+                                    <input type="tel" class="form-control" name="telephone_pro" 
+                                           value="{{ medecin.telephone_pro }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Email professionnel</label>
+                                    <input type="email" class="form-control" name="email_pro" 
+                                           value="{{ medecin.email_pro }}">
+                                </div>
+                            </div>
+
+                            <h6 class="text-primary mb-3">Horaires de Travail</h6>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Jour</th>
+                                            <th>Disponible</th>
+                                            <th>Heure début</th>
+                                            <th>Heure fin</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for dispo in disponibilites %}
+                                        <tr>
+                                            <td>{{ dispo.get_jour_semaine_display }}</td>
+                                            <td>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" 
+                                                           name="dispo_{{ dispo.jour_semaine }}" 
+                                                           {% if dispo.actif %}checked{% endif %}>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="time" class="form-control form-control-sm" 
+                                                       name="debut_{{ dispo.jour_semaine }}" 
+                                                       value="{{ dispo.heure_debut|time:'H:i' }}">
+                                            </td>
+                                            <td>
+                                                <input type="time" class="form-control form-control-sm" 
+                                                       name="fin_{{ dispo.jour_semaine }}" 
+                                                       value="{{ dispo.heure_fin|time:'H:i' }}">
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i>Mettre à jour
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Onglet Sécurité -->
+                    <div class="tab-pane fade" id="security" role="tabpanel">
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="form_type" value="security">
+
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Modifiez votre mot de passe pour renforcer la sécurité de votre compte.
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Nouveau mot de passe</label>
+                                    <input type="password" class="form-control" name="new_password1" 
+                                           placeholder="Minimum 8 caractères">
+                                    <div class="form-text">
+                                        Doit contenir au moins 8 caractères avec chiffres et lettres.
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Confirmation</label>
+                                    <input type="password" class="form-control" name="new_password2" 
+                                           placeholder="Répétez le mot de passe">
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <h6 class="text-primary mb-3">Sessions Actives</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Appareil</th>
+                                            <th>Dernière activité</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <i class="fas fa-desktop me-2"></i>Chrome - Windows
+                                            </td>
+                                            <td>Il y a 2 minutes</td>
+                                            <td>
+                                                <button class="btn btn-outline-danger btn-sm">
+                                                    
+    <!-- Lien vers la messagerie -->
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'communication:messagerie_medecin' %}">
+            <i class="fas fa-envelope me-2"></i>
+            <span>Messagerie</span>
+            <span class="badge bg-primary rounded-pill ms-2" id="notification-badge">0</span>
+        </a>
+    </li>
+    <i class="fas fa-sign-out-alt"></i> Déconnecter
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-key me-1"></i>Changer le mot de passe
+                                </button>
+                                <button type="button" class="btn btn-outline-warning">
+                                    <i class="fas fa-sync me-1"></i>Rafraîchir les sessions
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Validation des horaires
+    const timeInputs = document.querySelectorAll('input[type="time"]');
+    timeInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const row = this.closest('tr');
+            const debut = row.querySelector('input[name^="debut_"]');
+            const fin = row.querySelector('input[name^="fin_"]');
+            
+            if (debut.value && fin.value && debut.value >= fin.value) {
+                alert('L\'heure de fin doit être après l\'heure de début.');
+                this.value = '';
+            }
+        });
+    });
+
+    // Gestion des onglets
+    const profileTabs = document.getElementById('profileTabs');
+    const storedTab = localStorage.getItem('medecinProfileTab');
+    
+    if (storedTab) {
+        const tab = new bootstrap.Tab(profileTabs.querySelector(`[data-bs-target="${storedTab}"]`));
+        tab.show();
+    }
+
+    profileTabs.addEventListener('show.bs.tab', function(event) {
+        localStorage.setItem('medecinProfileTab', event.target.getAttribute('data-bs-target'));
+    });
+});
+</script>
+{% endblock %}

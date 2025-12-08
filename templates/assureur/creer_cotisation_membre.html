@@ -1,0 +1,186 @@
+<!-- assureur/templates/assureur/creer_cotisation_membre.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Créer une cotisation{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        Créer une cotisation
+                        {% if membre %}
+                        pour {{ membre.prenom }} {{ membre.nom }}
+                        {% endif %}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if membre %}
+                        <div class="mb-3">
+                            <label class="form-label">Membre</label>
+                            <div class="form-control bg-light">
+                                <strong>{{ membre.prenom }} {{ membre.nom }}</strong>
+                                <div class="small text-muted">
+                                    Numéro: {{ membre.numero_unique }} | 
+                                    Téléphone: {{ membre.telephone|default:"Non renseigné" }}
+                                </div>
+                            </div>
+                            <input type="hidden" name="membre_id" value="{{ membre.id }}">
+                        </div>
+                        {% else %}
+                        <div class="mb-3">
+                            <label for="membre_id" class="form-label">Sélectionner un membre</label>
+                            <select class="form-select" id="membre_id" name="membre_id" required>
+                                <option value="">Choisir un membre...</option>
+                                {% for m in membres_actifs %}
+                                <option value="{{ m.id }}">
+                                    {{ m.prenom }} {{ m.nom }} - {{ m.numero_unique }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="periode" class="form-label">Période (Mois)</label>
+                                <select class="form-select" id="periode" name="periode" required>
+                                    {% for mois in mois_liste %}
+                                    <option value="{{ mois }}" {% if mois == aujourd_hui %}selected{% endif %}>
+                                        {{ mois }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text">Format: YYYY-MM</div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="montant" class="form-label">Montant (FCFA)</label>
+                                <input type="number" class="form-control" id="montant" name="montant" 
+                                       value="5000" min="0" step="100" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="type_cotisation" class="form-label">Type de cotisation</label>
+                                <select class="form-select" id="type_cotisation" name="type_cotisation">
+                                    <option value="normale">Normale (5,000 FCFA)</option>
+                                    <option value="femme_enceinte">Femme enceinte (7,500 FCFA)</option>
+                                    <option value="reduction">Réduction (2,500 FCFA)</option>
+                                    <option value="exceptionnelle">Exceptionnelle</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="statut" class="form-label">Statut</label>
+                                <select class="form-select" id="statut" name="statut">
+                                    <option value="due" selected>Due</option>
+                                    <option value="payee">Payée</option>
+                                    <option value="en_retard">En retard</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                      placeholder="Informations supplémentaires..."></textarea>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% if membre %}{% url 'assureur:detail_membre' membre.id %}{% else %}{% url 'assureur:liste_cotisations' %}{% endif %}" 
+                               class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> Créer la cotisation
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            {% if membre %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">Cotisations existantes</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Référence</th>
+                                    <th>Période</th>
+                                    <th>Montant</th>
+                                    <th>Statut</th>
+                                    <th>Échéance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cot in membre.cotisation_set.all|slice:":5" %}
+                                <tr>
+                                    <td>{{ cot.reference }}</td>
+                                    <td>{{ cot.periode }}</td>
+                                    <td>{{ cot.montant|floatformat:0 }} FCFA</td>
+                                    <td>
+                                        <span class="badge bg-{% if cot.statut == 'payee' %}success{% elif cot.statut == 'en_retard' %}danger{% else %}warning{% endif %}">
+                                            {{ cot.get_statut_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ cot.date_echeance|date:"d/m/Y" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-3">
+                                        Aucune cotisation existante
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Ajuster le montant selon le type de cotisation
+document.getElementById('type_cotisation').addEventListener('change', function() {
+    const montantInput = document.getElementById('montant');
+    switch(this.value) {
+        case 'normale':
+            montantInput.value = 5000;
+            break;
+        case 'femme_enceinte':
+            montantInput.value = 7500;
+            break;
+        case 'reduction':
+            montantInput.value = 2500;
+            break;
+        default:
+            montantInput.value = 5000;
+    }
+});
+
+// Permettre la sélection de n'importe quel mois
+document.getElementById('periode').addEventListener('dblclick', function() {
+    this.type = 'text';
+    this.value = '';
+    this.placeholder = 'Format: YYYY-MM';
+});
+</script>
+{% endblock %}

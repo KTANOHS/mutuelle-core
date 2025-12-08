@@ -1,0 +1,514 @@
+{% extends 'agents/base_agent.html' %}
+{% load static %}
+
+{% block title %}Créer un bon de soin - Agent{% endblock %}
+{% block page_title %}Créer un bon de soin{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-file-medical me-2"></i>Nouveau bon de soin
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Alertes -->
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Bons créés aujourd'hui: <strong>{{ bons_du_jour }}</strong> / {{ agent.limite_bons_quotidienne|default:10 }}
+                </div>
+
+                {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Recherche Membre -->
+                <div class="recherche-membre-container mb-4">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h6 class="card-title mb-0">
+                                <i class="fas fa-search me-2"></i>Rechercher un membre
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group position-relative">
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="search-input" 
+                                       placeholder="Nom, prénom, matricule, téléphone..." 
+                                       minlength="2">
+                                <div class="spinner-border spinner-border-sm position-absolute d-none" 
+                                     id="search-spinner" 
+                                     style="right: 15px; top: 12px;">
+                                </div>
+                            </div>
+                            
+                            <div id="search-results" class="mt-3"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations membre sélectionné -->
+                {% if membre %}
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <div class="alert alert-{% if est_a_jour %}success{% else %}warning{% endif %}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Membre sélectionné :</strong> 
+                                    {{ membre.prenom }} {{ membre.nom }} 
+                                    ({{ membre.numero_unique|default:"N/A" }})
+                                </div>
+                                <div>
+                                    {% if est_a_jour %}
+                                        <span class="badge bg-success">À jour</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">Cotisation en retard</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Formulaire de création (uniquement si membre sélectionné) -->
+                {% if membre %}
+                <form method="post" action="{% url 'agents:creer_bon_soin_membre' membre.id %}">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Type de soin <span class="text-danger">*</span></label>
+                            <select name="type_soin" class="form-select" required>
+                                <option value="">Sélectionnez un type</option>
+                                <option value="consultation">Consultation médicale</option>
+                                <option value="analyse">Analyse médicale</option>
+                                <option value="radiologie">Radiologie</option>
+                                <option value="pharmacie">Médicaments</option>
+                                <option value="hospitalisation">Hospitalisation</option>
+                                <option value="urgence">Urgence</option>
+                                <option value="autre">Autre</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Montant (FCFA) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="number" name="montant" class="form-control" 
+                                       placeholder="0.00" min="0" step="0.01" required>
+                                <span class="input-group-text">FCFA</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Symptômes / Diagnostic</label>
+                        <textarea name="symptomes" class="form-control" rows="3" 
+                                  placeholder="Décrivez les symptômes ou le diagnostic..."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Traitement prescrit</label>
+                        <textarea name="diagnostic" class="form-control" rows="2" 
+                                  placeholder="Décrivez le traitement prescrit..."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Observations supplémentaires</label>
+                        <textarea name="description" class="form-control" rows="2" 
+                                  placeholder="Observations complémentaires..."></textarea>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'agents:dashboard' %}" class="btn btn-outline-secondary me-md-2">
+                            <i class="fas fa-arrow-left me-1"></i>Retour
+                        </a>
+                        <button type="reset" class="btn btn-outline-secondary me-md-2">
+                            <i class="fas fa-undo me-1"></i>Réinitialiser
+                        </button>
+                        <button type="submit" class="btn btn-primary" 
+                                {% if not est_a_jour %}data-bs-toggle="tooltip" data-bs-placement="top" 
+                                title="Le membre n'est pas à jour de cotisation. Le bon peut être refusé."{% endif %}>
+                            <i class="fas fa-save me-1"></i>
+                            {% if est_a_jour %}
+                                Créer le bon de soin
+                            {% else %}
+                                Créer malgré le retard
+                            {% endif %}
+                        </button>
+                    </div>
+                </form>
+                {% else %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Veuillez sélectionner un membre dans la recherche ci-dessus pour créer un bon de soin.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Informations contextuelles -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Informations
+                </h5>
+            </div>
+            <div class="card-body">
+                <h6>Règles de création :</h6>
+                <ul class="list-unstyled small">
+                    <li><i class="fas fa-check text-success me-2"></i>Vérification automatique de la cotisation</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Limite quotidienne: {{ agent.limite_bons_quotidienne|default:10 }} bons</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Validité: 24 heures</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Notification automatique au médecin</li>
+                </ul>
+
+                <hr>
+
+                <h6>Statistiques du jour :</h6>
+                <div class="progress mb-2">
+                    {% with limite_quotidienne=agent.limite_bons_quotidienne|default:10 %}
+                    {% widthratio bons_du_jour limite_quotidienne 100 as progress_percent %}
+                    <div class="progress-bar {% if progress_percent|add:0 >= 100 %}bg-danger{% elif progress_percent|add:0 >= 80 %}bg-warning{% else %}bg-success{% endif %}" 
+                         role="progressbar" 
+                         style="width: {{ progress_percent }}%"
+                         aria-valuenow="{{ bons_du_jour }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="{{ limite_quotidienne }}">
+                        {{ bons_du_jour }}/{{ limite_quotidienne }}
+                    </div>
+                    {% endwith %}
+                </div>
+                <small class="text-muted">
+                    {{ limite_restante }} bons restants aujourd'hui
+                </small>
+
+                <hr>
+
+                <!-- Informations sur le membre sélectionné -->
+                {% if membre %}
+                <h6>Informations du membre :</h6>
+                <div class="small">
+                    <div class="mb-2">
+                        <strong>Nom complet :</strong><br>
+                        {{ membre.prenom }} {{ membre.nom }}
+                    </div>
+                    <div class="mb-2">
+                        <strong>Numéro unique :</strong><br>
+                        {{ membre.numero_unique|default:"Non attribué" }}
+                    </div>
+                    <div class="mb-2">
+                        <strong>Téléphone :</strong><br>
+                        {{ membre.telephone|default:"Non renseigné" }}
+                    </div>
+                    <div class="mb-2">
+                        <strong>Statut cotisation :</strong><br>
+                        {% if est_a_jour %}
+                        <span class="badge bg-success">À jour</span>
+                        {% else %}
+                        <span class="badge bg-warning">En retard</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <hr>
+                {% endif %}
+
+                <!-- Bons existants pour le membre -->
+                {% if membre and bons_soins_existants %}
+                <h6>Bons existants :</h6>
+                <div class="small" style="max-height: 150px; overflow-y: auto;">
+                    {% for bon in bons_soins_existants %}
+                    <div class="border-bottom py-1">
+                        <div class="d-flex justify-content-between">
+                            <span>{{ bon.date_creation|date:"d/m/Y" }}</span>
+                            <span class="badge bg-{% if bon.statut == 'valide' %}success{% elif bon.statut == 'en_attente' %}warning{% else %}secondary{% endif %}">
+                                {{ bon.get_statut_display }}
+                            </span>
+                        </div>
+                        <div class="text-muted">{{ bon.montant }} FCFA</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <hr>
+                {% endif %}
+
+                <div class="alert alert-warning small">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Important :</strong> Le membre doit être à jour de sa cotisation pour que le bon soit automatiquement validé.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-input');
+    const resultsDiv = document.getElementById('search-results');
+    const spinner = document.getElementById('search-spinner');
+    
+    let searchTimeout;
+    
+    // Fonction pour effectuer la recherche
+    function performSearch(query) {
+        fetch(`{% url 'agents:rechercher_membre' %}?q=${encodeURIComponent(query)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erreur réseau: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                spinner.classList.add('d-none');
+                
+                if (data.success) {
+                    displayResults(data.results, query);
+                } else {
+                    showError(data.error);
+                }
+            })
+            .catch(error => {
+                spinner.classList.add('d-none');
+                showError('Erreur de connexion: ' + error.message);
+            });
+    }
+    
+    // Fonction pour afficher les résultats
+    function displayResults(results, query) {
+        if (results.length === 0) {
+            resultsDiv.innerHTML = `
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Aucun membre trouvé pour "${query}"
+                </div>
+            `;
+            return;
+        }
+        
+        let html = `
+            <div class="search-stats mb-2">
+                <small class="text-muted">
+                    ${results.length} résultat(s) trouvé(s) pour "${query}"
+                </small>
+            </div>
+            <div class="list-group">
+        `;
+        
+        results.forEach(membre => {
+            const badge = membre.est_actif ? 
+                '<span class="badge bg-success ms-2">Actif</span>' : 
+                '<span class="badge bg-secondary ms-2">Inactif</span>';
+                
+            html += `
+                <div class="list-group-item list-group-item-action cursor-pointer" 
+                     onclick="selectMembre(${membre.id})">
+                    <div class="d-flex w-100 justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">${membre.nom_complet} ${badge}</h6>
+                            <p class="mb-1">
+                                <small class="text-muted">
+                                    <i class="fas fa-id-card me-1"></i>${membre.matricule}
+                                    <i class="fas fa-phone ms-2 me-1"></i>${membre.telephone || 'Non renseigné'}
+                                </small>
+                            </p>
+                        </div>
+                        <div>
+                            <span class="badge bg-light text-dark">
+                                <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        resultsDiv.innerHTML = html;
+    }
+    
+    // Fonction pour afficher les erreurs
+    function showError(message) {
+        resultsDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                ${message}
+            </div>
+        `;
+    }
+    
+    // Événement de recherche en temps réel
+    searchInput.addEventListener('input', function(e) {
+        const query = e.target.value.trim();
+        
+        // Clear previous timeout
+        clearTimeout(searchTimeout);
+        
+        // Clear results if query is too short
+        if (query.length < 2) {
+            resultsDiv.innerHTML = '';
+            spinner.classList.add('d-none');
+            return;
+        }
+        
+        // Show spinner
+        spinner.classList.remove('d-none');
+        resultsDiv.innerHTML = '';
+        
+        // Set new timeout for search (délai anti-rebond)
+        searchTimeout = setTimeout(() => {
+            performSearch(query);
+        }, 300);
+    });
+    
+    // Masquer les résultats quand on clique ailleurs
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#search-input') && !e.target.closest('#search-results')) {
+            resultsDiv.style.display = 'none';
+        }
+    });
+    
+    // Afficher les résultats quand on clique sur l'input
+    searchInput.addEventListener('focus', function() {
+        if (resultsDiv.innerHTML.trim() !== '') {
+            resultsDiv.style.display = 'block';
+        }
+    });
+
+    // Validation du formulaire
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const montant = form.querySelector('input[name="montant"]');
+            const typeSoin = form.querySelector('select[name="type_soin"]');
+            
+            let errors = [];
+            
+            if (!typeSoin.value) {
+                errors.push('Veuillez sélectionner un type de soin');
+                typeSoin.classList.add('is-invalid');
+            } else {
+                typeSoin.classList.remove('is-invalid');
+            }
+            
+            if (!montant.value || parseFloat(montant.value) <= 0) {
+                errors.push('Veuillez saisir un montant valide');
+                montant.classList.add('is-invalid');
+            } else {
+                montant.classList.remove('is-invalid');
+            }
+            
+            if (errors.length > 0) {
+                e.preventDefault();
+                // Afficher une alerte d'erreur
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+                alertDiv.innerHTML = `
+                    <strong>Erreurs :</strong>
+                    <ul class="mb-0">
+                        ${errors.map(error => `<li>${error}</li>`).join('')}
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                form.prepend(alertDiv);
+                
+                // Scroll to top of form
+                form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    }
+    
+    // Initialiser les tooltips Bootstrap
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+
+// Fonction globale pour sélectionner un membre
+function selectMembre(membreId) {
+    console.log('Sélection du membre ID:', membreId);
+    
+    // Rediriger vers la page de création de bon avec l'ID du membre
+    window.location.href = `{% url 'agents:creer_bon_soin' %}${membreId}/`;
+}
+
+// Alternative : Si vous voulez afficher les détails avant redirection
+function showMembreDetails(membreId) {
+    fetch(`{% url 'agents:details_membre' 0 %}`.replace('0', membreId))
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Afficher les détails dans un modal ou une section
+                console.log('Détails membre:', data.membre);
+                
+                // Exemple: Confirmation avant redirection
+                if (confirm(`Créer un bon de soin pour ${data.membre.nom_complet} ?`)) {
+                    selectMembre(membreId);
+                }
+            } else {
+                alert('Erreur: ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('Erreur de connexion lors du chargement des détails');
+        });
+}
+</script>
+
+<style>
+.cursor-pointer {
+    cursor: pointer;
+}
+.list-group-item:hover {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+}
+.list-group-item-action {
+    border-left: 3px solid transparent;
+}
+.list-group-item-action:hover {
+    border-left-color: #0d6efd;
+}
+.form-text {
+    font-size: 0.875em;
+    color: #6c757d;
+}
+.progress {
+    height: 25px;
+}
+.progress-bar {
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.search-stats {
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 0.375rem;
+}
+.recherche-membre-container .card {
+    border: 1px solid #dee2e6;
+}
+.recherche-membre-container .card-header {
+    background-color: #f8f9fa !important;
+    border-bottom: 1px solid #dee2e6;
+}
+</style>
+{% endblock %}

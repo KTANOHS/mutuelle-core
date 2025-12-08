@@ -1,0 +1,37 @@
+/* Styles pour le logo Massante Direct */
+.logo-massante {
+    max-width: 200px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.logo-container {
+    text-align: center;
+    padding: 20px 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    margin: 20px 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.logo-title {
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Header avec logo */
+.header-with-logo {
+    background: white;
+    padding: 15px 0;
+    border-bottom: 3px solid #667eea;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-logo {
+    height: 50px;
+    width: auto;
+}

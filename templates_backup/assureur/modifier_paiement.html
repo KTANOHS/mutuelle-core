@@ -1,0 +1,217 @@
+{% extends 'assureur/base_assureur.html' %}
+{% load static %}
+
+{% block title %}Modifier Paiement {{ paiement.reference }} - Assureur{% endblock %}
+
+{% block page_title %}Modifier le Paiement{% endblock %}
+{% block page_subtitle %}{{ paiement.reference }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-warning text-dark py-3">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-edit me-2"></i>Modifier le Paiement
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <!-- Informations du paiement -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card bg-light">
+                                <div class="card-body py-2">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <strong>Référence:</strong> {{ paiement.reference }}<br>
+                                            <strong>Bon:</strong> {{ paiement.bon.numero_bon }}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Membre:</strong> {{ paiement.bon.membre.nom }} {{ paiement.bon.membre.prenom }}<br>
+                                            <strong>Statut actuel:</strong> 
+                                            <span class="badge 
+                                                {% if paiement.status == 'PAYE' %}bg-success
+                                                {% elif paiement.status == 'ANNULE' %}bg-danger
+                                                {% else %}bg-warning text-dark{% endif %}">
+                                                {{ paiement.get_statut_display }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post" id="modifierPaiementForm">
+                        {% csrf_token %}
+                        
+                        <!-- Montant et Mode de Paiement -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-primary mb-3">
+                                    <i class="fas fa-money-bill me-2"></i>Informations de Paiement
+                                </h5>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="montant" class="form-label required">Montant (FCFA)</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="montant" name="montant" 
+                                               step="0.01" min="0" required 
+                                               value="{{ paiement.montant }}">
+                                        <span class="input-group-text">FCFA</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="mode_paiement" class="form-label required">Mode de Paiement</label>
+                                    <select class="form-control" id="mode_paiement" name="mode_paiement" required>
+                                        {% for mode, label in modes_paiement %}
+                                        <option value="{{ mode }}" {% if paiement.mode_paiement == mode %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Statut et Numéro de Transaction -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="statut" class="form-label required">Statut du Paiement</label>
+                                    <select class="form-control" id="statut" name="statut" required>
+                                        {% for statut, label in statuts %}
+                                        <option value="{{ statut }}" {% if paiement.status == statut %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="numero_transaction" class="form-label">Numéro de Transaction</label>
+                                    <input type="text" class="form-control" id="numero_transaction" 
+                                           name="numero_transaction" value="{{ paiement.numero_transaction|default:'' }}"
+                                           placeholder="Ex: TRX20250001">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Informations Bancaires -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-primary mb-3">
+                                    <i class="fas fa-university me-2"></i>Informations Bancaires
+                                </h5>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="banque" class="form-label">Banque</label>
+                                    <input type="text" class="form-control" id="banque" 
+                                           name="banque" value="{{ paiement.banque|default:'' }}"
+                                           placeholder="Ex: BICIS, BIAO, etc.">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="notes" class="form-label">Notes et Observations</label>
+                                    <textarea class="form-control" id="notes" name="notes" 
+                                              rows="4" placeholder="Notes supplémentaires...">{{ paiement.notes|default:'' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Boutons d'action -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'assureur:detail_paiement' paiement.id %}" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left me-1"></i>Annuler
+                                    </a>
+                                    <div>
+                                        <button type="submit" class="btn btn-warning">
+                                            <i class="fas fa-save me-1"></i>Enregistrer les modifications
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Informations de sécurité -->
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark py-2">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Important
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="small">
+                        <ul class="list-unstyled mb-0">
+                            <li><i class="fas fa-info-circle text-warning me-2"></i>La modification d'un paiement crée une entrée dans l'historique</li>
+                            <li><i class="fas fa-info-circle text-warning me-2"></i>Si le statut passe à "PAYÉ", la date de paiement sera mise à jour</li>
+                            <li><i class="fas fa-info-circle text-warning me-2"></i>Vérifiez les informations avant de sauvegarder</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Validation du formulaire
+    $('#modifierPaiementForm').on('submit', function(e) {
+        var montant = parseFloat($('#montant').val()) || 0;
+        
+        if (montant <= 0) {
+            e.preventDefault();
+            alert('⚠️ Le montant doit être supérieur à 0.');
+            return false;
+        }
+        
+        // Avertissement si changement de statut vers PAYÉ
+        var ancienStatut = "{{ paiement.status }}";
+        var nouveauStatut = $('#statut').val();
+        
+        if (ancienStatut !== 'PAYE' && nouveauStatut === 'PAYE') {
+            if (!confirm('⚠️ Le statut va passer à "PAYÉ". La date de paiement sera mise à jour. Confirmer ?')) {
+                e.preventDefault();
+                return false;
+            }
+        }
+    });
+});
+</script>
+
+<style>
+.required::after {
+    content: " *";
+    color: #dc3545;
+}
+
+.card {
+    border: 1px solid #e3e6f0;
+    border-radius: 0.35rem;
+}
+
+.form-control:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+</style>
+{% endblock %}

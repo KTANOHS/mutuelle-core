@@ -1,0 +1,130 @@
+{% extends 'membres/base.html' %}
+
+{% block title %}Mes Soins - Mutuelle{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Mes Soins</h1>
+        <div class="btn-group">
+            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                Filtres
+            </button>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="?">Tous les soins</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="?statut=valide">Soins validés</a>
+                <a class="dropdown-item" href="?statut=attente">En attente</a>
+                <a class="dropdown-item" href="?statut=refuse">Refusés</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques rapides -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Soins</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ soins.count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-stethoscope fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des soins -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Historique de mes soins</h6>
+        </div>
+        <div class="card-body">
+            {% if soins %}
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type de soin</th>
+                            <th>Diagnostic</th>
+                            <th>Médecin</th>
+                            <th>Coût</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for soin in soins %}
+                        <tr>
+                            <td>{{ soin.date_soin|date:"d/m/Y" }}</td>
+                            <td>
+                                {% if soin.type_soin %}
+                                    {{ soin.type_soin.nom }}
+                                {% else %}
+                                    Non spécifié
+                                {% endif %}
+                            </td>
+                            <td>{{ soin.diagnostic|default:"-"|truncatewords:10 }}</td>
+                            <td>
+                                {% if soin.medecin %}
+                                    Dr. {{ soin.medecin.user.get_full_name }}
+                                {% else %}
+                                    Non spécifié
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if soin.cout_reel %}
+                                    {{ soin.cout_reel }} FCFA
+                                {% elif soin.cout_estime %}
+                                    {{ soin.cout_estime }} FCFA (estimé)
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge badge-{% if soin.statut == 'valide' %}success{% elif soin.statut == 'attente' %}warning{% else %}danger{% endif %}">
+                                    {{ soin.get_statut_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'soins:detail_soin' soin.id %}" class="btn btn-info btn-sm">
+                                    <i class="fas fa-eye"></i> Détails
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-clipboard-list fa-3x text-gray-300 mb-3"></i>
+                <h5 class="text-gray-500">Aucun soin enregistré</h5>
+                <p class="text-gray-500">Vous n'avez pas encore de soins enregistrés dans votre historique.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('#dataTable').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/French.json"
+            },
+            "order": [[0, "desc"]]
+        });
+    });
+</script>
+{% endblock %}

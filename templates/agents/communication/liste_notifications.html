@@ -1,0 +1,54 @@
+<!-- templates/agents/communication/liste_notifications.html -->
+{% extends 'agents/base_agent.html' %}
+
+{% block title %}Mes Notifications - Agents{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="card-title">
+                        <i class="fas fa-bell"></i>
+                        Mes Notifications
+                    </h4>
+                    <a href="?marquer_lues=true" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-check-double"></i> Marquer comme lues
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if notifications %}
+                        {% for notification in notifications %}
+                        <div class="card mb-3 {% if not notification.est_lue %}border-primary{% endif %}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="card-title {% if not notification.est_lue %}text-primary{% endif %}">
+                                            {{ notification.titre }}
+                                        </h6>
+                                        <p class="card-text">{{ notification.message }}</p>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock"></i>
+                                            {{ notification.date_creation|date:"d/m/Y H:i" }}
+                                        </small>
+                                    </div>
+                                    {% if not notification.est_lue %}
+                                    <span class="badge bg-primary">Nouveau</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            Aucune notification.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

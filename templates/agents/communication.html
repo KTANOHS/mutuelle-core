@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"Communication" }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Communication</h1>
+        <div class="d-flex">
+            <span class="badge badge-primary p-2 mr-2">
+                <i class="fas fa-envelope"></i> {{ messages_non_lus }} messages non lus
+            </span>
+            <span class="badge badge-warning p-2">
+                <i class="fas fa-bell"></i> {{ notifications_non_lues }} notifications
+            </span>
+        </div>
+    </div>
+
+    <!-- Cartes de communication -->
+    <div class="row">
+        <!-- Messages -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Messages Non Lus
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ messages_non_lus }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-envelope fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Notifications
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ notifications_non_lues }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-bell fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conversations -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Conversations Actives
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ conversations_recentes|length }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-comments fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Rapides -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Actions Rapides
+                            </div>
+                            <div class="mb-1">
+                                <a href="{% url 'agents:envoyer_message' %}" class="btn btn-success btn-sm btn-block">
+                                    <i class="fas fa-paper-plane"></i> Nouveau Message
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-bolt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions de communication -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Actions de Communication</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <a href="{% url 'agents:liste_messages' %}" class="btn btn-primary btn-block">
+                                <i class="fas fa-envelope"></i> Voir mes Messages
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <a href="{% url 'agents:liste_notifications' %}" class="btn btn-warning btn-block">
+                                <i class="fas fa-bell"></i> Voir mes Notifications
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <a href="{% url 'agents:envoyer_message' %}" class="btn btn-success btn-block">
+                                <i class="fas fa-paper-plane"></i> Envoyer un Message
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conversations récentes -->
+    {% if conversations_recentes %}
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Conversations Récentes</h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for conversation in conversations_recentes %}
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">
+                                    {% for participant in conversation.participants.all %}
+                                        {% if participant != request.user %}
+                                            {{ participant.username }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </h6>
+                                <small>{{ conversation.date_dernier_message|timesince }}</small>
+                            </div>
+                            <p class="mb-1">
+                                {% if conversation.dernier_message %}
+                                    {{ conversation.dernier_message.contenu|truncatewords:10 }}
+                                {% else %}
+                                    Aucun message
+                                {% endif %}
+                            </p>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

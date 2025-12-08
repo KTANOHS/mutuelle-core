@@ -1,0 +1,37 @@
+# mutuelle_core/urls.py - VERSION CORRECTE
+from django.urls import path, include
+from . import views  # ✅ Import simple et correct
+from .views import CustomLoginView
+
+
+
+urlpatterns = [
+    # Page d'accueil
+    path('', views.home, name='home'),
+    
+    # Dashboard par défaut
+    path('dashboard/', views.dashboard, name='dashboard'),
+    # ✅ AJOUT : URL pour la redirection après connexion
+    path('redirect-after-login/', views.redirect_to_user_dashboard, name='dashboard'),
+    path('accounts/login/', CustomLoginView.as_view(), name='login'),
+    
+    # Dashboards spécifiques (pour tests directs)
+    path('assureur-dashboard/', views.assureur_dashboard, name='assureur_dashboard_direct'),
+    path('medecin-dashboard/', views.medecin_dashboard, name='medecin_dashboard_direct'),
+    path('pharmacien-dashboard/', views.pharmacien_dashboard, name='pharmacien_dashboard_direct'),
+    path('membre-dashboard/', views.membre_dashboard, name='membre_dashboard_direct'),
+    path('soins/', include('soins.urls', namespace='soins')),
+    
+    # Applications
+    path('assureur/', include('assureur.urls')),
+    path('medecin/', include('medecin.urls')),
+    path('pharmacien/', include('pharmacien.urls')),
+    path('membres/', include('membres.urls')),
+    path('inscription/', include('inscription.urls')),
+    
+    # Authentification Django
+    path('accounts/', include('django.contrib.auth.urls')),
+    # URLs de debug (temporaires)
+    path('debug/test-login/', views.test_login, name='test_login'),
+    path('debug/connection-status/', views.connection_status, name='connection_status'),
+]

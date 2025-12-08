@@ -1,0 +1,146 @@
+<!-- templates/assureur/export_bons_pdf.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{{ titre }}</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 1cm;
+            @bottom-right {
+                content: "Page " counter(page) " sur " counter(pages);
+                font-size: 10px;
+            }
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            line-height: 1.2;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 5px;
+        }
+        
+        .title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .subtitle {
+            font-size: 10px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            font-size: 9px;
+        }
+        
+        th {
+            background-color: #2c3e50;
+            color: white;
+            font-weight: bold;
+            padding: 4px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        
+        td {
+            padding: 3px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .montant {
+            text-align: right;
+        }
+        
+        .total-row {
+            font-weight: bold;
+            background-color: #e8f4f8;
+        }
+        
+        .footer {
+            margin-top: 15px;
+            font-size: 8px;
+            color: #666;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            padding-top: 5px;
+        }
+        
+        .stats {
+            margin-top: 10px;
+            padding: 5px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            font-size: 9px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="title">{{ titre }}</div>
+        <div class="subtitle">Généré le {{ date_export }}</div>
+    </div>
+    
+    <div class="stats">
+        <div><strong>Total de bons :</strong> {{ total_items }}</div>
+        <div><strong>Généré par :</strong> {{ assureur.nom|default:"Système" }}</div>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                {% for header in headers %}
+                <th>{{ header }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+            <tr>
+                {% for cell in row %}
+                <td class="{% if 'montant' in headers.forloop.counter0|stringformat:'s' %}montant{% endif %}">
+                    {{ cell|default_if_none:"" }}
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            <!-- Ligne de total -->
+            <tr class="total-row">
+                <td colspan="3"><strong>TOTAL</strong></td>
+                <td class="montant">
+                    {% with total_montant=data|sum_attribute:'4' %}
+                    {{ total_montant|floatformat:2 }} FCFA
+                    {% endwith %}
+                </td>
+                <td class="montant">
+                    {% with total_prise_charge=data|sum_attribute:'5' %}
+                    {{ total_prise_charge|floatformat:2 }} FCFA
+                    {% endwith %}
+                </td>
+                <td colspan="2"></td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div class="footer">
+        Document généré automatiquement - Système de gestion d'assurance
+    </div>
+</body>
+</html>

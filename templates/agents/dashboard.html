@@ -1,0 +1,482 @@
+{% extends 'agents/base_agent.html' %}
+{% load static %}
+
+{% block title %}Tableau de bord - Agent{% endblock %}
+{% block page_icon %}tachometer-alt{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Statistiques principales -->
+    <div class="col-xl-2 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Vérifications aujourd'hui
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ stats.verifications_jour|default:"0" }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Membres à jour
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ stats.membres_a_jour|default:"0" }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-user-check fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            En retard
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ stats.membres_retard|default:"0" }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Taux conformité
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {% if stats.pourcentage_conformite %}
+                                {{ stats.pourcentage_conformite|floatformat:0 }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-percent fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AJOUT: Cartes de communication -->
+    <div class="col-xl-2 col-md-6 mb-4">
+        <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                            Messages non lus
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ stats.messages_non_lus|default:"0" }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-envelope fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-md-6 mb-4">
+        <div class="card border-left-secondary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
+                            Notifications
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ stats.notifications_non_lues|default:"0" }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-bell fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">Actions rapides</h6>
+                <span class="badge bg-{% if peut_creer_bon %}success{% else %}warning{% endif %}">
+                    {% if peut_creer_bon %}✓ Actif{% else %}⏸️ Limite atteinte{% endif %}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- CORRECTION: Ajout du bouton de création de membre -->
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'agents:creer_membre' %}" class="btn btn-info btn-block btn-hover">
+                            <i class="fas fa-user-plus me-2"></i>Créer membre
+                        </a>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'agents:verification_cotisations' %}" class="btn btn-primary btn-block btn-hover">
+                            <i class="fas fa-check-circle me-2"></i>Vérifier cotisations
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'agents:creer_bon_soin' %}" class="btn btn-success btn-block btn-hover {% if not peut_creer_bon %}disabled{% endif %}">
+                            <i class="fas fa-file-medical me-2"></i>Créer bon de soin
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'agents:liste_membres' %}" class="btn btn-warning btn-block btn-hover">
+                            <i class="fas fa-users me-2"></i>Liste des membres
+                        </a>
+                    </div>
+                    
+                    <!-- AJOUT: Actions communication -->
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'agents:liste_messages' %}" class="btn btn-info btn-block btn-hover">
+                            <i class="fas fa-inbox me-2"></i>Mes messages
+                            {% if stats.messages_non_lus %}
+                            <span class="badge bg-danger ms-1">{{ stats.messages_non_lus }}</span>
+                            {% endif %}
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'agents:liste_notifications' %}" class="btn btn-secondary btn-block btn-hover">
+                            <i class="fas fa-bell me-2"></i>Notifications
+                            {% if stats.notifications_non_lues %}
+                            <span class="badge bg-warning ms-1">{{ stats.notifications_non_lues }}</span>
+                            {% endif %}
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'agents:envoyer_message' %}" class="btn btn-success btn-block btn-hover">
+                            <i class="fas fa-paper-plane me-2"></i>Envoyer message
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Carte Profil -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Votre profil</h6>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-user-tie fa-3x text-primary"></i>
+                </div>
+                <h5 class="font-weight-bold">{{ agent.nom_complet }}</h5>
+                <p class="text-muted small mb-2">{{ agent.poste }}</p>
+                <p class="text-muted small mb-0">Matricule: {{ agent.matricule }}</p>
+                <p class="text-muted small">Ancienneté: {{ agent.anciennete }} an(s)</p>
+            </div>
+        </div>
+
+        <!-- AJOUT: Carte Communication rapide -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Communication rapide</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'agents:envoyer_message' %}?destinataire=assureur" class="list-group-item list-group-item-action d-flex align-items-center">
+                        <i class="fas fa-building text-primary me-3"></i>
+                        <div>
+                            <div class="font-weight-bold">Contacter l'assureur</div>
+                            <small class="text-muted">Demande d'information</small>
+                        </div>
+                    </a>
+                    <a href="{% url 'agents:envoyer_message' %}?destinataire=medecin" class="list-group-item list-group-item-action d-flex align-items-center">
+                        <i class="fas fa-user-md text-success me-3"></i>
+                        <div>
+                            <div class="font-weight-bold">Contacter un médecin</div>
+                            <small class="text-muted">Question médicale</small>
+                        </div>
+                    </a>
+                    <a href="{% url 'agents:envoyer_message' %}?destinataire=pharmacien" class="list-group-item list-group-item-action d-flex align-items-center">
+                        <i class="fas fa-prescription-bottle-alt text-info me-3"></i>
+                        <div>
+                            <div class="font-weight-bold">Contacter pharmacie</div>
+                            <small class="text-muted">Question médicaments</small>
+                        </div>
+                    </a>
+                    <a href="{% url 'agents:liste_notifications' %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                        <i class="fas fa-bell text-warning me-3"></i>
+                        <div>
+                            <div class="font-weight-bold">Alertes système</div>
+                            <small class="text-muted">Notifications importantes</small>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Section Communication et Activités -->
+<div class="row">
+    <!-- Messages récents -->
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">Messages récents</h6>
+                <a href="{% url 'agents:liste_messages' %}" class="btn btn-sm btn-outline-primary">Voir tout</a>
+            </div>
+            <div class="card-body">
+                {% if messages_recents %}
+                <div class="list-group list-group-flush">
+                    {% for message in messages_recents %}
+                    <div class="list-group-item d-flex align-items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-envelope {% if not message.est_lu %}text-danger{% else %}text-muted{% endif %} me-2"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="mb-1">{{ message.expediteur.get_full_name|default:message.expediteur.username }}</h6>
+                                <small class="text-muted">{{ message.date_envoi|timesince }}</small>
+                            </div>
+                            <p class="mb-1 text-truncate">{{ message.contenu|truncatewords:10 }}</p>
+                            {% if not message.est_lu %}
+                            <span class="badge bg-danger">Nouveau</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-envelope-open fa-3x mb-3"></i>
+                    <p class="mb-0">Aucun message récent</p>
+                    <small>Vos messages apparaîtront ici</small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications récentes -->
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">Notifications récentes</h6>
+                <a href="{% url 'agents:liste_notifications' %}" class="btn btn-sm btn-outline-primary">Voir tout</a>
+            </div>
+            <div class="card-body">
+                {% if notifications_recentes %}
+                <div class="list-group list-group-flush">
+                    {% for notification in notifications_recentes %}
+                    <div class="list-group-item d-flex align-items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-bell {% if not notification.est_lue %}text-warning{% else %}text-muted{% endif %} me-2"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="mb-1">{{ notification.titre }}</h6>
+                                <small class="text-muted">{{ notification.date_creation|timesince }}</small>
+                            </div>
+                            <p class="mb-1">{{ notification.message|truncatewords:8 }}</p>
+                            {% if not notification.est_lue %}
+                            <span class="badge bg-warning">Nouveau</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-bell-slash fa-3x mb-3"></i>
+                    <p class="mb-0">Aucune notification récente</p>
+                    <small>Vos alertes apparaîtront ici</small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Section Statistiques Détaillées -->
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Vos indicateurs</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="border-right">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Bons créés
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ stats.total_bons|default:"0" }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border-right">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Membres actifs
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ stats.membres_actifs|default:"0" }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Taux validation
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ stats.taux_validation|default:"95" }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Actions récentes</h6>
+            </div>
+            <div class="card-body">
+                {% if actions_recentes %}
+                <div class="list-group list-group-flush">
+                    {% for action in actions_recentes %}
+                    <div class="list-group-item d-flex align-items-center">
+                        <i class="fas fa-{{ action.icone }} text-{{ action.couleur }} me-3"></i>
+                        <div class="flex-grow-1">
+                            <div class="small text-gray-600">{{ action.date }}</div>
+                            <span class="font-weight-bold">{{ action.description }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                    <p class="mb-0">Aucune action récente</p>
+                    <small>Vos activités apparaîtront ici</small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AJOUT: Section Communication avancée -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-comments me-2"></i>Centre de communication
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'agents:liste_messages' %}" class="text-decoration-none">
+                            <div class="p-3 border rounded hover-shadow">
+                                <i class="fas fa-inbox fa-2x text-primary mb-2"></i>
+                                <h6>Boîte de réception</h6>
+                                <small class="text-muted">Gérer vos messages</small>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'agents:envoyer_message' %}" class="text-decoration-none">
+                            <div class="p-3 border rounded hover-shadow">
+                                <i class="fas fa-paper-plane fa-2x text-success mb-2"></i>
+                                <h6>Nouveau message</h6>
+                                <small class="text-muted">Envoyer un message</small>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'agents:liste_notifications' %}" class="text-decoration-none">
+                            <div class="p-3 border rounded hover-shadow">
+                                <i class="fas fa-bell fa-2x text-warning mb-2"></i>
+                                <h6>Notifications</h6>
+                                <small class="text-muted">Vos alertes système</small>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'communication:conversations' %}" class="text-decoration-none">
+                            <div class="p-3 border rounded hover-shadow">
+                                <i class="fas fa-comments fa-2x text-info mb-2"></i>
+                                <h6>Conversations</h6>
+                                <small class="text-muted">Discussions en cours</small>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.btn-hover:hover {
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+.border-right {
+    border-right: 1px solid #e3e6f0 !important;
+}
+.hover-shadow:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+</style>
+{% endblock %}

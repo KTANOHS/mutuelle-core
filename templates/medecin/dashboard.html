@@ -1,0 +1,559 @@
+{% extends "medecin/base.html" %}
+{% load static humanize %}
+
+{% block title %}Tableau de Bord Médecin - {{ request.user.get_full_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Styles personnalisés pour le tableau de bord */
+.dashboard-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.quick-action-btn {
+    border: none;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    display: block;
+}
+
+.quick-action-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    color: white;
+    text-decoration: none;
+}
+
+.urgent-badge {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.activity-timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.activity-timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.activity-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.activity-item::before {
+    content: '';
+    position: absolute;
+    left: -23px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #007bff;
+    border: 2px solid white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .stat-number {
+        font-size: 2rem;
+    }
+}
+
+/* Amélioration des cartes de statistiques */
+.card-stat {
+    border-left: 4px solid;
+    transition: all 0.3s ease;
+}
+
+.card-stat:hover {
+    transform: translateX(5px);
+}
+
+.badge-notification {
+    font-size: 0.7em;
+    margin-left: 5px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <!-- En-tête amélioré -->
+    <div class="d-flex justify-content-between align-items-center py-4 mb-4 border-bottom">
+        <div>
+            <h1 class="h3 mb-1">Tableau de Bord Médecin</h1>
+            <p class="text-muted mb-0">
+                Bienvenue, 
+                {% if medecin %}
+                    Dr. {{ medecin.nom_complet|default:request.user.get_full_name }}
+                {% else %}
+                    Dr. {{ request.user.get_full_name|default:request.user.username }}
+                {% endif %}
+            </p>
+            {% if medecin and medecin.specialite %}
+                <small class="text-muted">Spécialité: {{ medecin.specialite }}</small>
+            {% endif %}
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary" onclick="refreshDashboard()">
+                <i class="bi bi-arrow-clockwise"></i> Actualiser
+            </button>
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-plus-circle"></i> Actions Rapides
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item" href="{% url 'medecin:creer_ordonnance' %}">
+                            <i class="bi bi-file-medical"></i> Nouvelle Ordonnance
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="{% url 'medecin:creer_consultation' %}">
+                            <i class="bi bi-calendar-plus"></i> Nouvelle Consultation
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="{% url 'medecin:liste_bons' %}">
+                            <i class="bi bi-file-medical"></i> Voir les Bons de Soin
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages d'alerte -->
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <i class="bi 
+                {% if message.tags == 'success' %}bi-check-circle
+                {% elif message.tags == 'error' or message.tags == 'danger' %}bi-exclamation-triangle
+                {% else %}bi-info-circle
+                {% endif %}"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Avertissement profil temporaire -->
+    {% if warning %}
+    <div class="alert alert-warning alert-dismissible fade show mb-4" role="alert">
+        <h5 class="alert-heading"><i class="bi bi-exclamation-triangle"></i> Information importante</h5>
+        {{ warning }}
+        <div class="mt-2">
+            <a href="{% url 'medecin:profil_medecin' %}" class="btn btn-sm btn-warning">
+                <i class="bi bi-person-gear"></i> Configurer mon profil
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Section Statistiques Améliorée -->
+    <div class="row mb-4">
+        <!-- Ordonnances -->
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card dashboard-card card-stat border-left-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h3 class="stat-number text-primary">{{ ordonnances_count|default:0|intcomma }}</h3>
+                            <div class="stat-label text-muted">Ordonnances</div>
+                            <small class="text-muted">Total des prescriptions</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-prescription2 fs-1 text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bons en Attente -->
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card dashboard-card card-stat border-left-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h3 class="stat-number text-warning">{{ bons_attente|default:0|intcomma }}</h3>
+                            <div class="stat-label text-muted">Bons en Attente</div>
+                            <small class="text-muted">En attente de validation</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-file-medical fs-1 text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Consultations -->
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card dashboard-card card-stat border-left-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h3 class="stat-number text-success">{{ consultations_count|default:0|intcomma }}</h3>
+                            <div class="stat-label text-muted">Consultations</div>
+                            <small class="text-muted">Total des consultations</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-calendar-check fs-1 text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revenus Estimés -->
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card dashboard-card card-stat border-left-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h3 class="stat-number text-info">
+                                {% if medecin and medecin.tarif_consultation %}
+                                    {{ medecin.tarif_consultation }}€
+                                {% else %}
+                                    N/C
+                                {% endif %}
+                            </h3>
+                            <div class="stat-label text-muted">Tarif Consultation</div>
+                            <small class="text-muted">Par consultation</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-currency-euro fs-1 text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions Rapides et Activités -->
+    <div class="row">
+        <!-- Actions Rapides -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-lightning-charge"></i> Actions Rapides
+                    </h5>
+                    <span class="badge bg-primary">Accès direct</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <!-- Nouvelle Ordonnance -->
+                        <div class="col-md-6">
+                            <a href="{% url 'medecin:creer_ordonnance' %}" class="quick-action-btn">
+                                <i class="bi bi-file-medical fa-2x mb-2 d-block"></i>
+                                <h6>Nouvelle Ordonnance</h6>
+                                <small>Créer une prescription</small>
+                            </a>
+                        </div>
+                        
+                        <!-- Bons en Attente -->
+                        <div class="col-md-6">
+                            <a href="{% url 'medecin:liste_bons_attente' %}" class="quick-action-btn" 
+                               style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);">
+                                <i class="bi bi-file-earmark-medical fa-2x mb-2 d-block"></i>
+                                <h6>Bons en Attente</h6>
+                                <small>
+                                    {% if bons_attente and bons_attente > 0 %}
+                                        <span class="urgent-badge">{{ bons_attente }} à traiter</span>
+                                    {% else %}
+                                        Aucun en attente
+                                    {% endif %}
+                                </small>
+                            </a>
+                        </div>
+                        
+                        <!-- Agenda -->
+                        <div class="col-md-6">
+                            <a href="{% url 'medecin:mes_rendez_vous' %}" class="quick-action-btn"
+                               style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                <i class="bi bi-calendar-week fa-2x mb-2 d-block"></i>
+                                <h6>Mes Rendez-vous</h6>
+                                <small>Gérer l'agenda</small>
+                            </a>
+                        </div>
+                        
+                        <!-- Nouvelle Consultation -->
+                        <div class="col-md-6">
+                            <a href="{% url 'medecin:creer_consultation' %}" class="quick-action-btn"
+                               style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                <i class="bi bi-calendar-plus fa-2x mb-2 d-block"></i>
+                                <h6>Nouvelle Consultation</h6>
+                                <small>Planifier un rendez-vous</small>
+                            </a>
+                        </div>
+
+                        <!-- Suivi Chronique -->
+                        <div class="col-md-6">
+                            <a href="{% url 'medecin:tableau_bord_suivi' %}" class="quick-action-btn"
+                               style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                                <i class="bi bi-heart-pulse fa-2x mb-2 d-block"></i>
+                                <h6>Suivi Chronique</h6>
+                                <small>Programmes d'accompagnement</small>
+                            </a>
+                        </div>
+
+                        <!-- Statistiques -->
+                        <div class="col-md-6">
+                            <a href="{% url 'medecin:statistiques' %}" class="quick-action-btn"
+                               style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                                <i class="bi bi-graph-up fa-2x mb-2 d-block"></i>
+                                <h6>Mes Statistiques</h6>
+                                <small>Analyser l'activité</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activités Récentes -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-clock-history"></i> Activités Récentes
+                    </h5>
+                    <span class="badge bg-secondary">Aujourd'hui</span>
+                </div>
+                <div class="card-body">
+                    <div class="activity-timeline">
+                        <!-- Exemple d'activités - À remplacer par des données réelles -->
+                        <div class="activity-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <strong class="text-primary">Nouvelle ordonnance créée</strong>
+                                    <p class="mb-1 small">Ordonnance pour M. Jean Dupont</p>
+                                    <small class="text-muted">Médicaments: Paracétamol, Amoxicilline</small>
+                                </div>
+                                <small class="text-muted">Il y a 2 heures</small>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <strong class="text-success">Bon de soin validé</strong>
+                                    <p class="mb-1 small">Bon n° BS-2024-001 pour Mme Marie Martin</p>
+                                    <small class="text-muted">Montant: 45.00€</small>
+                                </div>
+                                <small class="text-muted">Il y a 4 heures</small>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <strong class="text-warning">Consultation planifiée</strong>
+                                    <p class="mb-1 small">Rendez-vous avec M. Pierre Lambert</p>
+                                    <small class="text-muted">Date: Demain 14:00</small>
+                                </div>
+                                <small class="text-muted">Il y a 6 heures</small>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <strong class="text-info">Profil mis à jour</strong>
+                                    <p class="mb-1 small">Informations professionnelles modifiées</p>
+                                    <small class="text-muted">Spécialité: Médecine Générale</small>
+                                </div>
+                                <small class="text-muted">Il y a 1 jour</small>
+                            </div>
+                        </div>
+
+                        <!-- Message si aucune activité -->
+                        {% comment %}
+                        <div class="text-center text-muted py-4">
+                            <i class="bi bi-clock fa-3x mb-3"></i>
+                            <p>Aucune activité récente</p>
+                            <small>Vos activités apparaitront ici</small>
+                        </div>
+                        {% endcomment %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section Informations Médecin -->
+    {% if medecin %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-person-badge"></i> Informations Professionnelles
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <strong>Spécialité:</strong>
+                            <p>{{ medecin.specialite|default:"Non spécifiée" }}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Établissement:</strong>
+                            <p>{{ medecin.etablissement|default:"Non spécifié" }}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <strong>N° Ordre:</strong>
+                            <p>{{ medecin.numero_ordre|default:"Non spécifié" }}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Statut:</strong>
+                            <p>
+                                <span class="badge bg-{% if medecin.est_actif %}success{% else %}warning{% endif %}">
+                                    {% if medecin.est_actif %}Actif{% else %}Inactif{% endif %}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    {% if not medecin.id %}
+                    <div class="alert alert-info mt-3">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Profil temporaire</strong> - 
+                        <a href="{% url 'medecin:profil_medecin' %}" class="alert-link">
+                            Complétez vos informations professionnelles
+                        </a>
+                        pour accéder à toutes les fonctionnalités.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialisation du dashboard
+    initializeDashboard();
+});
+
+function initializeDashboard() {
+    console.log('Tableau de bord médecin initialisé');
+    
+    // Animation des cartes de statistiques
+    const statCards = document.querySelectorAll('.dashboard-card');
+    statCards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+    });
+}
+
+function refreshDashboard() {
+    // Afficher un indicateur de chargement
+    const refreshBtn = event.target;
+    const originalHtml = refreshBtn.innerHTML;
+    refreshBtn.innerHTML = '<i class="bi bi-arrow-clockwise spin"></i> Actualisation...';
+    refreshBtn.disabled = true;
+    
+    // Simuler un rafraîchissement - À remplacer par une vraie requête AJAX
+    setTimeout(() => {
+        // Recharger la page (solution simple)
+        window.location.reload();
+    }, 1000);
+    
+    // En cas d'erreur, réinitialiser le bouton après 3 secondes
+    setTimeout(() => {
+        refreshBtn.innerHTML = originalHtml;
+        refreshBtn.disabled = false;
+    }, 3000);
+}
+
+// Fonction utilitaire pour afficher des notifications
+function showNotification(message, type = 'info') {
+    const alertClass = {
+        'success': 'alert-success',
+        'error': 'alert-danger',
+        'warning': 'alert-warning',
+        'info': 'alert-info'
+    }[type] || 'alert-info';
+    
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert ${alertClass} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'}"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    // Ajouter au début du contenu
+    const container = document.querySelector('.container-fluid');
+    container.insertBefore(alertDiv, container.firstChild);
+    
+    // Supprimer automatiquement après 5 secondes
+    setTimeout(() => {
+        if (alertDiv.parentElement) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+
+// Style pour l'animation de rotation
+const style = document.createElement('style');
+style.textContent = `
+    .spin {
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

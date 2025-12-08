@@ -1,0 +1,79 @@
+<!-- pharmacie_public/templates/pharmacie_public/pharmacies_garde.html -->
+{% extends 'pharmacie_public/base_pharmacie_public.html' %}
+
+{% block title %}Pharmacies de Garde - Mutuelle Santé{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- En-tête -->
+        <div class="alert alert-warning">
+            <h1 class="alert-heading">
+                <i class="fas fa-clock"></i> Pharmacies de Garde
+            </h1>
+            <p class="mb-0">
+                Ces pharmacies assurent un service d'urgence en dehors des heures d'ouverture normales.
+            </p>
+        </div>
+
+        <!-- Liste des pharmacies de garde -->
+        {% if pharmacies %}
+            <div class="row">
+                {% for pharmacie in pharmacies %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card border-warning h-100">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0">
+                                <i class="fas fa-clock"></i> {{ pharmacie.nom_pharmacie }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                <i class="fas fa-map-marker-alt"></i> 
+                                <strong>{{ pharmacie.adresse }}</strong><br>
+                                {{ pharmacie.code_postal }} {{ pharmacie.ville }}
+                            </p>
+                            
+                            <p class="card-text">
+                                <i class="fas fa-phone"></i> 
+                                <strong class="fs-5">{{ pharmacie.telephone }}</strong>
+                            </p>
+                            
+                            <p class="card-text">
+                                <i class="fas fa-clock"></i> 
+                                {{ pharmacie.horaires_ouverture }}
+                            </p>
+                            
+                            {% if pharmacie.partenaire_mutuelle %}
+                            <p class="card-text">
+                                <span class="badge mutuelle-badge">
+                                    <i class="fas fa-handshake"></i> Partenaire Mutuelle
+                                </span>
+                            </p>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer">
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'pharmacie_public:detail_pharmacie' pharmacie.id %}" 
+                                   class="btn btn-warning btn-sm">
+                                    <i class="fas fa-pills"></i> Voir les médicaments
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-clock fa-3x text-muted mb-3"></i>
+                <h3 class="text-muted">Aucune pharmacie de garde pour le moment</h3>
+                <p class="text-muted">Revenez plus tard ou consultez la liste complète des pharmacies</p>
+                <a href="{% url 'pharmacie_public:liste_pharmacies' %}" class="btn btn-primary">
+                    Voir toutes les pharmacies
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

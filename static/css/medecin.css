@@ -1,0 +1,7 @@
+.medecin-theme {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.medecin-card {
+    border-left: 4px solid #28a745;
+}

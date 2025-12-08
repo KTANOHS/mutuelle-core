@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
+        .title { font-size: 24px; font-weight: bold; color: #2c3e50; }
+        .subtitle { font-size: 16px; color: #7f8c8d; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .table th, .table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        .table th { background-color: #f8f9fa; font-weight: bold; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        .badge-success { background-color: #d4edda; color: #155724; }
+        .badge-warning { background-color: #fff3cd; color: #856404; }
+        .badge-danger { background-color: #f8d7da; color: #721c24; }
+        .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #6c757d; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="title">{{ title }}</div>
+        <div class="subtitle">
+            Export généré le {{ date_export }} par {{ assureur.user.get_full_name|default:assureur.user.username }}
+        </div>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>N° Bon</th>
+                <th>Membre</th>
+                <th>Type de soin</th>
+                <th>Montant</th>
+                <th>Statut</th>
+                <th>Date création</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bon in bons %}
+            <tr>
+                <td><strong>{{ bon.numero_bon }}</strong></td>
+                <td>
+                    {{ bon.membre.nom }} {{ bon.membre.prenom }}<br>
+                    <small>{{ bon.membre.numero_unique|default:bon.membre.numero_unique }}</small>
+                </td>
+                <td>{{ bon.get_type_soin_display }}</td>
+                <td>{{ bon.montant|floatformat:0 }} FCFA</td>
+                <td>
+                    <span class="badge 
+                        {% if bon.statut == 'valide' %}badge-success
+                        {% elif bon.statut == 'refuse' %}badge-danger
+                        {% else %}badge-warning{% endif %}">
+                        {{ bon.get_statut_display }}
+                    </span>
+                </td>
+                <td>{{ bon.date_creation|date:"d/m/Y" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        Document généré par le système de gestion Mutuelle - {{ date_export }}
+    </div>
+</body>
+</html>

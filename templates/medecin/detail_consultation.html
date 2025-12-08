@@ -1,0 +1,64 @@
+<!-- medecin/templates/medecin/detail_consultation.html -->
+{% extends 'medecin/base.html' %}
+
+{% block title %}Détail Consultation{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Détail de la Consultation</h4>
+                </div>
+                <div class="card-body">
+                    {% if consultation %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Informations Patient</h5>
+                                <p><strong>Nom:</strong> {{ consultation.membre.nom_complet }}</p>
+                                <p><strong>Date consultation:</strong> {{ consultation.date_consultation }}</p>
+                                <p><strong>Type:</strong> {{ consultation.get_type_consultation_display }}</p>
+                                <p><strong>Statut:</strong> 
+                                    <span class="badge bg-{% if consultation.statut == 'TERMINEE' %}success{% elif consultation.statut == 'PLANIFIEE' %}warning{% else %}info{% endif %}">
+                                        {{ consultation.get_statut_display }}
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Détails Médicaux</h5>
+                                {% if consultation.symptomes %}
+                                    <p><strong>Symptômes:</strong> {{ consultation.symptomes }}</p>
+                                {% endif %}
+                                {% if consultation.diagnostic %}
+                                    <p><strong>Diagnostic:</strong> {{ consultation.diagnostic }}</p>
+                                {% endif %}
+                                {% if consultation.traitement_prescrit %}
+                                    <p><strong>Traitement:</strong> {{ consultation.traitement_prescrit }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {% if consultation.notes %}
+                        <div class="mt-3">
+                            <h5>Notes</h5>
+                            <p>{{ consultation.notes }}</p>
+                        </div>
+                        {% endif %}
+                        
+                    {% else %}
+                        <div class="alert alert-warning">
+                            Consultation non trouvée.
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'medecin:mes_rendez_vous' %}" class="btn btn-secondary">
+                        ← Retour aux rendez-vous
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

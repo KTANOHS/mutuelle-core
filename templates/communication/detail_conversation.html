@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Conversation{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        Conversation avec 
+                        {% for participant in conversation.participants.all %}
+                            {% if participant != request.user %}
+                                {{ participant.get_full_name|default:participant.username }}
+                            {% endif %}
+                        {% endfor %}
+                    </h5>
+                    <a href="{% url 'communication:messagerie' %}" class="btn btn-light btn-sm">
+                        <i class="fas fa-arrow-left"></i> Retour
+                    </a>
+                </div>
+                
+                <div class="card-body" id="messages-container" style="height: 500px; overflow-y: auto;">
+                    {% for message in conversation.messages.all %}
+                    <div class="mb-3 {% if message.expediteur == request.user %}text-end{% endif %}">
+                        <div class="d-flex {% if message.expediteur == request.user %}justify-content-end{% endif %}">
+                            <div class="{% if message.expediteur == request.user %}bg-primary text-white{% else %}bg-light{% endif %} p-3 rounded" style="max-width: 70%;">
+                                <small class="d-block {% if message.expediteur == request.user %}text-white-50{% else %}text-muted{% endif %}">
+                                    {{ message.expediteur.get_full_name|default:message.expediteur.username }} - 
+                                    {{ message.date|date:"d/m/Y H:i" }}
+                                </small>
+                                <p class="mb-0">{{ message.contenu }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-comments fa-3x mb-3"></i>
+                        <h5>Aucun message</h5>
+                        <p>Soyez le premier à envoyer un message</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="card-footer">
+                    <form id="message-form" method="post" action="{% url 'communication:envoyer_message_conversation' conversation.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="destinataire_id" 
+                               value="{% for participant in conversation.participants.all %}{% if participant != request.user %}{{ participant.id }}{% endif %}{% endfor %}">
+                        <div class="input-group">
+                            <input type="text" name="contenu" id="message-input" 
+                                   class="form-control" placeholder="Tapez votre message..." required>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Envoyer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Faire défiler vers le bas
+    $('#messages-container').scrollTop($('#messages-container')[0].scrollHeight);
+    
+    // Envoi de message via AJAX
+    $('#message-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        var formData = new FormData(this);
+        var messageInput = $('#message-input');
+        var messageText = messageInput.val().trim();
+        
+        if (!messageText) return;
+        
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    // Ajouter le message à l'interface
+                    var messageHtml = `
+                        <div class="mb-3 text-end">
+                            <div class="d-flex justify-content-end">
+                                <div class="bg-primary text-white p-3 rounded" style="max-width: 70%;">
+                                    <small class="d-block text-white-50">
+                                        Vous - Juste maintenant
+                                    </small>
+                                    <p class="mb-0">${messageText}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    $('#messages-container').append(messageHtml);
+                    messageInput.val('');
+                    
+                    // Faire défiler vers le bas
+                    $('#messages-container').scrollTop($('#messages-container')[0].scrollHeight);
+                } else {
+                    alert('Erreur: ' + response.error);
+                }
+            },
+            error: function() {
+                alert('Erreur lors de l\'envoi du message');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

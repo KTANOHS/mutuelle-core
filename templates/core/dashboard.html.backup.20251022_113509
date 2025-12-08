@@ -1,0 +1,543 @@
+<!-- templates/core/index.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Accueil - Notre Mutuelle - 5000 FCFA/mois pour 100% de soins gratuits{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('{% static "images/medical-pattern.png" %}') repeat;
+        opacity: 0.1;
+    }
+    .price-badge {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        color: white;
+        padding: 15px 25px;
+        border-radius: 10px;
+        display: inline-block;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+    .testimonial-card {
+        border-left: 4px solid #007bff;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .testimonial-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    .benefit-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+    }
+    .coverage-badge {
+        background: #ff6b35;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        display: inline-block;
+        margin: 5px;
+    }
+    .video-container {
+        position: relative;
+        padding-bottom: 56.25%;
+        height: 0;
+        overflow: hidden;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+    .stat-number {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #007bff;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
+    .guarantee-card {
+        border: 2px solid #28a745;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+    .guarantee-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 15px 35px rgba(40, 167, 69, 0.2);
+    }
+    .logo-hero {
+        background: white;
+        border-radius: 50%;
+        width: 120px;
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        transition: transform 0.3s ease;
+    }
+    .logo-hero:hover {
+        transform: scale(1.1) rotate(5deg);
+    }
+    .brand-text {
+        font-size: 3rem;
+        font-weight: 800;
+        color: white;
+        text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+        margin-bottom: 0.5rem;
+    }
+    .brand-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        font-weight: 300;
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Hero Section Améliorée avec Logo -->
+    <section class="hero-section text-white py-5">
+        <div class="container position-relative">
+            <!-- Logo Centré en Haut -->
+            <div class="text-center mb-4">
+                <div class="logo-hero">
+                    <i class="fas fa-heartbeat fa-3x text-primary"></i>
+                </div>
+                <div class="brand-text">Mutuelle<span class="text-warning">+</span></div>
+                <div class="brand-subtitle">Votre santé, notre priorité absolue</div>
+            </div>
+
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <!-- Badge Prix Accrocheur -->
+                    <div class="price-badge">
+                        <h3 class="mb-1">🚀 OFFRE EXCEPTIONNELLE</h3>
+                        <h4 class="mb-0">5000 FCFA/mois seulement !</h4>
+                    </div>
+                    
+                    <h1 class="display-4 fw-bold mb-3">Protégez Votre Santé Intelligemment</h1>
+                    <p class="lead fs-5 mb-4">
+                        Pour seulement <strong>5000 FCFA par mois</strong>, bénéficiez de 
+                        <span class="text-warning fw-bold">100% de prise en charge</span> pour vos soins médicaux 
+                        et <span class="text-warning fw-bold">65% pour les interventions chirurgicales</span>.
+                    </p>
+                    
+                    <!-- Avantages Principaux -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-check-circle text-warning me-2"></i>
+                                <span>100% Soins médicaux</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-check-circle text-warning me-2"></i>
+                                <span>65% Chirurgie</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-check-circle text-warning me-2"></i>
+                                <span>Remboursement 48h</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-check-circle text-warning me-2"></i>
+                                <span>+10,000 membres</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="{% url 'inscription:inscription' %}" class="btn btn-warning btn-lg me-3 fw-bold">
+                            <i class="fas fa-bolt me-2"></i> Devenir Membre Maintenant
+                        </a>
+                        <a href="#video" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-play-circle me-2"></i> Voir la Vidéo
+                        </a>
+                    </div>
+
+                    <!-- Étoiles et Avis -->
+                    <div class="mt-4 d-flex align-items-center text-warning">
+                        <i class="fas fa-star me-1"></i>
+                        <i class="fas fa-star me-1"></i>
+                        <i class="fas fa-star me-1"></i>
+                        <i class="fas fa-star me-1"></i>
+                        <i class="fas fa-star me-1"></i>
+                        <span class="ms-2 text-white">4.9/5 - Basé sur 1,247 avis membres</span>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <img src="{% static 'images/family-health-care.svg' %}" alt="Famille en bonne santé" class="img-fluid" style="max-height: 400px;">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Vidéo Présentation -->
+    <section id="video" class="py-5 bg-light">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <h2 class="text-center mb-4">Découvrez Notre Mutuelle en 2 Minutes</h2>
+                    <p class="text-center lead mb-5">Regardez comment nous révolutionnons l'accès aux soins de santé</p>
+                    
+                    <div class="video-container mb-4">
+                        <!-- Remplacez par votre vidéo YouTube ou Vimeo -->
+                        <iframe src="https://www.youtube.com/embed/VIDEO_ID" 
+                                title="Présentation de notre mutuelle" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    
+                    <div class="text-center">
+                        <a href="{% url 'inscription:inscription' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-user-plus me-2"></i> Rejoindre Maintenant
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Statistiques -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-md-3 mb-4">
+                    <div class="stat-number">10K+</div>
+                    <p class="text-muted">Membres satisfaits</p>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="stat-number">100%</div>
+                    <p class="text-muted">Soins médicaux pris en charge</p>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="stat-number">65%</div>
+                    <p class="text-muted">Chirurgies couvertes</p>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="stat-number">48h</div>
+                    <p class="text-muted">Remboursement moyen</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Garanties et Couvertures -->
+    <section class="py-5 bg-primary text-white">
+        <div class="container">
+            <h2 class="text-center mb-5">Ce Que Nous Couvrons Pour Vous</h2>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card guarantee-card h-100 text-center">
+                        <div class="card-body">
+                            <div class="benefit-icon">
+                                <i class="fas fa-stethoscope fa-2x text-white"></i>
+                            </div>
+                            <h4 class="text-success">Soins Médicaux</h4>
+                            <h1 class="display-4 text-success mb-3">100%</h1>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">✅ Consultations médicales</li>
+                                <li class="mb-2">✅ Analyses de laboratoire</li>
+                                <li class="mb-2">✅ Radiologie et imagerie</li>
+                                <li class="mb-2">✅ Médicaments prescrits</li>
+                                <li>✅ Soins d'urgence</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card guarantee-card h-100 text-center">
+                        <div class="card-body">
+                            <div class="benefit-icon">
+                                <i class="fas fa-procedures fa-2x text-white"></i>
+                            </div>
+                            <h4 class="text-warning">Chirurgie</h4>
+                            <h1 class="display-4 text-warning mb-3">65%</h1>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">✅ Interventions chirurgicales</li>
+                                <li class="mb-2">✅ Hospitalisation</li>
+                                <li class="mb-2">✅ Anesthésie</li>
+                                <li class="mb-2">✅ Soins post-opératoires</li>
+                                <li>✅ Rééducation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card guarantee-card h-100 text-center">
+                        <div class="card-body">
+                            <div class="benefit-icon">
+                                <i class="fas fa-shield-alt fa-2x text-white"></i>
+                            </div>
+                            <h4 class="text-info">Autres Avantages</h4>
+                            <h3 class="text-info mb-3">Complet</h3>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">✅ Médecine préventive</li>
+                                <li class="mb-2">✅ Soins dentaires de base</li>
+                                <li class="mb-2">✅ Optique (monture + verres)</li>
+                                <li class="mb-2">✅ Médecine douce</li>
+                                <li>✅ Téléconsultation 24h/24</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Témoignages avec Photos -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5">Ils Nous Font Confiance</h2>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card testimonial-card h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="{% static 'images/testimonial-1.jpg' %}" alt="Marie D." class="rounded-circle me-3" width="60" height="60" style="object-fit: cover;">
+                                <div>
+                                    <h5 class="mb-0">Marie D.</h5>
+                                    <small class="text-muted">Commerçante - Membre depuis 2 ans</small>
+                                </div>
+                            </div>
+                            <div class="text-warning mb-3">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <p class="card-text">"Grâce à la mutuelle, j'ai pu me faire opérer sans me ruiner. Les 65% de prise en charge ont sauvé ma famille de difficultés financières. Un vrai soulagement !"</p>
+                            <div class="mt-3">
+                                <span class="coverage-badge">Chirurgie couverte</span>
+                                <span class="coverage-badge">Économie: 450,000 FCFA</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card testimonial-card h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="{% static 'images/testimonial-2.jpg' %}" alt="Pierre L." class="rounded-circle me-3" width="60" height="60" style="object-fit: cover;">
+                                <div>
+                                    <h5 class="mb-0">Pierre L.</h5>
+                                    <small class="text-muted">Enseignant - Membre depuis 3 ans</small>
+                                </div>
+                            </div>
+                            <div class="text-warning mb-3">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <p class="card-text">"Avec 4 enfants, les frais de santé pouvaient être impressionnants. Maintenant, tous les soins sont à 100%. La mutuelle a changé notre vie !"</p>
+                            <div class="mt-3">
+                                <span class="coverage-badge">Famille de 6</span>
+                                <span class="coverage-badge">Soins 100% gratuits</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card testimonial-card h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="{% static 'images/testimonial-3.jpg' %}" alt="Sophie M." class="rounded-circle me-3" width="60" height="60" style="object-fit: cover;">
+                                <div>
+                                    <h5 class="mb-0">Sophie M.</h5>
+                                    <small class="text-muted">Étudiante - Membre depuis 1 an</small>
+                                </div>
+                            </div>
+                            <div class="text-warning mb-3">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <p class="card-text">"En tant qu'étudiante, 5000 FCFA par mois c'est parfait ! J'ai déjà utilisé plusieurs fois les consultations à 100%. Service rapide et efficace."</p>
+                            <div class="mt-3">
+                                <span class="coverage-badge">Tarif étudiant</span>
+                                <span class="coverage-badge">5 consultations/an</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Comparaison des Prix -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Comparez et Économisez</h2>
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Type de Soin</th>
+                                    <th>Prix Normal</th>
+                                    <th>Avec Notre Mutuelle</th>
+                                    <th>Votre Économie</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Consultation médicale</td>
+                                    <td>15,000 FCFA</td>
+                                    <td class="text-success fw-bold">GRATUIT</td>
+                                    <td class="text-success fw-bold">15,000 FCFA</td>
+                                </tr>
+                                <tr>
+                                    <td>Analyse sanguine</td>
+                                    <td>25,000 FCFA</td>
+                                    <td class="text-success fw-bold">GRATUIT</td>
+                                    <td class="text-success fw-bold">25,000 FCFA</td>
+                                </tr>
+                                <tr>
+                                    <td>Appendicectomie</td>
+                                    <td>750,000 FCFA</td>
+                                    <td class="text-warning fw-bold">262,500 FCFA</td>
+                                    <td class="text-success fw-bold">487,500 FCFA</td>
+                                </tr>
+                                <tr>
+                                    <td>Fracture bras</td>
+                                    <td>450,000 FCFA</td>
+                                    <td class="text-warning fw-bold">157,500 FCFA</td>
+                                    <td class="text-success fw-bold">292,500 FCFA</td>
+                                </tr>
+                                <tr class="table-success">
+                                    <td><strong>Total sur 1 an</strong></td>
+                                    <td><strong>> 1,240,000 FCFA</strong></td>
+                                    <td><strong>60,000 FCFA</strong></td>
+                                    <td><strong class="text-success">> 1,180,000 FCFA</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center mt-4">
+                        <p class="lead">💡 <strong>Astuce :</strong> Vous économisez le prix de votre cotisation en une seule consultation !</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section CTA Finale -->
+    <section class="py-5 bg-gradient text-white" style="background: linear-gradient(135deg, #28a745, #20c997);">
+        <div class="container">
+            <div class="row align-items-center text-center">
+                <div class="col-lg-8 mx-auto">
+                    <!-- Logo dans le CTA -->
+                    <div class="logo-hero" style="width: 100px; height: 100px; margin: 0 auto 1.5rem;">
+                        <i class="fas fa-heartbeat fa-2x text-primary"></i>
+                    </div>
+                    <h2 class="display-5 fw-bold mb-3">Ne Laissez Plus Votre Santé au Hasard</h2>
+                    <p class="lead mb-4">
+                        Rejoignez <strong>10,000 membres intelligents</strong> qui protègent leur santé 
+                        pour seulement <strong>5000 FCFA par mois</strong>.
+                    </p>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <i class="fas fa-lock fa-2x mb-2"></i>
+                            <p>Sans engagement</p>
+                        </div>
+                        <div class="col-md-4">
+                            <i class="fas fa-bolt fa-2x mb-2"></i>
+                            <p>Adhésion immédiate</p>
+                        </div>
+                        <div class="col-md-4">
+                            <i class="fas fa-shield-alt fa-2x mb-2"></i>
+                            <p>Garantie satisfait</p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-center">
+                        <a href="{% url 'inscription:inscription' %}" class="btn btn-warning btn-lg px-5 me-md-3 fw-bold">
+                            <i class="fas fa-user-plus me-2"></i> Je Deviens Membre
+                        </a>
+                        <a href="tel:+2250123456789" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-phone me-2"></i> Appelez-Nous
+                        </a>
+                    </div>
+                    
+                    <p class="mt-3 small">
+                        ⚡ <strong>Offre limitée :</strong> Les 100 prochains membres bénéficient d'un mois gratuit !
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Animation pour les nombres
+document.addEventListener('DOMContentLoaded', function() {
+    // Compteur animation pour les statistiques
+    const counters = document.querySelectorAll('.stat-number');
+    
+    counters.forEach(counter => {
+        const target = parseInt(counter.innerText);
+        let count = 0;
+        const duration = 2000; // 2 seconds
+        const increment = target / (duration / 16);
+        
+        const updateCount = () => {
+            if (count < target) {
+                count += increment;
+                counter.innerText = Math.ceil(count) + (counter.innerText.includes('%') ? '%' : '+');
+                setTimeout(updateCount, 16);
+            } else {
+                counter.innerText = target + (counter.innerText.includes('%') ? '%' : '+');
+            }
+        };
+        
+        // Démarrer l'animation quand l'élément est visible
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    updateCount();
+                    observer.unobserve(entry.target);
+                }
+            });
+        });
+        
+        observer.observe(counter);
+    });
+});
+</script>
+{% endblock %}

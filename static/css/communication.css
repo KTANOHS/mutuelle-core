@@ -1,0 +1,43 @@
+/* static/css/communication.css */
+.form-communication .form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.form-communication .form-control,
+.form-communication .form-select {
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-communication .form-control:focus,
+.form-communication .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.quick-message-form {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+}
+
+.file-upload-area {
+    border: 2px dashed #dee2e6;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    text-align: center;
+    transition: border-color 0.3s ease;
+}
+
+.file-upload-area:hover {
+    border-color: #0d6efd;
+}
+
+.file-upload-area.dragover {
+    border-color: #0d6efd;
+    background-color: #f8f9fa;
+}

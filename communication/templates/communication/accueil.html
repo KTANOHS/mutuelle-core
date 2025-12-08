@@ -1,0 +1,397 @@
+mkdir -p communication/templates/communication
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title|default:"Communication" }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .user-info {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: inline-block;
+            backdrop-filter: blur(10px);
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 15px;
+            min-width: 200px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .module-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            border: 2px solid #f0f0f0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .module-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .module-icon {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+        
+        .module-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .module-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .module-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s ease;
+        }
+        
+        .module-link:hover {
+            transform: scale(1.05);
+            color: white;
+            text-decoration: none;
+        }
+        
+        .quick-actions {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 40px;
+        }
+        
+        .quick-actions h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .recent-activity {
+            margin-top: 40px;
+        }
+        
+        .recent-activity h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .activity-list {
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+        }
+        
+        .activity-item {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            background: #f0f0f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .error-message {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📨 Centre de Communication</h1>
+            <p>Connectez, collaborez, communiquez</p>
+            
+            <div class="user-info">
+                <strong>Connecté en tant que :</strong> {{ user.get_full_name|default:user.username }}
+                {% if user_type %}
+                <span style="background: rgba(255,255,255,0.3); padding: 2px 8px; border-radius: 10px; margin-left: 10px;">
+                    {{ user_type|upper }}
+                </span>
+                {% endif %}
+            </div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <span class="stat-number">{{ messages_non_lus|default:0 }}</span>
+                    <span class="stat-label">Messages non lus</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">{{ notifications_count|default:0 }}</span>
+                    <span class="stat-label">Notifications</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">{{ conversations_recentes|length|default:0 }}</span>
+                    <span class="stat-label">Conversations actives</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content">
+            {% if error %}
+            <div class="error-message">
+                <strong>Note :</strong> {{ error }}
+                <p>Certaines fonctionnalités peuvent être limitées.</p>
+            </div>
+            {% endif %}
+            
+            <div class="modules-grid">
+                {% for module in modules %}
+                <div class="module-card">
+                    <div class="module-icon">{{ module.nom|slice:":2" }}</div>
+                    <h3>{{ module.nom }}</h3>
+                    <p>{{ module.description }}</p>
+                    <a href="{{ module.url }}" class="module-link">Accéder →</a>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="quick-actions">
+                <h2>⚡ Actions rapides</h2>
+                <div class="action-buttons">
+                    <a href="{% url 'communication:envoyer_message' %}" class="action-btn">✏️ Nouveau message</a>
+                    <a href="{% url 'communication:creer_groupe' %}" class="action-btn">👥 Créer un groupe</a>
+                    <a href="{% url 'communication:search_messages' %}" class="action-btn">🔍 Rechercher</a>
+                    <a href="{% url 'communication:marquer_toutes_notifications_lues' %}" class="action-btn">✅ Tout marquer comme lu</a>
+                </div>
+            </div>
+            
+            {% if conversations_recentes or dernieres_notifications %}
+            <div class="recent-activity">
+                <h2>📅 Activité récente</h2>
+                
+                <div class="activity-list">
+                    {% for conversation in conversations_recentes %}
+                    <div class="activity-item">
+                        <div class="activity-icon">💬</div>
+                        <div class="activity-content">
+                            <strong>Conversation active</strong>
+                            <p>Avec {{ conversation.participants.all|join:", " }}</p>
+                            <small>Dernière activité : {{ conversation.derniere_activite|timesince }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    {% for notification in dernieres_notifications %}
+                    <div class="activity-item">
+                        <div class="activity-icon">🔔</div>
+                        <div class="activity-content">
+                            <strong>{{ notification.titre }}</strong>
+                            <p>{{ notification.message }}</p>
+                            <small>{{ notification.date_creation|timesince }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <script>
+        // Animation des cartes au chargement
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.module-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+            
+            // Mise à jour en temps réel des compteurs
+            function updateCounts() {
+                fetch('/communication/api/notifications/count/')
+                    .then(response => response.json())
+                    .then(data => {
+                        const counter = document.querySelector('.stat-card:nth-child(2) .stat-number');
+                        if (counter && data.count !== undefined) {
+                            counter.textContent = data.count;
+                        }
+                    });
+            }
+            
+            // Mettre à jour toutes les 30 secondes
+            setInterval(updateCounts, 30000);
+            
+            // Notification de bienvenue
+            if ('{{ messages_non_lus|default:"0" }}' > 0) {
+                setTimeout(() => {
+                    alert(`💬 Vous avez {{ messages_non_lus }} message(s) non lu(s) !`);
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>

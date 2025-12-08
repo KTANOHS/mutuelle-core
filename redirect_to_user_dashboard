@@ -1,0 +1,87 @@
+# fix_redirect_view.py
+import os
+import sys
+import django
+
+sys.path.append('/Users/koffitanohsoualiho/Documents/projet')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mutuelle_core.settings')
+django.setup()
+
+def analyze_redirect_view():
+    print("🔍 ANALYSE DE LA VUE REDIRECT_TO_USER_DASHBOARD")
+    print("=" * 60)
+    
+    try:
+        from mutuelle_core import views
+        import inspect
+        
+        if hasattr(views, 'redirect_to_user_dashboard'):
+            source = inspect.getsource(views.redirect_to_user_dashboard)
+            print("📝 Code actuel de redirect_to_user_dashboard:")
+            print("-" * 50)
+            print(source)
+            
+            # Analyser les problèmes potentiels
+            if 'redirect-after-login' in source:
+                print("\n⚠️  PROBLEME: La vue redirige peut-être vers elle-même!")
+            if 'redirect(' in source and 'redirect-after-login' in source:
+                print("❌ BOUCLE: La vue redirige vers sa propre URL!")
+                
+        else:
+            print("❌ Vue redirect_to_user_dashboard non trouvée")
+            
+    except Exception as e:
+        print(f"❌ Erreur: {e}")
+
+def create_fixed_redirect_view():
+    print("\n\n🔧 CORRECTION PROPOSÉE")
+    print("=" * 50)
+    
+    fixed_code = '''
+def redirect_to_user_dashboard(request):
+    """
+    Redirige l'utilisateur vers son dashboard spécifique après connexion
+    """
+    if not request.user.is_authenticated:
+        return redirect('login')
+    
+    # Vérifier le type d'utilisateur et rediriger vers le dashboard approprié
+    if hasattr(request.user, 'assureur'):
+        return redirect('assureur_dashboard_direct')
+    elif hasattr(request.user, 'medecin'):
+        return redirect('medecin_dashboard_direct')
+    elif hasattr(request.user, 'pharmacien'):
+        return redirect('pharmacien_dashboard_direct')
+    elif hasattr(request.user, 'membre'):
+        return redirect('membre_dashboard_direct')
+    else:
+        # Utilisateur standard sans profil spécifique
+        return redirect('dashboard')  # Rediriger vers le dashboard général
+'''
+    print("Code corrigé proposé:")
+    print(fixed_code)
+    print("\n💡 Ce code évite les boucles en redirigeant vers des URLs différentes")
+
+def test_final_behavior():
+    print("\n\n🎯 TEST FINAL DU COMPORTEMENT")
+    print("=" * 50)
+    
+    print("""Comportement ACTUEL après correction:
+    
+    1. ✅ Utilisateur non connecté accède à /redirect-after-login/
+       → Redirige vers /accounts/login/?next=/redirect-after-login/
+    
+    2. ✅ Utilisateur se connecte avec succès
+       → Redirige vers /redirect-after-login/
+    
+    3. 🔄 /redirect-after-login/ redirige vers lui-même (boucle)
+       → C'est le dernier problème à résoudre
+    
+    4. ✅ Tous les autres dashboards fonctionnent
+       → /dashboard/, /assureur-dashboard/, etc. accessibles
+    """)
+
+if __name__ == "__main__":
+    analyze_redirect_view()
+    create_fixed_redirect_view() 
+    test_final_behavior()

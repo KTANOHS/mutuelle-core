@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Configuration Assureur</h1>
+    <div class="alert alert-info">
+        <h4 class="alert-heading">En cours de développement</h4>
+        <p>Cette page est en cours de développement. La fonctionnalité de configuration complète sera disponible prochainement.</p>
+        <hr>
+        <p class="mb-0">En attendant, vous pouvez utiliser l'interface d'administration Django pour configurer les paramètres.</p>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Actions disponibles</h5>
+            <ul>
+                <li><a href="/admin/" target="_blank">Accéder à l'administration Django</a></li>
+                <li><a href="/assureur/communication/">Messagerie</a></li>
+                <li><a href="/assureur/dashboard/">Tableau de bord</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

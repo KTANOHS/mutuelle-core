@@ -1,0 +1,235 @@
+{% extends 'medecin/base.html' %}
+
+{% block title %}Détail Programme - {{ programme.patient.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- En-tête -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Programme d'Accompagnement</h1>
+                    <p class="text-muted mb-0">{{ programme.patient.get_full_name }} - {{ programme.maladie.nom }}</p>
+                </div>
+                <div>
+                    <a href="{% url 'medecin:ajouter_suivi' programme.id %}" class="btn btn-success">
+                        <i class="fas fa-plus"></i> Ajouter un Suivi
+                    </a>
+                    <a href="{% url 'medecin:liste_accompagnements' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Informations du programme -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Informations du Programme</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <tr>
+                                    <th>Patient:</th>
+                                    <td>{{ programme.patient.get_full_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Maladie:</th>
+                                    <td>{{ programme.maladie.nom }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Date début:</th>
+                                    <td>{{ programme.date_debut|date:"d/m/Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Date fin prévue:</th>
+                                    <td>
+                                        {% if programme.date_fin_prevue %}
+                                            {{ programme.date_fin_prevue|date:"d/m/Y" }}
+                                        {% else %}
+                                            <span class="text-muted">Non définie</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Prochain contrôle:</th>
+                                    <td>
+                                        {% if programme.prochain_controle %}
+                                            <span class="{% if programme.prochain_controle < today %}text-danger{% else %}text-success{% endif %}">
+                                                {{ programme.prochain_controle|date:"d/m/Y" }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">Non planifié</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Statut:</th>
+                                    <td>
+                                        <span class="badge bg-{% if programme.statut == 'actif' %}success{% elif programme.statut == 'termine' %}secondary{% else %}warning{% endif %}">
+                                            {{ programme.get_statut_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Objectifs -->
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Objectifs Thérapeutiques</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if objectifs %}
+                                <ul class="list-group list-group-flush">
+                                    {% for objectif in objectifs %}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            {{ objectif.description }}
+                                            <span class="badge bg-{% if objectif.atteint %}success{% else %}secondary{% endif %}">
+                                                {% if objectif.atteint %}Atteint{% else %}En cours{% endif %}
+                                            </span>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="text-muted">Aucun objectif défini</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historique des suivis -->
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Historique des Suivis</h5>
+                            <span class="badge bg-primary">{{ suivis.count }} suivi(s)</span>
+                        </div>
+                        <div class="card-body">
+                            {% if suivis %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Type</th>
+                                                <th>Observance</th>
+                                                <th>Intervenant</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for suivi in suivis %}
+                                                <tr>
+                                                    <td>{{ suivi.date_suivi|date:"d/m/Y" }}</td>
+                                                    <td>
+                                                        <span class="badge bg-info">{{ suivi.get_type_suivi_display }}</span>
+                                                    </td>
+                                                    <td>
+                                                        {% if suivi.observance_traitement %}
+                                                            <span class="badge bg-{% if suivi.observance_traitement == 'bonne' %}success{% elif suivi.observance_traitement == 'moyenne' %}warning{% else %}danger{% endif %}">
+                                                                {{ suivi.get_observance_traitement_display }}
+                                                            </span>
+                                                        {% else %}
+                                                            <span class="text-muted">Non renseigné</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>{{ suivi.intervenant.get_full_name }}</td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-primary" 
+                                                                data-bs-toggle="modal" 
+                                                                data-bs-target="#suiviModal{{ suivi.id }}">
+                                                            <i class="fas fa-eye"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+
+                                                <!-- Modal Détail Suivi -->
+                                                <div class="modal fade" id="suiviModal{{ suivi.id }}" tabindex="-1">
+                                                    <div class="modal-dialog modal-lg">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title">Détail du Suivi - {{ suivi.date_suivi|date:"d/m/Y" }}</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <div class="row">
+                                                                    <div class="col-md-6">
+                                                                        <strong>Tension artérielle:</strong>
+                                                                        <p>{{ suivi.tension_arterielle|default:"Non renseigné" }}</p>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <strong>Glycémie:</strong>
+                                                                        <p>{{ suivi.glycemie|default:"Non renseigné" }}</p>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <strong>Poids:</strong>
+                                                                        <p>{{ suivi.poids|default:"Non renseigné" }} kg</p>
+                                                                    </div>
+                                                                    <div class="col-12">
+                                                                        <strong>Symptômes observés:</strong>
+                                                                        <p>{{ suivi.symptomes_observes|default:"Aucun" }}</p>
+                                                                    </div>
+                                                                    <div class="col-12">
+                                                                        <strong>Observations:</strong>
+                                                                        <p>{{ suivi.observations|default:"Aucune" }}</p>
+                                                                    </div>
+                                                                    <div class="col-12">
+                                                                        <strong>Recommandations:</strong>
+                                                                        <p>{{ suivi.recommendations|default:"Aucune" }}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                                    <h5>Aucun suivi enregistré</h5>
+                                    <p class="text-muted">Commencez par ajouter un premier suivi pour ce patient.</p>
+                                    <a href="{% url 'medecin:ajouter_suivi' programme.id %}" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Ajouter un Suivi
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Alertes actives -->
+                    {% if alertes %}
+                    <div class="card mt-3 border-warning">
+                        <div class="card-header bg-warning text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-exclamation-triangle"></i> Alertes Actives
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% for alerte in alertes %}
+                                <div class="alert alert-{% if alerte.severite == 'haute' %}danger{% elif alerte.severite == 'moyenne' %}warning{% else %}info{% endif %}">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>{{ alerte.get_type_alerte_display }}</strong>
+                                            <p class="mb-0">{{ alerte.message }}</p>
+                                            <small class="text-muted">{{ alerte.date_creation|date:"d/m/Y H:i" }}</small>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-secondary">Marquer comme résolue</button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,258 @@
+{% extends 'assureur/cotisations/base_cotisations.html' %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Détail #{{ cotisation.reference }}</li>
+{% endblock %}
+
+{% block header_actions %}
+<div class="btn-group">
+    {% if cotisation.statut in 'due,en_retard' %}
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#payerModal">
+        <i class="fas fa-check"></i> Marquer comme payée
+    </button>
+    {% endif %}
+    <a href="{% url 'assureur:liste_cotisations' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Retour à la liste
+    </a>
+</div>
+{% endblock %}
+
+{% block cotisations_content %}
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Informations principales -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">Informations de la cotisation</h6>
+                <span class="badge {% if cotisation.statut == 'payee' %}bg-success{% elif cotisation.statut == 'en_retard' %}bg-danger{% else %}bg-warning{% endif %} fs-6">
+                    {{ cotisation.get_statut_display }}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="text-muted">Référence:</th>
+                                <td><strong>{{ cotisation.reference }}</strong></td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Membre:</th>
+                                <td>
+                                    <a href="{% url 'assureur:detail_membre' cotisation.membre.id %}" class="text-decoration-none">
+                                        <strong>{{ cotisation.membre.nom }} {{ cotisation.membre.prenom }}</strong>
+                                    </a>
+                                    <br>
+                                    <small class="text-muted">{{ cotisation.membre.numero_membre }}</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Période:</th>
+                                <td>{{ cotisation.periode }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Type:</th>
+                                <td>
+                                    <span class="badge {% if cotisation.type_cotisation == 'femme_enceinte' %}bg-warning{% else %}bg-info{% endif %}">
+                                        {{ cotisation.get_type_cotisation_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="text-muted">Montant:</th>
+                                <td class="h5 text-primary">{{ cotisation.montant|floatformat:0 }} FCFA</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Date d'échéance:</th>
+                                <td>
+                                    {{ cotisation.date_echeance|date:"d/m/Y" }}
+                                    {% if cotisation.est_en_retard %}
+                                    <span class="badge bg-danger ms-2">Retard: {{ jours_retard }} jour(s)</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Date de paiement:</th>
+                                <td>
+                                    {% if cotisation.date_paiement %}
+                                        {{ cotisation.date_paiement|date:"d/m/Y" }}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Enregistrée par:</th>
+                                <td>{{ cotisation.enregistre_par.get_full_name|default:cotisation.enregistre_par.username }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                {% if cotisation.notes %}
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6 class="text-muted">Notes:</h6>
+                        <div class="alert alert-light border">
+                            {{ cotisation.notes|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Informations du membre -->
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Informations du membre</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="text-muted">Email:</th>
+                                <td>{{ cotisation.membre.email|default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Téléphone:</th>
+                                <td>{{ cotisation.membre.telephone|default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Date d'adhésion:</th>
+                                <td>{{ cotisation.membre.date_adhesion|date:"d/m/Y"|default:"-" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="text-muted">Statut:</th>
+                                <td>
+                                    <span class="badge {% if cotisation.membre.statut == 'actif' %}bg-success{% else %}bg-secondary{% endif %}">
+                                        {{ cotisation.membre.get_statut_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Femme enceinte:</th>
+                                <td>
+                                    {% if cotisation.membre.est_femme_enceinte %}
+                                    <span class="badge bg-warning">Oui</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Non</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">À jour des cotisations:</th>
+                                <td>
+                                    {% if cotisation.membre.est_a_jour_cotisations %}
+                                    <span class="badge bg-success">Oui</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Non</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Actions rapides -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'assureur:detail_membre' cotisation.membre.id %}" class="btn btn-outline-primary">
+                        <i class="fas fa-user"></i> Voir le profil du membre
+                    </a>
+                    <a href="{% url 'assureur:creer_cotisation' cotisation.membre.id %}" class="btn btn-outline-success">
+                        <i class="fas fa-plus"></i> Nouvelle cotisation
+                    </a>
+                    {% if cotisation.statut in 'due,en_retard' %}
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#payerModal">
+                        <i class="fas fa-check"></i> Marquer comme payée
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Historique des cotisations -->
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Historique récent</h6>
+            </div>
+            <div class="card-body">
+                {% if historique_cotisations %}
+                <div class="list-group list-group-flush">
+                    {% for hist_cot in historique_cotisations %}
+                    <div class="list-group-item px-0">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ hist_cot.periode }}</h6>
+                            <small class="text-{% if hist_cot.statut == 'payee' %}success{% elif hist_cot.statut == 'en_retard' %}danger{% else %}warning{% endif %}">
+                                {{ hist_cot.montant|floatformat:0 }} FCFA
+                            </small>
+                        </div>
+                        <p class="mb-1">
+                            <span class="badge {% if hist_cot.statut == 'payee' %}bg-success{% elif hist_cot.statut == 'en_retard' %}bg-danger{% else %}bg-warning{% endif %}">
+                                {{ hist_cot.get_statut_display }}
+                            </span>
+                        </p>
+                        <small class="text-muted">Échéance: {{ hist_cot.date_echeance|date:"d/m/Y" }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center">Aucun historique disponible</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour marquer comme payée -->
+{% if cotisation.statut in 'due,en_retard' %}
+<div class="modal fade" id="payerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'assureur:marquer_cotisation_payee' cotisation.id %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Marquer comme payée</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Confirmez-vous que la cotisation <strong>{{ cotisation.reference }}</strong> 
+                    d'un montant de <strong>{{ cotisation.montant|floatformat:0 }} FCFA</strong> 
+                    pour {{ cotisation.membre.nom }} {{ cotisation.membre.prenom }} a été payée ?</p>
+                    
+                    <div class="mb-3">
+                        <label for="date_paiement" class="form-label">Date de paiement</label>
+                        <input type="date" class="form-control" 
+                               id="date_paiement" 
+                               name="date_paiement" 
+                               value="{{ date_aujourdhui|date:'Y-m-d' }}" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success">Confirmer le paiement</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

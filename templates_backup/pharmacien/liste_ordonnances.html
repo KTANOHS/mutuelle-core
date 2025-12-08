@@ -1,0 +1,322 @@
+{% extends "pharmacien/base_pharmacien.html" %}
+{% load static %}
+
+{% block title %}Ordonnances en Attente - Pharmacien{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête de page -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-2">
+                <i class="fas fa-prescription me-2 text-primary"></i>Ordonnances en Attente
+            </h1>
+            <p class="text-muted mb-0">Validez ou refusez les ordonnances prescrites par les médecins</p>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-outline-secondary" onclick="window.location.reload()">
+                <i class="fas fa-sync-alt me-1"></i>Actualiser
+            </button>
+            <a href="{% url 'pharmacien:historique_validation' %}" class="btn btn-info">
+                <i class="fas fa-history me-1"></i>Historique
+            </a>
+        </div>
+    </div>
+
+    <!-- Cartes de statistiques -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-start border-primary border-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="small fw-bold text-primary mb-1">En Attente</div>
+                            <div class="h5 mb-0">{{ ordonnances_en_attente.count }}</div>
+                        </div>
+                        <div class="ms-2">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-start border-success border-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="small fw-bold text-success mb-1">Validées Aujourd'hui</div>
+                            <div class="h5 mb-0">{{ ordonnances_validees_aujourdhui }}</div>
+                        </div>
+                        <div class="ms-2">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-start border-warning border-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="small fw-bold text-warning mb-1">En Retard</div>
+                            <div class="h5 mb-0">{{ ordonnances_en_retard }}</div>
+                        </div>
+                        <div class="ms-2">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-start border-info border-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="small fw-bold text-info mb-1">Taux Validation</div>
+                            <div class="h5 mb-0">{{ taux_validation }}%</div>
+                        </div>
+                        <div class="ms-2">
+                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barre de recherche et filtres -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" class="form-control" placeholder="Rechercher par patient, médecin ou médicament..." id="searchInput">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" id="filterSelect">
+                        <option value="">Tous les statuts</option>
+                        <option value="en_attente">En attente</option>
+                        <option value="urgent">Urgent</option>
+                        <option value="en_retard">En retard</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des ordonnances -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-list me-2"></i>Liste des Ordonnances
+            </h5>
+        </div>
+        <div class="card-body">
+            {% if ordonnances_en_attente %}
+            <div class="table-responsive">
+                <table class="table table-hover" id="ordonnancesTable">
+                    <thead>
+                        <tr>
+                            <th>N° Ordonnance</th>
+                            <th>Patient</th>
+                            <th>Médecin</th>
+                            <th>Date Prescription</th>
+                            <th>Médicaments</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ordonnance in ordonnances_en_attente %}
+                        <tr class="{% if ordonnance.est_urgente %}table-warning{% endif %} {% if ordonnance.est_en_retard %}table-danger{% endif %}">
+                            <td>
+                                <strong>#{{ ordonnance.id }}</strong>
+                                {% if ordonnance.est_urgente %}
+                                <span class="badge bg-danger ms-1">Urgent</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="fw-bold">{{ ordonnance.patient.get_full_name|default:ordonnance.patient.username }}</div>
+                                <small class="text-muted">ID: {{ ordonnance.patient.id }}</small>
+                            </td>
+                            <td>
+                                <div>{{ ordonnance.medecin.get_full_name|default:ordonnance.medecin.username }}</div>
+                                <small class="text-muted">{{ ordonnance.medecin.specialite|default:"Médecin généraliste" }}</small>
+                            </td>
+                            <td>
+                                {{ ordonnance.date_prescription|date:"d/m/Y" }}
+                                <br>
+                                <small class="text-muted">{{ ordonnance.date_prescription|timesince }}</small>
+                            </td>
+                            <td>
+                                <div class="medicaments-list">
+                                    {% for ligne in ordonnance.lignes.all|slice:":2" %}
+                                    <span class="badge bg-light text-dark mb-1">{{ ligne.medicament }}</span>
+                                    {% endfor %}
+                                    {% if ordonnance.lignes.count > 2 %}
+                                    <span class="badge bg-secondary">+{{ ordonnance.lignes.count|add:"-2" }} autres</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                {% if ordonnance.est_en_retard %}
+                                <span class="badge bg-danger">En retard</span>
+                                {% else %}
+                                <span class="badge bg-warning">En attente</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'pharmacien:detail_ordonnance' ordonnance.id %}" class="btn btn-outline-primary" title="Voir détails">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'pharmacien:valider_ordonnance' ordonnance.id %}" class="btn btn-success" title="Valider">
+                                        <i class="fas fa-check"></i>
+                                    </a>
+                                    <a href="{% url 'pharmacien:refuser_ordonnance' ordonnance.id %}" class="btn btn-danger" title="Refuser">
+                                        <i class="fas fa-times"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <nav aria-label="Navigation des ordonnances" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <!-- État vide -->
+            <div class="text-center py-5">
+                <div class="empty-state-icon">
+                    <i class="fas fa-prescription-bottle fa-4x text-muted mb-3"></i>
+                </div>
+                <h3 class="text-muted">Aucune ordonnance en attente</h3>
+                <p class="text-muted mb-4">Toutes les ordonnances ont été traitées. Bon travail !</p>
+                <div class="d-flex justify-content-center gap-2">
+                    <button class="btn btn-primary" onclick="window.location.reload()">
+                        <i class="fas fa-sync-alt me-1"></i>Actualiser
+                    </button>
+                    <a href="{% url 'pharmacien:historique_validation' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-history me-1"></i>Voir l'historique
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const filterSelect = document.getElementById('filterSelect');
+    const table = document.getElementById('ordonnancesTable');
+    const rows = table ? table.querySelectorAll('tbody tr') : [];
+
+    // Fonction de recherche
+    function filterOrdonnances() {
+        const searchText = searchInput.value.toLowerCase();
+        const filterValue = filterSelect.value;
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            let shouldShow = text.includes(searchText);
+
+            // Application des filtres supplémentaires
+            if (shouldShow && filterValue) {
+                if (filterValue === 'urgent' && !row.classList.contains('table-warning')) {
+                    shouldShow = false;
+                } else if (filterValue === 'en_retard' && !row.classList.contains('table-danger')) {
+                    shouldShow = false;
+                } else if (filterValue === 'en_attente' && 
+                          (row.classList.contains('table-warning') || row.classList.contains('table-danger'))) {
+                    shouldShow = false;
+                }
+            }
+
+            row.style.display = shouldShow ? '' : 'none';
+        });
+    }
+
+    // Événements
+    searchInput.addEventListener('keyup', filterOrdonnances);
+    filterSelect.addEventListener('change', filterOrdonnances);
+
+    // Auto-refresh toutes les 2 minutes
+    setInterval(function() {
+        const activeElement = document.activeElement;
+        // Ne pas rafraîchir si l'utilisateur est en train de taper
+        if (activeElement.tagName !== 'INPUT' && activeElement.tagName !== 'TEXTAREA') {
+            window.location.reload();
+        }
+    }, 120000); // 2 minutes
+
+    // Confirmation pour les actions de refus
+    const refuseButtons = document.querySelectorAll('a[href*="refuser"]');
+    refuseButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            if (!confirm('Êtes-vous sûr de vouloir refuser cette ordonnance ? Cette action nécessitera un motif.')) {
+                e.preventDefault();
+            }
+        });
+    });
+
+    // Tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.medicaments-list {
+    max-width: 200px;
+}
+.empty-state-icon {
+    opacity: 0.5;
+}
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+}
+.badge {
+    font-size: 0.75em;
+}
+</style>
+{% endblock %}

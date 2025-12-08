@@ -1,0 +1,225 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Fiche Cotisation - {{ membre.numero_unique }}</title>
+    <style>
+        .fiche-cotisation {
+            border: 2px solid #3498db;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px auto;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 450px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 18px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .section-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .info-line {
+            margin: 8px 0;
+            padding: 5px 0;
+            display: flex;
+            align-items: center;
+        }
+        .info-icon {
+            margin-right: 10px;
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+        .info-content {
+            flex: 1;
+        }
+        .statut-ajour { 
+            color: #27ae60; 
+            font-weight: 700;
+            background: #d5f4e6;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .statut-retard { 
+            color: #e74c3c; 
+            font-weight: 700;
+            background: #fadbd8;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .statut-a-verifier { 
+            color: #f39c12; 
+            font-weight: 700;
+            background: #fdebd0;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .montant-du {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+        .montant-zero {
+            color: #27ae60;
+            font-weight: 600;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        .badge {
+            background: #3498db;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="fiche-cotisation">
+        <div class="header">
+            <h2 style="margin: 0; font-size: 18px;">📊 FICHE COTISATION</h2>
+            <small style="opacity: 0.9;">Système Mutuelle - {{ date_jour }}</small>
+        </div>
+        
+        <!-- Informations Membre -->
+        <div class="section">
+            <div class="section-title">👤 INFORMATIONS MEMBRE</div>
+            <div class="info-line">
+                <span class="info-icon">👤</span>
+                <div class="info-content">
+                    <strong>{{ membre.nom_complet }}</strong>
+                    <span class="badge">{{ membre.get_categorie_display }}</span>
+                </div>
+            </div>
+            <div class="info-line">
+                <span class="info-icon">#️⃣</span>
+                <div class="info-content">
+                    <strong>{{ membre.numero_unique }}</strong>
+                </div>
+            </div>
+            <div class="info-line">
+                <span class="info-icon">📞</span>
+                <div class="info-content">
+                    {{ membre.telephone|default:"<em>Non renseigné</em>" }}
+                </div>
+            </div>
+            <div class="info-line">
+                <span class="info-icon">📧</span>
+                <div class="info-content">
+                    {{ membre.email|default:"<em>Non renseigné</em>" }}
+                </div>
+            </div>
+        </div>
+        
+        <!-- État des Cotisations -->
+        <div class="section">
+            <div class="section-title">💰 ÉTAT DES COTISATIONS</div>
+            <div class="{{ statut_classe }}">
+                {{ statut_icone }} {{ statut_message }}
+            </div>
+        </div>
+        
+        <!-- Détails Financiers -->
+        <div class="section">
+            <div class="section-title">💳 DÉTAILS FINANCIERS</div>
+            {% if dernier_paiement %}
+            <div class="info-line">
+                <span class="info-icon">💰</span>
+                <div class="info-content">
+                    Dernier paiement: <strong>{{ dernier_paiement }}</strong>
+                </div>
+            </div>
+            {% endif %}
+            <div class="info-line">
+                <span class="info-icon">📅</span>
+                <div class="info-content">
+                    Prochaine échéance: <strong>{{ prochaine_echeance }}</strong>
+                </div>
+            </div>
+            <div class="info-line">
+                <span class="info-icon">💸</span>
+                <div class="info-content">
+                    Montant dû: 
+                    <strong class="{{ montant_classe }}">{{ montant_du }} FCFA</strong>
+                </div>
+            </div>
+            {% if jours_retard > 0 %}
+            <div class="info-line">
+                <span class="info-icon">⏰</span>
+                <div class="info-content">
+                    Jours de retard: <strong>{{ jours_retard }} jours</strong>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Cotisation Active -->
+        {% if cotisation_active %}
+        <div class="section">
+            <div class="section-title">📄 COTISATION ACTIVE</div>
+            <div class="info-line">
+                <span class="info-icon">📋</span>
+                <div class="info-content">
+                    Référence: <strong>{{ cotisation_active.reference }}</strong>
+                </div>
+            </div>
+            <div class="info-line">
+                <span class="info-icon">💵</span>
+                <div class="info-content">
+                    Montant: <strong>{{ cotisation_active.montant }} FCFA</strong>
+                </div>
+            </div>
+            <div class="info-line">
+                <span class="info-icon">📅</span>
+                <div class="info-content">
+                    Échéance: <strong>{{ cotisation_active.date_echeance }}</strong>
+                </div>
+            </div>
+            <div class="info-line">
+                <span class="info-icon">🏷️</span>
+                <div class="info-content">
+                    Statut: <strong>{{ cotisation_active.get_statut_display }}</strong>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Métadonnées -->
+        <div class="footer">
+            <div>🔍 Vérification: #{{ verification.id }}</div>
+            <div>🕐 Dernière mise à jour: {{ date_maj }}</div>
+            <div style="margin-top: 8px; font-size: 10px;">
+                Généré automatiquement par le Système Mutuelle
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+        

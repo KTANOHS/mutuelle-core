@@ -1,0 +1,158 @@
+<!-- pharmacien/templates/pharmacien/base_pharmacien.html -->
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Espace Pharmacien - Mutuelle+">
+    <title>{% block title %}Espace Pharmacien - Mutuelle+{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --pharmacien-primary: #ff6b35;
+            --pharmacien-secondary: #e5533c;
+            --pharmacien-light: #fff5f2;
+            --pharmacien-dark: #8b4513;
+            --gradient-pharmacien: linear-gradient(135deg, #ff6b35, #e5533c);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .pharmacien-bg {
+            background: var(--gradient-pharmacien);
+        }
+
+        .sidebar {
+            min-height: 100vh;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            background: white;
+        }
+
+        .sidebar-sticky {
+            position: sticky;
+            top: 0;
+        }
+
+        .nav-link {
+            color: #333;
+            font-weight: 500;
+            border-radius: 8px;
+            margin: 2px 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: var(--gradient-pharmacien);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .main-content {
+            min-height: 100vh;
+        }
+
+        .pharmacien-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .pharmacien-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .badge-pharmacien {
+            background: var(--gradient-pharmacien);
+            color: white;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation principale -->
+    {% include 'pharmacien/_navbar_pharmacien.html' %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar d-none d-md-block">
+                {% include 'pharmacien/_sidebar_pharmacien.html' %}
+            </div>
+
+            <!-- Sidebar mobile -->
+            <div class="col-12 d-md-none">
+                {% include 'pharmacien/_sidebar_mobile.html' %}
+            </div>
+
+            <!-- Contenu principal -->
+            <main class="col-md-9 col-lg-10 ms-sm-auto px-md-4 main-content">
+                {% if messages %}
+                <div class="container mt-3">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="fas 
+                                {% if message.tags == 'success' %}fa-check-circle
+                                {% elif message.tags == 'error' or message.tags == 'danger' %}fa-exclamation-triangle
+                                {% elif message.tags == 'warning' %}fa-exclamation-circle
+                                {% else %}fa-info-circle
+                                {% endif %} me-2"></i>
+                            <div class="flex-grow-1">{{ message }}</div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% block content %}
+                <!-- Contenu spécifique à chaque page -->
+                {% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Gestion de la sidebar mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggle = document.querySelector('[data-bs-toggle="collapse"]');
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    const target = document.querySelector(this.getAttribute('data-bs-target'));
+                    target.classList.toggle('show');
+                });
+            }
+
+            // Fermer les alertes automatiquement
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    if (alert.parentNode) {
+                        const bsAlert = new bootstrap.Alert(alert);
+                        bsAlert.close();
+                    }
+                }, 5000);
+            });
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

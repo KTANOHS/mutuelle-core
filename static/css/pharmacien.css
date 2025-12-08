@@ -1,0 +1,59 @@
+/* Styles spécifiques au dashboard pharmacien */
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+}
+
+.badge-counter {
+    font-size: 1rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.btn-icon-split {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-icon-split .icon {
+    width: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon-split .text {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+/* Animation pour les nouvelles notifications */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pulse-warning {
+    animation: pulse 2s infinite;
+    color: #f6c23e;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .btn-icon-split {
+        display: block;
+        text-align: center;
+    }
+    
+    .btn-icon-split .icon {
+        display: none;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+}

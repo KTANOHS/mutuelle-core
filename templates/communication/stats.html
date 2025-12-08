@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block title %}Statistiques Communication - Mutuelle App{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-chart-bar me-2"></i>Statistiques de Communication</h1>
+</div>
+
+<div class="row">
+    <!-- Cartes de statistiques -->
+    <div class="col-md-3 mb-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ messages_recus }}</h4>
+                        <p class="mb-0">Messages reçus</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-envelope fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ messages_non_lus }}</h4>
+                        <p class="mb-0">Messages non lus</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-envelope-open fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ notifications_total }}</h4>
+                        <p class="mb-0">Notifications</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-bell fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ fichiers_recus }}</h4>
+                        <p class="mb-0">Fichiers reçus</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-file fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Répartition des Messages</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center py-4">
+                    <i class="fas fa-chart-pie fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Graphique des messages par type</p>
+                    <small class="text-muted">(Les données statistiques détaillées seront affichées ici)</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Activité Récente</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-envelope text-primary me-2"></i>
+                            <span>Dernier message reçu</span>
+                        </div>
+                        <small class="text-muted">Aujourd'hui</small>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-bell text-success me-2"></i>
+                            <span>Dernière notification</span>
+                        </div>
+                        <small class="text-muted">Il y a 2 heures</small>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-file text-info me-2"></i>
+                            <span>Dernier fichier partagé</span>
+                        </div>
+                        <small class="text-muted">Hier</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6>Espace utilisé</h6>
+                        <div class="progress mb-3">
+                            <div class="progress-bar" role="progressbar" style="width: 25%;">25%</div>
+                        </div>
+                        <small class="text-muted">250 MB / 1 GB utilisé</small>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Messages ce mois</h6>
+                        <p class="h4 text-primary">42</p>
+                        <small class="text-muted">+15% vs mois dernier</small>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Taux de réponse</h6>
+                        <p class="h4 text-success">85%</p>
+                        <small class="text-muted">Temps moyen: 2h</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

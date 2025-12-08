@@ -1,0 +1,100 @@
+<!-- pharmacien/templates/pharmacien/_navbar_pharmacien.html -->
+<nav class="navbar navbar-expand-lg navbar-dark pharmacien-bg">
+    <div class="container-fluid">
+        <!-- Brand et toggle -->
+        <a class="navbar-brand" href="{% url 'pharmacien:dashboard' %}">
+            <i class="fas fa-prescription-bottle me-2"></i>
+            <strong>Espace Pharmacien</strong>
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarPharmacien">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Contenu de la navbar -->
+        <div class="collapse navbar-collapse" id="navbarPharmacien">
+            <!-- Navigation gauche -->
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'pharmacien:dashboard' %}">
+                        <i class="fas fa-tachometer-alt me-1"></i>Tableau de bord
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'pharmacien:liste_ordonnances_attente' %}">
+                        <i class="fas fa-file-prescription me-1"></i>Ordonnances
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'pharmacien:historique_validation' %}">
+                        <i class="fas fa-history me-1"></i>Historique
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Navigation droite -->
+            <ul class="navbar-nav ms-auto">
+                <!-- Recherche -->
+                <li class="nav-item me-2">
+                    <a class="nav-link" href="{% url 'pharmacien:rechercher_ordonnances' %}">
+                        <i class="fas fa-search me-1"></i>Recherche
+                    </a>
+                </li>
+
+                <!-- Notifications -->
+                <li class="nav-item dropdown me-2">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge bg-danger rounded-pill">3</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><h6 class="dropdown-header">Notifications</h6></li>
+                        <li><a class="dropdown-item" href="#">Nouvelle ordonnance #125</a></li>
+                        <li><a class="dropdown-item" href="#">Rappel validation #118</a></li>
+                        <li><a class="dropdown-item" href="#">Mise à jour système</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-center" href="#">Voir toutes</a></li>
+                    </ul>
+                </li>
+
+                <!-- Profil utilisateur -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" 
+                       role="button" data-bs-toggle="dropdown">
+                        <div class="bg-white rounded-circle d-flex align-items-center justify-content-center me-2" 
+                             style="width: 32px; height: 32px;">
+                            <i class="fas fa-user-md text-pharmacien" style="color: var(--pharmacien-primary);"></i>
+                        </div>
+                        <span>{{ user.username }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="{% url 'pharmacien:profil_pharmacien' %}">
+                                <i class="fas fa-user me-2"></i>Mon profil
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i class="fas fa-cog me-2"></i>Paramètres
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'home' %}">
+                                <i class="fas fa-home me-2"></i>Accueil général
+                            </a>
+                        </li>
+                        <li>
+                            <form method="post" action="{% url 'logout' %}" class="d-inline w-100">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item border-0 bg-transparent w-100 text-start">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Déconnexion
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

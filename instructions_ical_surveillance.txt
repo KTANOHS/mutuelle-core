@@ -1,0 +1,22 @@
+
+📅 PLANIFICATION AVEC iCAL (CALENDRIER APPLE)
+
+Pour une surveillance automatique sur macOS, vous pouvez utiliser le Calendrier :
+
+1. 🗓️ Ouvrez l'application "Calendrier"
+2. ➕ Créez un nouveau calendrier "Surveillance Mutuelle"
+3. 📅 Ajoutez les événements récurrents :
+
+   🔸 QUOTIDIEN (8h00)
+   - Ouvrir le Terminal
+   - Commande: cd "/Users/koffitanohsoualiho/Documents/P FINALE AVANT SYNCHRO/projet 21.49.30" && /Users/koffitanohsoualiho/Documents/projet/venv/bin/python surveillance_simple.py --mode auto
+
+   🔸 HEBDOMADAIRE (Lundi 9h00)  
+   - Ouvrir le Terminal
+   - Commande: cd "/Users/koffitanohsoualiho/Documents/P FINALE AVANT SYNCHRO/projet 21.49.30" && /Users/koffitanohsoualiho/Documents/projet/venv/bin/python surveillance_hebdomadaire.py
+
+   🔸 MENSUEL (1er du mois 10h00)
+   - Ouvrir le Terminal
+   - Commande: cd "/Users/koffitanohsoualiho/Documents/P FINALE AVANT SYNCHRO/projet 21.49.30" && /Users/koffitanohsoualiho/Documents/projet/venv/bin/python rapport_performance_mensuel.py
+
+4. 🔔 Configurez des alertes pour recevoir des notifications

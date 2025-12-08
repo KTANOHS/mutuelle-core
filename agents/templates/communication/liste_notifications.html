@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Notifications</h2>
+<div class="notifications-list">
+    {% for notification in notifications %}
+    <div class="notification-item {% if not notification.est_lue %}non-lue{% endif %}">
+        <strong>{{ notification.titre }}</strong><br>
+        <p>{{ notification.message }}</p>
+        <small>{{ notification.date_creation }}</small>
+    </div>
+    {% empty %}
+    <p>Aucune notification.</p>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,173 @@
+
+<!-- BOUTON TEST TRÈS VISIBLE -->
+<div class="container my-4">
+    <div class="alert alert-warning text-center">
+        <h5>TEST DU BOUTON NOUVEAU MESSAGE</h5>
+        <p>Cliquez sur le bouton ci-dessous pour tester le modal:</p>
+        <button type="button" class="btn btn-success btn-lg" 
+                data-bs-toggle="modal" data-bs-target="#nouveauMessageModal">
+            <i class="fas fa-bolt me-2"></i>TESTER NOUVEAU MESSAGE
+        </button>
+    </div>
+</div>
+
+{% extends "base.html" %}
+    
+<!-- SECTION DES CONVERSATIONS -->
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-comments me-2"></i>Mes Conversations</h3>
+                </div>
+                <div class="card-body">
+                    {% if conversations %}
+                        <div class="list-group">
+                            {% for conversation in conversations %}
+                                <div class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">
+                                            <i class="fas fa-user-circle me-2"></i>
+                                            {% for participant in conversation.participants.all %}
+                                                {% if participant != request.user %}
+                                                    {{ participant.get_full_name|default:participant.username }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </h5>
+                                        {% if conversation.nb_messages_non_lus > 0 %}
+                                            <span class="badge bg-danger rounded-pill">{{ conversation.nb_messages_non_lus }} non lu(s)</span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="mb-1">
+                                        {% with dernier_message=conversation.messages.last %}
+                                            {% if dernier_message %}
+                                                <strong>{{ dernier_message.expediteur.username }}:</strong> 
+                                                {{ dernier_message.contenu|truncatewords:15 }}
+                                            {% else %}
+                                                <em>Aucun message</em>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </p>
+                                    <small class="text-muted">
+                                        Dernière activité: 
+                                        {% if conversation.derniere_activite %}
+                                            {{ conversation.derniere_activite|timesince }}
+                                        {% else %}
+                                            Jamais
+                                        {% endif %}
+                                    </small>
+                                    <div class="mt-2">
+                                        <a href="{% url 'communication:detail_conversation' conversation.id %}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye me-1"></i>Voir la conversation
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Aucune conversation</h5>
+                            <p class="text-muted">Commencez une nouvelle conversation pour voir vos messages ici.</p>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nouveauMessageModal">
+                                <i class="fas fa-plus me-1"></i>Nouvelle conversation
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- FIN SECTION DES CONVERSATIONS -->
+
+{% load static %}
+
+{% block title %}Messagerie Interne{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        
+<!-- BOUTON TEST NOUVEAU MESSAGE -->
+<div class="text-center my-4">
+    <button type="button" class="btn btn-primary btn-lg" 
+            data-bs-toggle="modal" data-bs-target="#nouveauMessageModal">
+        <i class="fas fa-plus me-2"></i>Nouveau Message (TEST)
+    </button>
+</div>
+
+<h1 class="h3 mb-0">Messagerie Interne</h1>
+        <button data-bs-target="#nouveauMessageModal" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newMessageModal">
+            <i class="fas fa-plus me-1"></i>Nouveau Message
+        </button>
+    </div>
+
+    <div class="row">
+        <!-- Liste des conversations -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Conversations</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" id="conversations-list">
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-spinner fa-spin me-2"></i>
+                            Chargement...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Zone de conversation -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0" id="conversation-title">
+                        Sélectionnez une conversation
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Aucune conversation sélectionnée -->
+                    <div id="no-conversation" class="text-center py-5">
+                        <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Aucune conversation sélectionnée</h5>
+                        <p class="text-muted">Sélectionnez une conversation ou créez-en une nouvelle</p>
+                    </div>
+
+                    <!-- Messages (caché par défaut) -->
+                    <div id="conversation-area" style="display: none;">
+                        <div id="messages-container" style="height: 400px; overflow-y: auto;" class="mb-3 p-3 border rounded">
+                            <div id="messages-list"></div>
+                        </div>
+                        
+                        <form id="message-form">
+                            {% csrf_token %}
+                            <input type="hidden" id="destinataire_id">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="message-text" 
+                                       placeholder="Tapez votre message..." autocomplete="off">
+                                <button class="btn btn-primary" type="submit" id="send-btn">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal nouveau message -->
+{% include "communication/partials/_nouveau_message_modal.html" %}
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/communication/messagerie.js' %}"></script>
+{% endblock %}

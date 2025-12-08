@@ -1,0 +1,150 @@
+<div class="messages-container">
+    {% if messages %}
+        {% for message in messages %}
+        <div class="message-item {% if message.expediteur == request.user %}message-envoye{% else %}message-recu{% endif %} mb-3">
+            <div class="card {% if message.expediteur == request.user %}border-primary{% else %}border-secondary{% endif %}">
+                <div class="card-header py-2 {% if message.expediteur == request.user %}bg-primary text-white{% else %}bg-light{% endif %}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>
+                                {% if message.expediteur == request.user %}
+                                    Vous
+                                {% else %}
+                                    {{ message.expediteur.get_full_name|default:message.expediteur.username }}
+                                {% endif %}
+                            </strong>
+                            <small class="ms-2 {% if message.expediteur == request.user %}text-white-50{% else %}text-muted{% endif %}">
+                                {{ message.date_envoi|date:"d/m/Y H:i" }}
+                            </small>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-sm {% if message.expediteur == request.user %}btn-outline-light{% else %}btn-outline-secondary{% endif %} dropdown-toggle" 
+                                    type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="repondreMessage({{ message.id }})">
+                                    <i class="fas fa-reply me-2"></i>Répondre
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="forwardMessage({{ message.id }})">
+                                    <i class="fas fa-share me-2"></i>Transférer
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#" onclick="deleteMessage({{ message.id }})">
+                                    <i class="fas fa-trash me-2"></i>Supprimer
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="message-content">
+                        {{ message.contenu|linebreaks }}
+                    </div>
+                    
+                    {% if message.pieces_jointes.exists %}
+                    <div class="pieces-jointes mt-3">
+                        <h6 class="text-muted mb-2">
+                            <i class="fas fa-paperclip me-1"></i>
+                            Pièces jointes ({{ message.pieces_jointes.count }})
+                        </h6>
+                        <div class="row g-2">
+                            {% for piece in message.pieces_jointes.all %}
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center p-2 border rounded">
+                                    <i class="fas {{ piece.get_icon_class }} me-2 text-primary"></i>
+                                    <div class="flex-grow-1">
+                                        <div class="small">{{ piece.nom_original }}</div>
+                                        <div class="extra-small text-muted">{{ piece.get_taille_lisible }}</div>
+                                    </div>
+                                    <a href="{% url 'communication:telecharger_fichier' piece.id %}" 
+                                       class="btn btn-sm btn-outline-primary" 
+                                       target="_blank">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if message.confirmation_lecture and message.expediteur == request.user %}
+                    <div class="confirmation-lecture mt-2">
+                        <small class="text-muted">
+                            <i class="fas fa-check-double me-1"></i>
+                            {% if message.est_lu %}
+                                Lu le {{ message.date_lecture|date:"d/m/Y H:i" }}
+                            {% else %}
+                                En attente de lecture
+                            {% endif %}
+                        </small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">Aucun message</h5>
+            <p class="text-muted">Commencez la conversation en envoyant un message.</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function repondreMessage(messageId) {
+    // Récupérer le message et pré-remplir le formulaire de réponse
+    fetch(`/communication/api/messages/${messageId}/`)
+        .then(response => response.json())
+        .then(data => {
+            const textarea = document.querySelector('#message-form textarea');
+            textarea.value = `\n\n--- En réponse à ---\n${data.contenu}\n\n`;
+            textarea.focus();
+            textarea.scrollTop = textarea.scrollHeight;
+        });
+}
+
+function forwardMessage(messageId) {
+    // Ouvrir le formulaire de nouveau message avec transfert
+    window.location.href = `{% url 'communication:nouveau_message' %}?forward=${messageId}`;
+}
+
+function deleteMessage(messageId) {
+    if (!confirm('Supprimer ce message ? Cette action est irréversible.')) return;
+    
+    fetch(`/communication/api/messages/${messageId}/delete/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCSRFToken(),
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Erreur lors de la suppression');
+        }
+    });
+}
+
+function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+</script>
+
+<style>
+.message-envoye .card {
+    margin-left: 20%;
+}
+.message-recu .card {
+    margin-right: 20%;
+}
+.pieces-jointes .extra-small {
+    font-size: 0.75rem;
+}
+</style>

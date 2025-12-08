@@ -1,0 +1,71 @@
+<!-- medecin/templates/medecin/liste_ordonnances.html -->
+{% extends 'medecin/base.html' %}
+
+{% block title %}Mes Ordonnances{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>📄 Mes Ordonnances</h1>
+    <a href="{% url 'medecin:creer_ordonnance' %}" class="btn btn-primary">
+        ➕ Nouvelle ordonnance
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        {% if ordonnances %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Numéro</th>
+                            <th>Patient</th>
+                            <th>Date prescription</th>
+                            <th>Date expiration</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ordonnance in ordonnances %}
+                        <tr>
+                            <td>
+                                <strong>{{ ordonnance.numero }}</strong>
+                                {% if ordonnance.est_urgent %}
+                                    <span class="badge bg-danger">Urgent</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ ordonnance.patient.nom_complet }}</td>
+                            <td>{{ ordonnance.date_prescription }}</td>
+                            <td>
+                                {{ ordonnance.date_expiration }}
+                                {% if ordonnance.jours_restants < 7 %}
+                                    <span class="badge bg-warning">Expire bientôt</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-{% if ordonnance.statut == 'ACTIVE' %}success{% elif ordonnance.statut == 'UTILISEE' %}info{% else %}secondary{% endif %}">
+                                    {{ ordonnance.get_statut_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'medecin:detail_ordonnance' ordonnance.id %}" class="btn btn-sm btn-outline-primary">
+                                    👁️ Voir
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <p class="text-muted">Aucune ordonnance créée pour le moment.</p>
+                <a href="{% url 'medecin:creer_ordonnance' %}" class="btn btn-primary">
+                    Créer votre première ordonnance
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

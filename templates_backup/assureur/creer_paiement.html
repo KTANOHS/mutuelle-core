@@ -1,0 +1,102 @@
+{% extends 'assureur/base_assureur.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Créer un Paiement</h1>
+        <a href="{% url 'assureur:liste_paiements' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Retour à la liste
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="bon">Bon *</label>
+                            <select class="form-control" id="bon" name="bon" required>
+                                <option value="">Sélectionner un bon</option>
+                                {% for bon in bons_eligibles %}
+                                <option value="{{ bon.id }}">
+                                    {{ bon.numero_bon }} - {{ bon.membre.nom_complet }} - {{ bon.montant_total }} FCFA
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="montant">Montant (FCFA) *</label>
+                            <input type="number" class="form-control" id="montant" name="montant" 
+                                   step="0.01" min="0" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="mode_paiement">Mode de paiement *</label>
+                            <select class="form-control" id="mode_paiement" name="mode_paiement" required>
+                                <option value="">Sélectionner un mode</option>
+                                {% for mode, label in modes_paiement %}
+                                <option value="{{ mode }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="statut">Statut *</label>
+                            <select class="form-control" id="statut" name="statut" required>
+                                <option value="">Sélectionner un statut</option>
+                                {% for statut, label in statuts %}
+                                <option value="{{ statut }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="numero_transaction">Numéro de transaction</label>
+                            <input type="text" class="form-control" id="numero_transaction" 
+                                   name="numero_transaction" placeholder="Optionnel">
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="banque">Banque</label>
+                            <input type="text" class="form-control" id="banque" 
+                                   name="banque" placeholder="Optionnel">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Notes</label>
+                    <textarea class="form-control" id="notes" name="notes" 
+                              rows="3" placeholder="Notes supplémentaires..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check me-1"></i>Créer le paiement
+                    </button>
+                    <a href="{% url 'assureur:liste_paiements' %}" class="btn btn-secondary">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

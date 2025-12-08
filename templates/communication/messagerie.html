@@ -1,0 +1,555 @@
+<!-- templates/communication/messagerie_fonctionnelle.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Messagerie{% endblock %}
+
+{% block extra_css %}
+<style>
+    .conversation-item {
+        transition: all 0.2s;
+        border-left: 3px solid transparent;
+    }
+    .conversation-item:hover {
+        background-color: #f8f9fa;
+        border-left-color: #007bff;
+    }
+    .conversation-active {
+        background-color: #e3f2fd !important;
+        border-left-color: #007bff !important;
+    }
+    .message-container {
+        height: 60vh;
+        overflow-y: auto;
+        background-color: #fafafa;
+    }
+    .message-bubble {
+        max-width: 70%;
+        padding: 10px 15px;
+        border-radius: 18px;
+        margin-bottom: 10px;
+        position: relative;
+    }
+    .message-sent {
+        background-color: #007bff;
+        color: white;
+        margin-left: auto;
+        border-bottom-right-radius: 5px;
+    }
+    .message-received {
+        background-color: #e9ecef;
+        color: #333;
+        border-bottom-left-radius: 5px;
+    }
+    .message-time {
+        font-size: 0.75rem;
+        opacity: 0.7;
+    }
+    
+    /* CORRECTIONS AJOUTÉES */
+    .message-title-badge {
+        background: rgba(0, 0, 0, 0.1);
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        margin-bottom: 5px;
+        display: inline-block;
+    }
+    .message-content {
+        word-wrap: break-word;
+        white-space: pre-wrap;
+    }
+    .empty-state {
+        padding: 40px 20px;
+        text-align: center;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- TITRE ET STATISTIQUES -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-comments text-primary me-2"></i>Messagerie
+                </h1>
+                <div class="btn-group">
+                    <a href="{% url 'communication:nouveau_message' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Nouveau message
+                    </a>
+                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#helpModal">
+                        <i class="fas fa-question"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="mt-2">
+                <span class="badge bg-primary">{{ total_conversations }} conversations</span>
+                <span class="badge bg-success ms-2">{{ total_messages }} messages</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- COLONNE GAUCHE : LISTE DES CONVERSATIONS -->
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white border-bottom">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-0">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-0" placeholder="Rechercher une conversation..." id="searchConversation">
+                    </div>
+                </div>
+                
+                <div class="card-body p-0">
+                    {% if conversations %}
+                    <div class="list-group list-group-flush" id="conversationsList">
+                        {% for conversation in conversations %}
+                        <a href="{% url 'communication:detail_conversation' conversation.id %}" 
+                           class="list-group-item list-group-item-action border-0 py-3 conversation-item 
+                                  {% if conversation.id == active_conversation.id %}conversation-active{% endif %}"
+                           data-search="{% for participant in conversation.participants.all %}{% if participant != request.user %}{{ participant.get_full_name|default:participant.username }} {% endif %}{% endfor %}">
+                            <div class="d-flex align-items-start">
+                                <!-- AVATAR -->
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                         style="width: 40px; height: 40px;">
+                                        {% for participant in conversation.participants.all %}
+                                            {% if participant != request.user %}
+                                                {{ participant.username|first|upper }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                
+                                <!-- CONTENU -->
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                        <h6 class="mb-0">
+                                            {% for participant in conversation.participants.all %}
+                                                {% if participant != request.user %}
+                                                    {{ participant.get_full_name|default:participant.username }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </h6>
+                                        <small class="text-muted">
+                                            {{ conversation.derniere_activite|date:"H:i"|default:"-" }}
+                                        </small>
+                                    </div>
+                                    
+                                    <!-- DERNIER MESSAGE (CONTENU CORRIGÉ) -->
+                                    <p class="mb-1 text-muted text-truncate small">
+                                        {% with last_message=conversation.messages.last %}
+                                            {% if last_message %}
+                                                {% if last_message.expediteur == request.user %}
+                                                    <span class="text-primary">Vous : </span>
+                                                {% endif %}
+                                                <!-- AFFICHAGE DU CONTENU (pas du titre) -->
+                                                {{ last_message.contenu|truncatechars:50 }}
+                                            {% else %}
+                                                <span class="text-muted fst-italic">Aucun message</span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </p>
+                                    
+                                    <!-- MÉTADONNÉES -->
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            {{ conversation.total_messages }} message{{ conversation.total_messages|pluralize:"s" }}
+                                        </small>
+                                        {% if conversation.nb_messages_non_lus %}
+                                        <span class="badge bg-danger rounded-pill">
+                                            {{ conversation.nb_messages_non_lus }}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Aucune conversation</h5>
+                        <p class="text-muted small">Commencez par envoyer un message</p>
+                        <a href="{% url 'communication:nouveau_message' %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus me-1"></i>Nouvelle conversation
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- COLONNE DROITE : MESSAGES -->
+        <div class="col-md-8">
+            <div class="card shadow-sm h-100">
+                {% if active_conversation %}
+                <!-- EN-TÊTE DE LA CONVERSATION -->
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                             style="width: 40px; height: 40px;">
+                            {% for participant in active_conversation.participants.all %}
+                                {% if participant != request.user %}
+                                    {{ participant.username|first|upper }}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div>
+                            <h5 class="mb-0">
+                                {% for participant in active_conversation.participants.all %}
+                                    {% if participant != request.user %}
+                                        {{ participant.get_full_name|default:participant.username }}
+                                    {% endif %}
+                                {% endfor %}
+                            </h5>
+                            <small class="text-muted">
+                                {% if active_conversation.messages.count == 1 %}
+                                    1 message
+                                {% else %}
+                                    {{ active_conversation.messages.count }} messages
+                                {% endif %}
+                                {% if active_conversation.nb_messages_non_lus %}
+                                    • <span class="text-danger">{{ active_conversation.nb_messages_non_lus }} non lu{{ active_conversation.nb_messages_non_lus|pluralize:"s" }}</span>
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-outline-secondary" title="Informations" data-bs-toggle="modal" data-bs-target="#conversationInfoModal">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ZONE DES MESSAGES (CORRIGÉE) -->
+                <div class="card-body p-0">
+                    <div class="message-container p-3" id="messagesContainer">
+                        {% if active_messages %}
+                            {% for message in active_messages %}
+                            <div class="d-flex mb-3 {% if message.expediteur == request.user %}justify-content-end{% endif %}">
+                                <div class="message-bubble {% if message.expediteur == request.user %}message-sent{% else %}message-received{% endif %}">
+                                    <!-- EN-TÊTE DU MESSAGE -->
+                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                        <strong class="me-2">
+                                            {% if message.expediteur == request.user %}
+                                                Vous
+                                            {% else %}
+                                                {{ message.expediteur.get_full_name|default:message.expediteur.username }}
+                                            {% endif %}
+                                        </strong>
+                                        <small class="message-time">
+                                            {{ message.date_envoi|date:"d/m/Y H:i" }}
+                                        </small>
+                                    </div>
+                                    
+                                    <!-- TITRE (si présent) -->
+                                    {% if message.titre and message.titre != message.contenu %}
+                                    <div class="message-title-badge mb-2">
+                                        <i class="fas fa-tag fa-xs me-1"></i> {{ message.titre }}
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <!-- CONTENU DU MESSAGE (CORRECTION PRINCIPALE) -->
+                                    <div class="message-content">
+                                        {{ message.contenu|linebreaks }}
+                                    </div>
+                                    
+                                    <!-- STATUT DE LECTURE -->
+                                    {% if message.expediteur == request.user %}
+                                    <small class="d-block mt-1 opacity-50 text-end">
+                                        {% if message.est_lu %}
+                                        <i class="fas fa-check-double text-success"></i> Lu
+                                        {% else %}
+                                        <i class="fas fa-check"></i> Envoyé
+                                        {% endif %}
+                                    </small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-comment-slash fa-3x mb-3"></i>
+                            <h5 class="text-muted">Aucun message</h5>
+                            <p class="text-muted small">Envoyez le premier message !</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- FORMULAIRE D'ENVOI (CORRIGÉ) -->
+                <div class="card-footer bg-white border-top">
+                    <form id="messageForm" method="post" action="{% url 'communication:envoyer_message_conversation' active_conversation.id %}">
+                        {% csrf_token %}
+                        
+                        <div class="input-group">
+                            <input type="text" name="contenu" 
+                                   class="form-control border-0" 
+                                   placeholder="Écrivez votre message..." 
+                                   autocomplete="off"
+                                   id="messageInput"
+                                   required>
+                            <button type="submit" class="btn btn-primary" id="sendButton">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        <div class="mt-2 d-flex justify-content-between">
+                            <div>
+                                <button type="button" class="btn btn-sm btn-outline-secondary me-2" title="Joindre un fichier">
+                                    <i class="fas fa-paperclip"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" title="Émojis">
+                                    <i class="fas fa-smile"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">
+                                Appuyez sur <kbd>Entrée</kbd> pour envoyer
+                            </small>
+                        </div>
+                    </form>
+                </div>
+                {% else %}
+                <!-- AUCUNE CONVERSATION SÉLECTIONNÉE -->
+                <div class="card-body d-flex flex-column align-items-center justify-content-center" style="height: 400px;">
+                    <i class="fas fa-comments fa-4x text-muted mb-4"></i>
+                    <h3 class="text-muted">Bienvenue dans votre messagerie</h3>
+                    <p class="text-muted text-center mb-4">
+                        Sélectionnez une conversation pour commencer à discuter,<br>
+                        ou créez une nouvelle conversation.
+                    </p>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'communication:nouveau_message' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Nouvelle conversation
+                        </a>
+                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#helpModal">
+                            <i class="fas fa-question-circle me-2"></i>Aide
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL D'AIDE -->
+<div class="modal fade" id="helpModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Aide Messagerie</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Comment utiliser la messagerie :</h6>
+                <ul>
+                    <li>Sélectionnez une conversation à gauche</li>
+                    <li>Écrivez votre message dans la zone de texte</li>
+                    <li>Appuyez sur Entrée ou cliquez sur l'icône d'envoi</li>
+                    <li>Les messages sont sauvegardés automatiquement</li>
+                </ul>
+                <hr>
+                <p class="small text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Les conversations sont privées entre les participants.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL INFOS CONVERSATION -->
+<div class="modal fade" id="conversationInfoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Informations conversation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                {% if active_conversation %}
+                <h6>Participants :</h6>
+                <ul class="list-unstyled">
+                    {% for participant in active_conversation.participants.all %}
+                    <li class="mb-2">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                 style="width: 30px; height: 30px;">
+                                {{ participant.username|first|upper }}
+                            </div>
+                            <div>
+                                <strong>{{ participant.get_full_name|default:participant.username }}</strong>
+                                <div class="small text-muted">{{ participant.email }}</div>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <hr>
+                <div class="row">
+                    <div class="col-6">
+                        <small class="text-muted">Date de création</small><br>
+                        <strong>{{ active_conversation.date_creation|date:"d/m/Y" }}</strong>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">Dernier message</small><br>
+                        <strong>{{ active_conversation.derniere_activite|date:"d/m/Y H:i"|default:"-" }}</strong>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Faire défiler vers le bas des messages
+    const messagesContainer = document.getElementById('messagesContainer');
+    if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Recherche de conversations
+    const searchInput = document.getElementById('searchConversation');
+    const conversationsList = document.getElementById('conversationsList');
+    
+    if (searchInput && conversationsList) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const items = conversationsList.querySelectorAll('.conversation-item');
+            
+            items.forEach(item => {
+                const searchText = item.getAttribute('data-search').toLowerCase();
+                if (searchText.includes(searchTerm)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Gestion du formulaire d'envoi
+    const messageForm = document.getElementById('messageForm');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+
+    if (messageForm && messageInput) {
+        // Envoyer avec Entrée
+        messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (messageInput.value.trim()) {
+                    submitMessageForm();
+                }
+            }
+        });
+
+        // Envoyer avec le bouton
+        messageForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (messageInput.value.trim()) {
+                submitMessageForm();
+            }
+        });
+    }
+
+    function submitMessageForm() {
+        if (!messageInput.value.trim()) return;
+        
+        // Désactiver temporairement
+        sendButton.disabled = true;
+        sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        const formData = new FormData(messageForm);
+        
+        fetch(messageForm.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (response.redirected) {
+                // Redirection classique (recharger la page)
+                window.location.reload();
+            } else if (response.headers.get('content-type')?.includes('application/json')) {
+                return response.json().then(data => {
+                    if (data.success) {
+                        addMessageToInterface(messageInput.value, true);
+                        messageInput.value = '';
+                    } else {
+                        alert('Erreur: ' + (data.error || 'Erreur inconnue'));
+                    }
+                });
+            } else {
+                // Si pas de JSON, recharger
+                window.location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Une erreur est survenue lors de l\'envoi.');
+        })
+        .finally(() => {
+            sendButton.disabled = false;
+            sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
+        });
+    }
+
+    function addMessageToInterface(content, isSent) {
+        if (!messagesContainer) return;
+        
+        const now = new Date();
+        const timeString = now.getHours().toString().padStart(2, '0') + ':' + 
+                          now.getMinutes().toString().padStart(2, '0');
+        
+        const messageHTML = `
+            <div class="d-flex mb-3 ${isSent ? 'justify-content-end' : ''}">
+                <div class="message-bubble ${isSent ? 'message-sent' : 'message-received'}">
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                        <strong class="me-2">${isSent ? 'Vous' : '{{ active_conversation_participant_name|default:"Utilisateur" }}'}</strong>
+                        <small class="message-time">${timeString}</small>
+                    </div>
+                    <div class="message-content">${content.replace(/\n/g, '<br>')}</div>
+                    ${isSent ? '<small class="d-block mt-1 opacity-50 text-end"><i class="fas fa-check"></i> Envoyé</small>' : ''}
+                </div>
+            </div>
+        `;
+        
+        messagesContainer.innerHTML += messageHTML;
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Auto-refresh des messages toutes les 30 secondes (optionnel)
+    {% if active_conversation %}
+    setInterval(() => {
+        if (!document.hidden) {
+            fetch(`/communication/api/messages/{{ active_conversation.id }}/?format=json`)
+                .then(response => response.json())
+                .then(data => {
+                    // Comparer avec le nombre actuel de messages
+                    const currentCount = document.querySelectorAll('.message-bubble').length;
+                    if (data.messages && data.messages.length > currentCount) {
+                        // Recharger la page si de nouveaux messages
+                        window.location.reload();
+                    }
+                })
+                .catch(error => console.log('Auto-refresh error:', error));
+        }
+    }, 30000);
+    {% endif %}
+});
+</script>
+{% endblock %}

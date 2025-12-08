@@ -1,0 +1,168 @@
+{% extends 'pharmacien/base_pharmacien.html' %}
+{% load static %}
+
+{% block title %}Ajouter un Médicament - Pharmacien{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 text-gray-800">
+                    <i class="fas fa-plus-circle text-primary me-2"></i>
+                    Ajouter un Médicament
+                </h1>
+                <a href="{% url 'pharmacien:stock' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour au stock
+                </a>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-xl-8 col-lg-10">
+                    <div class="card pharmacien-card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-pills me-2"></i>
+                                Informations du médicament
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="ajouterStockForm" method="POST">
+                                {% csrf_token %}
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="nom_medicament" class="form-label">
+                                            Nom du médicament <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="nom_medicament" 
+                                               name="nom_medicament" required>
+                                        <div class="form-text">Nom commercial du médicament</div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="code_medicament" class="form-label">Code médicament</label>
+                                        <input type="text" class="form-control" id="code_medicament" 
+                                               name="code_medicament">
+                                        <div class="form-text">Code CIP ou identifiant unique</div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="categorie" class="form-label">Catégorie</label>
+                                        <select class="form-control" id="categorie" name="categorie">
+                                            {% for categorie in categories %}
+                                            <option value="{{ categorie.0 }}">{{ categorie.1 }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="quantite_stock" class="form-label">
+                                            Quantité initiale <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="number" class="form-control" id="quantite_stock" 
+                                               name="quantite_stock" value="0" min="0" required>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="seuil_alerte" class="form-label">
+                                            Seuil d'alerte <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="number" class="form-control" id="seuil_alerte" 
+                                               name="seuil_alerte" value="10" min="1" required>
+                                        <div class="form-text">Quantité minimale avant alerte</div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="date_peremption" class="form-label">Date de péremption</label>
+                                        <input type="date" class="form-control" id="date_peremption" 
+                                               name="date_peremption">
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="prix_achat" class="form-label">
+                                            Prix d'achat (F) <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="number" step="0.01" class="form-control" id="prix_achat" 
+                                               name="prix_achat" value="0.00" min="0" required>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="prix_vente" class="form-label">
+                                            Prix de vente (F) <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="number" step="0.01" class="form-control" id="prix_vente" 
+                                               name="prix_vente" value="0.00" min="0" required>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Information :</strong> Si le médicament existe déjà, la quantité sera ajoutée au stock existant.
+                                </div>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <button type="reset" class="btn btn-outline-secondary me-md-2">
+                                        <i class="fas fa-undo me-2"></i>Réinitialiser
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>Ajouter le médicament
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Validation du formulaire
+    $('#ajouterStockForm').on('submit', function(e) {
+        const prixAchat = parseFloat($('#prix_achat').val());
+        const prixVente = parseFloat($('#prix_vente').val());
+        
+        if (prixVente < prixAchat) {
+            e.preventDefault();
+            alert('Erreur : Le prix de vente doit être supérieur ou égal au prix d\'achat.');
+            return false;
+        }
+        
+        // Validation de la date de péremption
+        const datePeremption = $('#date_peremption').val();
+        if (datePeremption) {
+            const today = new Date().toISOString().split('T')[0];
+            if (datePeremption < today) {
+                e.preventDefault();
+                alert('Attention : La date de péremption est dans le passé.');
+                return false;
+            }
+        }
+    });
+
+    // Calcul automatique de la marge
+    $('#prix_achat, #prix_vente').on('change', function() {
+        const prixAchat = parseFloat($('#prix_achat').val()) || 0;
+        const prixVente = parseFloat($('#prix_vente').val()) || 0;
+        const marge = prixVente - prixAchat;
+        
+        if (marge < 0) {
+            $('#prix_vente').addClass('is-invalid');
+        } else {
+            $('#prix_vente').removeClass('is-invalid');
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,448 @@
+{% extends 'assureur/base_assureur.html' %}
+{% load static %}
+
+{% block title %}Liste des Bons de Soin - Assureur{% endblock %}
+
+{% block page_title %}Liste des Bons de Soin{% endblock %}
+{% block page_subtitle %}Gestion de tous les bons de soin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Filtres -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-filter me-2"></i>Filtres de Recherche
+                </h6>
+                <div class="btn-group">
+                    {% if page_obj.object_list %}
+                    <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fas fa-download me-1"></i>Exporter
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" href="{% url 'assureur:export_donnees' type_donnees='bons' %}?format=csv&{% if statut_filter %}statut={{ statut_filter }}&{% endif %}{% if type_soin_filter %}type_soin={{ type_soin_filter }}&{% endif %}{% if date_debut %}date_debut={{ date_debut }}&{% endif %}{% if date_fin %}date_fin={{ date_fin }}&{% endif %}{% if search_query %}search={{ search_query }}{% endif %}">
+                                <i class="fas fa-file-csv text-success me-1"></i> CSV
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'assureur:export_donnees' type_donnees='bons' %}?format=pdf&{% if statut_filter %}statut={{ statut_filter }}&{% endif %}{% if type_soin_filter %}type_soin={{ type_soin_filter }}&{% endif %}{% if date_debut %}date_debut={{ date_debut }}&{% endif %}{% if date_fin %}date_fin={{ date_fin }}&{% endif %}{% if search_query %}search={{ search_query }}{% endif %}">
+                                <i class="fas fa-file-pdf text-danger me-1"></i> PDF
+                            </a>
+                        </li>
+                    </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3" id="filtresForm">
+                <div class="col-md-3">
+                    <label for="statut" class="form-label">Statut</label>
+                    <select name="statut" id="statut" class="form-select">
+                        {% for value, label in statut_choices %}
+                        <option value="{{ value }}" {% if statut_filter == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <label for="type_soin" class="form-label">Type de soin</label>
+                    <select name="type_soin" id="type_soin" class="form-select">
+                        {% for value, label in type_soin_choices %}
+                        <option value="{{ value }}" {% if type_soin_filter == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-2">
+                    <label for="date_debut" class="form-label">Date début</label>
+                    <input type="date" name="date_debut" id="date_debut" class="form-control" 
+                           value="{{ date_debut }}">
+                </div>
+                
+                <div class="col-md-2">
+                    <label for="date_fin" class="form-label">Date fin</label>
+                    <input type="date" name="date_fin" id="date_fin" class="form-control" 
+                           value="{{ date_fin }}">
+                </div>
+                
+                <div class="col-md-2">
+                    <label for="search" class="form-label">Recherche</label>
+                    <input type="text" name="search" id="search" class="form-control" 
+                           value="{{ search_query }}" placeholder="N° bon, membre...">
+                </div>
+                
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Appliquer les filtres
+                    </button>
+                    <a href="{% url 'assureur:liste_bons' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>Réinitialiser
+                    </a>
+                </div>
+            </form>
+            
+            <!-- Indicateurs de filtres actifs -->
+            {% if statut_filter or type_soin_filter or date_debut or date_fin or search_query %}
+            <div class="mt-3">
+                <small class="text-muted">Filtres actifs :</small>
+                <div class="d-flex flex-wrap gap-2 mt-1">
+                    {% if statut_filter %}
+                    <span class="badge bg-primary">
+                        Statut: {{ statut_filter }}
+                        <a href="{% url 'assureur:liste_bons' %}?{% if type_soin_filter %}type_soin={{ type_soin_filter }}&{% endif %}{% if date_debut %}date_debut={{ date_debut }}&{% endif %}{% if date_fin %}date_fin={{ date_fin }}&{% endif %}{% if search_query %}search={{ search_query }}{% endif %}" 
+                           class="text-white ms-1">×</a>
+                    </span>
+                    {% endif %}
+                    
+                    {% if type_soin_filter %}
+                    <span class="badge bg-info">
+                        Type: {{ type_soin_filter }}
+                        <a href="{% url 'assureur:liste_bons' %}?{% if statut_filter %}statut={{ statut_filter }}&{% endif %}{% if date_debut %}date_debut={{ date_debut }}&{% endif %}{% if date_fin %}date_fin={{ date_fin }}&{% endif %}{% if search_query %}search={{ search_query }}{% endif %}" 
+                           class="text-white ms-1">×</a>
+                    </span>
+                    {% endif %}
+                    
+                    {% if date_debut %}
+                    <span class="badge bg-warning">
+                        Début: {{ date_debut }}
+                        <a href="{% url 'assureur:liste_bons' %}?{% if statut_filter %}statut={{ statut_filter }}&{% endif %}{% if type_soin_filter %}type_soin={{ type_soin_filter }}&{% endif %}{% if date_fin %}date_fin={{ date_fin }}&{% endif %}{% if search_query %}search={{ search_query }}{% endif %}" 
+                           class="text-dark ms-1">×</a>
+                    </span>
+                    {% endif %}
+                    
+                    {% if date_fin %}
+                    <span class="badge bg-warning">
+                        Fin: {{ date_fin }}
+                        <a href="{% url 'assureur:liste_bons' %}?{% if statut_filter %}statut={{ statut_filter }}&{% endif %}{% if type_soin_filter %}type_soin={{ type_soin_filter }}&{% endif %}{% if date_debut %}date_debut={{ date_debut }}&{% endif %}{% if search_query %}search={{ search_query }}{% endif %}" 
+                           class="text-dark ms-1">×</a>
+                    </span>
+                    {% endif %}
+                    
+                    {% if search_query %}
+                    <span class="badge bg-success">
+                        Recherche: {{ search_query }}
+                        <a href="{% url 'assureur:liste_bons' %}?{% if statut_filter %}statut={{ statut_filter }}&{% endif %}{% if type_soin_filter %}type_soin={{ type_soin_filter }}&{% endif %}{% if date_debut %}date_debut={{ date_debut }}&{% endif %}{% if date_fin %}date_fin={{ date_fin }}{% endif %}" 
+                           class="text-white ms-1">×</a>
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Bons
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats_bons.total }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-file-medical fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                En Attente
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats_bons.en_attente }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Validés
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats_bons.valides }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Refusés
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats_bons.refuses }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau des Bons -->
+    <div class="card shadow">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-list me-2"></i>Résultats de la recherche
+                </h6>
+                <div class="text-muted">
+                    {{ page_obj.paginator.count }} bon(s) trouvé(s)
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if page_obj %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover mb-0" width="100%" cellspacing="0">
+                    <thead class="table-light">
+                        <tr>
+                            <th width="120">N° Bon</th>
+                            <th>Membre</th>
+                            <th>Type de soin</th>
+                            <th width="120">Montant total</th>
+                            <th width="120">Prise en charge</th>
+                            <th width="120">Statut</th>
+                            <th width="120">Date soin</th>
+                            <th width="150" class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bon in page_obj %}
+                        <tr>
+                            <td class="fw-bold">{{ bon.numero_bon }}</td>
+                            <td>
+                                <strong>{{ bon.membre.nom }} {{ bon.membre.prenom }}</strong>
+                                <br>
+                                <small class="text-muted">
+                                    {{ bon.membre.numero_unique|default:bon.membre.numero_unique }}
+                                </small>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ bon.get_type_soin_display|default:bon.type_soin }}</span>
+                                {% if bon.description %}
+                                <br>
+                                <small class="text-muted">{{ bon.description|truncatewords:5 }}</small>
+                                {% endif %}
+                            </td>
+                            <td class="fw-bold text-primary text-end">
+                                {{ bon.montant_total|floatformat:0 }} FCFA
+                            </td>
+                            <td class="text-end">
+                                {{ bon.montant_prise_charge|floatformat:0 }} FCFA
+                            </td>
+                            <td>
+                                <span class="badge 
+                                    {% if bon.statut == 'valide' %}bg-success
+                                    {% elif bon.statut == 'refuse' or bon.statut == 'annule' %}bg-danger
+                                    {% elif bon.statut == 'utilise' %}bg-info
+                                    {% else %}bg-warning text-dark{% endif %}">
+                                    {{ bon.get_statut_display|default:bon.statut|title }}
+                                </span>
+                            </td>
+                            <td class="text-nowrap">
+                                {{ bon.date_soin|date:"d/m/Y"|default:"-" }}
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'assureur:detail_bon' bon.id %}" 
+                                   class="btn btn-outline-primary btn-sm"
+                                   title="Voir détails">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                
+                                {% if bon.statut == 'en_attente' %}
+                                <a href="{% url 'assureur:valider_bon' bon.id %}" 
+                                   class="btn btn-outline-success btn-sm btn-validation"
+                                   title="Valider le bon">
+                                    <i class="fas fa-check"></i>
+                                </a>
+                                <a href="{% url 'assureur:rejeter_bon' bon.id %}" 
+                                   class="btn btn-outline-danger btn-sm btn-refus"
+                                   title="Rejeter le bon">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if page_obj.paginator.num_pages > 1 %}
+            <div class="card-footer">
+                <nav aria-label="Pagination">
+                    <ul class="pagination justify-content-center mb-0">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if statut_filter %}&statut={{ statut_filter }}{% endif %}{% if type_soin_filter %}&type_soin={{ type_soin_filter }}{% endif %}{% if date_debut %}&date_debut={{ date_debut }}{% endif %}{% if date_fin %}&date_fin={{ date_fin }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% if statut_filter %}&statut={{ statut_filter }}{% endif %}{% if type_soin_filter %}&type_soin={{ type_soin_filter }}{% endif %}{% if date_debut %}&date_debut={{ date_debut }}{% endif %}{% if date_fin %}&date_fin={{ date_fin }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    {{ num }}
+                                </a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if statut_filter %}&statut={{ statut_filter }}{% endif %}{% if type_soin_filter %}&type_soin={{ type_soin_filter }}{% endif %}{% if date_debut %}&date_debut={{ date_debut }}{% endif %}{% if date_fin %}&date_fin={{ date_fin }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                    <div class="text-center mt-2">
+                        <small class="text-muted">
+                            Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }} • 
+                            {{ page_obj.paginator.count }} bons au total
+                        </small>
+                    </div>
+                </nav>
+            </div>
+            {% endif %}
+            
+            {% else %}
+            <div class="text-center py-5">
+                <div class="text-muted">
+                    <i class="fas fa-search fa-3x mb-3"></i>
+                    <h5>Aucun bon trouvé</h5>
+                    <p class="mb-0">Aucun bon ne correspond à vos critères de recherche.</p>
+                    <p class="small">Essayez de modifier vos filtres ou votre recherche.</p>
+                    <a href="{% url 'assureur:liste_bons' %}" class="btn btn-primary mt-3">
+                        <i class="fas fa-redo me-1"></i>Afficher tous les bons
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Initialisation des tooltips
+    $('[title]').tooltip();
+    
+    // Auto-submit du formulaire quand les sélecteurs changent
+    $('#statut, #type_soin').change(function() {
+        $('#filtresForm').submit();
+    });
+
+    // Confirmation pour les actions de validation/rejet
+    $('.btn-validation, .btn-refus').click(function(e) {
+        e.preventDefault();
+        const url = $(this).attr('href');
+        const action = $(this).attr('title') || 'effectuer cette action';
+        const bonNumber = $(this).closest('tr').find('td:first').text();
+        
+        if (confirm(`Êtes-vous sûr de vouloir ${action} pour le bon ${bonNumber} ?`)) {
+            window.location.href = url;
+        }
+    });
+
+    // Mise en évidence des lignes selon le statut
+    $('tr').each(function() {
+        const statut = $(this).find('.badge').text().trim();
+        if (statut === 'En Attente' || statut === 'En attente') {
+            $(this).addClass('table-warning');
+        } else if (statut === 'Validé' || statut === 'Valide') {
+            $(this).addClass('table-success');
+        } else if (statut === 'Refusé' || statut === 'Refuse' || statut === 'Annulé' || statut === 'Annule') {
+            $(this).addClass('table-danger');
+        } else if (statut === 'Utilisé' || statut === 'Utilise') {
+            $(this).addClass('table-info');
+        }
+    });
+    
+    // Fonction pour générer l'URL d'export avec les filtres actuels
+    function getExportUrl(format) {
+        const params = new URLSearchParams();
+        
+        // Ajouter les paramètres de filtre
+        {% if statut_filter %}
+        params.append('statut', '{{ statut_filter }}');
+        {% endif %}
+        
+        {% if type_soin_filter %}
+        params.append('type_soin', '{{ type_soin_filter }}');
+        {% endif %}
+        
+        {% if date_debut %}
+        params.append('date_debut', '{{ date_debut }}');
+        {% endif %}
+        
+        {% if date_fin %}
+        params.append('date_fin', '{{ date_fin }}');
+        {% endif %}
+        
+        {% if search_query %}
+        params.append('search', '{{ search_query }}');
+        {% endif %}
+        
+        // Ajouter le format
+        params.append('format', format);
+        
+        // Construire l'URL
+        return '{% url 'assureur:export_donnees' type_donnees="bons" %}?' + params.toString();
+    }
+    
+    // Gestion des exports via JavaScript (alternative)
+    $('.export-csv-btn').click(function() {
+        window.location.href = getExportUrl('csv');
+    });
+    
+    $('.export-pdf-btn').click(function() {
+        window.location.href = getExportUrl('pdf');
+    });
+});
+</script>
+{% endblock %}

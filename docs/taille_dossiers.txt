@@ -1,0 +1,261 @@
+103M	venv
+ 20M	staticfiles
+ 18M	archives
+ 16M	static
+ 13M	logs
+2.5M	templates
+1.5M	backups
+1.4M	db.sqlite3
+1.1M	scripts
+1.0M	scripts_consolides
+864K	templates_backup
+404K	mutuelle_core
+368K	assureur
+352K	project_files.csv
+272K	agents
+220K	communication
+192K	medecin
+176K	membres
+132K	pharmacien
+120K	pharmacie_public
+112K	core
+ 96K	templates_backup_agents_20251023_181404
+ 64K	soins
+ 64K	paiements
+ 64K	api
+ 48K	docs
+ 40K	inscription
+ 36K	scoring
+ 36K	python diagnostic_global_applications.py --auto
+ 36K	cleanup_corrections_fixed.py
+ 36K	cleanup_corrections.py
+ 32K	relances
+ 32K	notifications
+ 32K	ia_detection
+ 28K	systeme_corrections
+ 28K	implement_communication_access.py
+ 24K	diagnostics
+ 24K	creation_template_manquant.py
+ 20K	planificateur_surveillance.py
+ 20K	mutuelle_models.dot
+ 20K	medecin_realtime_monitor_corrige1.py
+ 20K	integrate_messaging_targeted.py
+ 20K	integrate_messaging_links.py
+ 16K	tests
+ 16K	project_lister.py
+ 16K	nuclear_ordonnance_fix.py
+ 16K	migrate_existing_urls.py
+ 16K	medecin_realtime_monitor_corrige.py
+ 16K	enrichir_dashboard.py
+ 16K	diagnose_medecin_issues.py
+ 16K	diagnose_medecin_final.py
+ 16K	creation_relations_reelles.py
+ 16K	ajout_automatique.py
+ 12K	utils.py.save
+ 12K	utils.py
+ 12K	ultimate_ordonnance_fix.py
+ 12K	sync_cotisations.py
+ 12K	smart_update_member_model.py
+ 12K	remove_unnecessary_fields.py
+ 12K	rebuild_cotisation_table.py
+ 12K	rebuild_agent_templates.py
+ 12K	project_doctor.py
+ 12K	monitoring_long_terme.py
+ 12K	media
+ 12K	integrate_messaging_medecin.py
+ 12K	inspect_assureur_safe.py
+ 12K	generate_detailed_report.py
+ 12K	final_ordonnance_complete.py
+ 12K	diagnose_relations.py
+ 12K	demarrage_rapide_final.py
+ 12K	demarrage_rapide_corrige.py
+ 12K	dashboard_verifications_cotisations.py
+ 12K	dashboard
+ 12K	comprehensive_verification.py
+ 12K	completer_vues.py
+ 12K	check_paiement_system.py
+ 12K	assigner_groupes.py
+ 12K	apps
+ 12K	adapter_vues_templates.py
+ 12K	adaptateur_evolution.py
+8.0K	validation_finale_assureur.py
+8.0K	ultimate_fix1.py
+8.0K	template_affichage_unifie.html
+8.0K	systeme_alertes_automatise.py
+8.0K	surveillance_sync.py
+8.0K	surveillance_simple.py
+8.0K	surveillance_hebdomadaire.py
+8.0K	solution_finale_corrigee.py
+8.0K	solution_alternative_scoring.py
+8.0K	replace_modal.py
+8.0K	refresh_user_profiles.py
+8.0K	recovery_script.py
+8.0K	rapport_performance_mensuel.py
+8.0K	project_analysis_summary.txt
+8.0K	planificateur_macos.py
+8.0K	nuclear_sql_fix.py
+8.0K	investigation_urgence.py
+8.0K	intensive_search.py
+8.0K	integrer_affichage_unifie.py
+8.0K	install_dashboard_system.py
+8.0K	immediate_sql_fix.py
+8.0K	generation_automatique_corrige.py
+8.0K	force_restart.py
+8.0K	find_error_source.py
+8.0K	finaliser_agents.py
+8.0K	final_validation.py
+8.0K	explorer_modeles.py
+8.0K	donnees_monitoring
+8.0K	diagnose_urls.py
+8.0K	diagnose_notifications.py
+8.0K	diagnose_medecin.py
+8.0K	diagnose_login_issues.py
+8.0K	diagnose_button.py
+8.0K	decouvrir_structure.py
+8.0K	decouvrir_mutuelle_core.py
+8.0K	creation_migration_manuelle.py
+8.0K	create_public_api.py
+8.0K	create_correct_test_data.py
+8.0K	complete_system.py
+8.0K	chasse_occurrences.py
+8.0K	calculateur_scoring_corrige.py
+8.0K	ameliorer_pieces_jointes.py
+8.0K	affecter_verifications_final_corrige.py
+4.0K	vues_manquantes_mutuelle_core.py
+4.0K	vue_test_ultime.py
+4.0K	verification_cotisation.py
+4.0K	verif_assureur_simple.py
+4.0K	validation_finale.py
+4.0K	validation_corrigee.py
+4.0K	urls_analyzer.py
+4.0K	trouver_app_maladies.py
+4.0K	templates_analyzer.py
+4.0K	template_migration_report.txt
+4.0K	template_dependencies.py
+4.0K	template_consolidation.py
+4.0K	template_affichage_texte.txt
+4.0K	systeme_surveillance.py
+4.0K	synthese_finale_optimisee.py
+4.0K	synthese_finale_macos.py
+4.0K	synthese_finale1.py
+4.0K	synthese_finale.py
+4.0K	surveillance_auto.py
+4.0K	statistique_finale.py
+4.0K	sidebar_path.py
+4.0K	sidebar.py
+4.0K	show_tree.py
+4.0K	setup_user_groups.py
+4.0K	script_recuperer_messages.py
+4.0K	resume_final_medecin.py
+4.0K	restore_home_view.py
+4.0K	restart_django.py
+4.0K	requirements_production.txt
+4.0K	requirements_dev.txt
+4.0K	requirements_backup_20251022_212632.txt
+4.0K	requirements.txt
+4.0K	reinitialisation_apps.py
+4.0K	redirect_to_user_dashboard
+4.0K	redimensionner_logo.py
+4.0K	redemarrage_intelligent.py
+4.0K	recreate_test_data.py
+4.0K	recherche_manuelle.py
+4.0K	rapports_surveillance
+4.0K	rapports_performance
+4.0K	rapport_final_synchronisation.py
+4.0K	rapport_final_deploiement.py
+4.0K	rapport_final_corrige1.py
+4.0K	rapport_final_corrige.py
+4.0K	rapport_final1.py
+4.0K	rapport_final.py
+4.0K	quick_test.py
+4.0K	quick_sync.py
+4.0K	quick_check1.py
+4.0K	quick_check.py
+4.0K	python corriger_syntaxe_models.py
+4.0K	project_root.py
+4.0K	planification_surveillance.cron
+4.0K	performance_finale.py
+4.0K	path_diagnostic.py
+4.0K	nettoyage_cotisations.py
+4.0K	modification_directe_modele.py
+4.0K	models_analyzer.py
+4.0K	missing_views.py
+4.0K	mise_a_jour_scripts.py
+4.0K	migration_urls1.py
+4.0K	migration_urls.py
+4.0K	migration_donnees.py
+4.0K	middlewares.py
+4.0K	mettre_a_jour_vue_messagerie.py
+4.0K	medecin_views_corrige.py
+4.0K	medecin_realtime_monitor.py
+4.0K	mapping_medecin.py
+4.0K	manage.py
+4.0K	liste_problemes_specifiques.py
+4.0K	liste_problemes_corrige.py
+4.0K	liste_complete_fichiers.py
+4.0K	lanceur_rapide_corrige.py
+4.0K	lanceur_rapide.py
+4.0K	interface_scores.py
+4.0K	intercepteur_erreur.py
+4.0K	instructions_ical_surveillance.txt
+4.0K	install_dependencies.py
+4.0K	inspect_views.py
+4.0K	inspect_models1.py
+4.0K	inspect_models.py
+4.0K	inspect_model.py
+4.0K	inspect_dashboard.py
+4.0K	hotfix_cotisation_link.py
+4.0K	guide_templates.py
+4.0K	guide_debugage_manuel.py
+4.0K	generation_automatique.py
+4.0K	fix_html_error.py
+4.0K	final_verification.py
+4.0K	final_test.py
+4.0K	extend_pharmacien.py
+4.0K	explorer_core.py
+4.0K	examine_cotisation_model.py
+4.0K	erification_coherence.py
+4.0K	duplicate_manager.py
+4.0K	diagnostiquer_page_blanche.py
+4.0K	diagnose_templates.py
+4.0K	diagnose_profiles.py
+4.0K	diagnose_problem.py
+4.0K	diagnose_messagerie_v2.py
+4.0K	diagnose_messagerie.py
+4.0K	diagnose_dashboard_urls.py
+4.0K	diagnose_creation_ordonnance.py
+4.0K	diagnose_admin.py
+4.0K	detect_project1.py
+4.0K	detect_project.py
+4.0K	demarrer_production.py
+4.0K	demarrer_et_tester.py
+4.0K	demarrage_rapide.py
+4.0K	dashboard_fallback.py
+4.0K	custom_permissions.py
+4.0K	custom_decorators.py
+4.0K	creation_donnees_test.py
+4.0K	create_templates_structure():
+4.0K	create_minimal_config_template.py
+4.0K	create_members_simple.py
+4.0K	create_members_final.py
+4.0K	create_members_correct.py
+4.0K	create_base_alias.py
+4.0K	cotisations_champs_problematiques.csv
+4.0K	cookies.txt
+4.0K	constants.py
+4.0K	completer_vues_simple.py
+4.0K	complete_emails.py
+4.0K	communication_views_example.py
+4.0K	communication_urls_example.py
+4.0K	clear_sessions.py
+4.0K	clean_missing_members.py
+4.0K	calcul_scores_manquants_corrige.py
+4.0K	calcul_scores_manquants.py
+4.0K	associer_agents.py
+4.0K	associate_agents.py
+4.0K	ajouter_koffitanoh_agent_final.py
+4.0K	affecter_verifications_reel_final.py
+4.0K	affecter_verifications_manquantes.py
+  0B	tmp
+  0B	python scripts
+  0B	management
