@@ -1,23 +1,62 @@
+# render.yaml - Configuration complète pour Render.com
 services:
   - type: web
-    name: mutuelle-core
+    name: mutuelle-app
     env: python
-    buildCommand: "./build.sh"
-    startCommand: "gunicorn mutuelle_core.wsgi:application"
+    region: frankfurt  # ou ohio, oregon, singapore
+    plan: free  # starter, standard, etc.
+    branch: main
+    
+    # Commands
+    buildCommand: chmod +x build.sh && ./build.sh
+    startCommand: gunicorn mutuelle_core.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 60
+    
+    # Health check
+    healthCheckPath: /
+    autoDeploy: true
+    
+    # Environment variables
     envVars:
+      - key: DJANGO_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: 3.11.10
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: false
+      - key: ADMIN_ENABLED
+        value: true
       - key: DATABASE_URL
         fromDatabase:
           name: mutuelle-db
           property: connectionString
-      - key: SECRET_KEY
-        generateValue: true
-      - key: WEB_CONCURRENCY
-        value: 4
-    healthCheckPath: /health-check/
-    autoDeploy: true
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://mutuelle-app.onrender.com
+      - key: CSRF_TRUSTED_ORIGINS
+        value: https://mutuelle-app.onrender.com
 
-databases:
-  - name: mutuelle-db
-    databaseName: mutuelle_db
-    user: mutuelle_user
+  # Base de données PostgreSQL
+  - type: pgsql
+    name: mutuelle-db
     plan: free
+    region: frankfurt
+    databaseName: mutuelle_prod
+    user: mutuelle_user
+
+  # Worker optionnel pour les tâches en arrière-plan
+  - type: worker
+    name: mutuelle-worker
+    env: python
+    region: frankfurt
+    plan: free
+    branch: main
+    buildCommand: chmod +x build.sh && ./build.sh
+    startCommand: python manage.py process_tasks
+    envVars:
+      - key: DJANGO_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mutuelle-db
+          property: connectionString

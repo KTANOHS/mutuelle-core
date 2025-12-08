@@ -15,63 +15,48 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # =============================================================================
 
 # Détecter si on est sur Render
-IS_RENDER = 'RENDER' in os.environ
+IS_RENDER = os.environ.get('RENDER', False)
 
-# Détecter explicitement l'environnement
-DJANGO_ENV = os.environ.get('DJANGO_ENV', 'development' if not IS_RENDER else 'production')
-IS_PRODUCTION = DJANGO_ENV == 'production'
-IS_DEVELOPMENT = not IS_PRODUCTION
+# DEBUG : True par défaut en local, False sur Render
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True' if not IS_RENDER else 'False') == 'True'
 
-# DEBUG : False en production, True en développement
-DEBUG = os.environ.get('DEBUG', 'True' if IS_DEVELOPMENT else 'False').lower() == 'true'
-
-# FORCER DEBUG=False en production quelle que soit la variable
-if IS_PRODUCTION:
-    DEBUG = False
-    print(f"⚙️ Mode PRODUCTION - DEBUG forcé à False")
-
-# SECRET_KEY : gestion robuste
-SECRET_KEY = os.environ.get('SECRET_KEY')
-if not SECRET_KEY:
-    if IS_PRODUCTION:
-        # EN PRODUCTION : ÉCHEC SI PAS DE SECRET_KEY
-        raise ValueError(
-            "❌ ERREUR: SECRET_KEY manquante en production!\n"
-            "Définissez-la : export SECRET_KEY='votre-clé-longue-et-aléatoire'\n"
-            "Sur Render: Ajoutez SECRET_KEY dans Environment Variables"
-        )
-    else:
-        # DÉVELOPPEMENT : clé temporaire
-        SECRET_KEY = 'django-insecure-dev-key-change-before-production'
-        print(f"🔑 Clé de développement utilisée (à changer en production)")
+# SECRET_KEY : développement par défaut, production sur Render
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 
+    'django-insecure-dev-key-change-in-production' if DEBUG else 
+    os.environ.get('SECRET_KEY', 'fallback-production-key')
+)
 
 # =============================================================================
 # ALLOWED_HOSTS - CONFIGURATION INTELLIGENTE
 # =============================================================================
 ALLOWED_HOSTS = []
 
-# Toujours autoriser localhost
-ALLOWED_HOSTS.extend(['localhost', '127.0.0.1', '[::1]'])
+# Toujours autoriser localhost en développement
+if DEBUG:
+    ALLOWED_HOSTS.extend(['localhost', '127.0.0.1', '[::1]'])
 
 # Ajouter le host Render si présent
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
-    ALLOWED_HOSTS.append('.onrender.com')  # Tous les sous-domaines Render
 
 # Ajouter les hosts depuis l'environnement
 env_hosts = os.environ.get('DJANGO_ALLOWED_HOSTS', '')
 if env_hosts:
     ALLOWED_HOSTS.extend([host.strip() for host in env_hosts.split(',') if host.strip()])
 
-# En développement, autoriser tout pour faciliter les tests
-if IS_DEVELOPMENT:
-    ALLOWED_HOSTS.append('*')
-else:
-    # En production, retirer '*' s'il est présent
-    if '*' in ALLOWED_HOSTS:
-        ALLOWED_HOSTS.remove('*')
-        print(f"⚠️  '*' retiré de ALLOWED_HOSTS pour la production")
+# En production, s'assurer qu'on a au moins un host
+if not DEBUG and not ALLOWED_HOSTS:
+    # Si pas DEBUG et pas de hosts, ajouter une valeur par défaut sécurisée
+    if IS_RENDER:
+        ALLOWED_HOSTS.append('.onrender.com')  # Tous les sous-domaines Render
+    else:
+        # En production non-Render, lever une erreur explicative
+        print("⚠️  ATTENTION: DEBUG=False mais ALLOWED_HOSTS vide!")
+        print("   Pour développement local, définissez DEBUG=True")
+        print("   Pour production, définissez DJANGO_ALLOWED_HOSTS")
+        # Autoriser temporairement localhost pour éviter l'erreur
+        ALLOWED_HOSTS.append('localhost')
 
 # =============================================================================
 # SUITE DE LA CONFIGURATION
@@ -132,16 +117,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer' if DEBUG else None,
-    ),
 }
-
-# Filtrer les renderers None en production
-REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = [
-    r for r in REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] if r is not None
-]
 
 # Configuration de JWT
 SIMPLE_JWT = {
@@ -185,7 +161,6 @@ TEMPLATES = [
                 'agents.context_processors.agent_context',
                 'core.utils.mutuelle_context',
             ],
-            'debug': DEBUG,  # Important pour les templates
         },
     },
 ]
@@ -204,27 +179,24 @@ DATABASES = {
     }
 }
 
-# Sur Render.com ou si DATABASE_URL est défini, utiliser PostgreSQL
+# Sur Render.com, utiliser PostgreSQL
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
-    try:
-        DATABASES['default'] = dj_database_url.config(
-            default=DATABASE_URL,
-            conn_max_age=600,
-            conn_health_checks=True,
-            ssl_require=IS_PRODUCTION,
-        )
-        print(f"✅ Base de données PostgreSQL configurée")
-    except Exception as e:
-        print(f"⚠️  Erreur configuration PostgreSQL: {e}")
-        print(f"⚠️  Utilisation de SQLite comme fallback")
+    DATABASES['default'] = dj_database_url.config(
+        default=DATABASE_URL,
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 
 # =============================================================================
 # FICHIERS STATIQUES - CORRIGÉ
 # =============================================================================
 
 STATIC_URL = '/static/'
+
+# ⚠️ CORRECTION IMPORTANTE : STATIC_ROOT TOUJOURS DÉFINI (même en développement)
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
     os.path.join(BASE_DIR, 'agents', 'static'),
@@ -232,13 +204,15 @@ STATICFILES_DIRS = [
 
 # Configuration selon l'environnement
 if DEBUG:
+    # En développement : servir depuis STATICFILES_DIRS
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 else:
+    # En production : utiliser WhiteNoise optimisé
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    # Optimisations WhiteNoise pour la production
     WHITENOISE_USE_FINDERS = True
     WHITENOISE_MANIFEST_STRICT = False
     WHITENOISE_ALLOW_ALL_ORIGINS = True
-    WHITENOISE_AUTOREFRESH = False  # False en production pour la performance
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -286,52 +260,23 @@ LOGOUT_REDIRECT_URL = '/'
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_NAME = 'mutuelle_sessionid'
-SESSION_COOKIE_AGE = 1209600  # 2 semaines
+SESSION_COOKIE_AGE = 1209600
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_SAVE_EVERY_REQUEST = True
 
-# =============================================================================
-# SÉCURITÉ
-# =============================================================================
-
-# CSRF - CRITIQUE POUR RENDER
-CSRF_TRUSTED_ORIGINS = []
-
-# Ajouter les origines de confiance
-if RENDER_EXTERNAL_HOSTNAME:
-    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
-    CSRF_TRUSTED_ORIGINS.append('https://*.onrender.com')
-
-# Ajouter depuis l'environnement
-csrf_env = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
-if csrf_env:
-    CSRF_TRUSTED_ORIGINS.extend([origin.strip() for origin in csrf_env.split(',')])
-
-# Cookies sécurisés
-SESSION_COOKIE_SECURE = IS_PRODUCTION
-CSRF_COOKIE_SECURE = IS_PRODUCTION
+# Sécurité ajustée selon l'environnement
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = False
-SESSION_COOKIE_SAMESITE = 'Lax' if IS_DEVELOPMENT else 'None'
-CSRF_COOKIE_SAMESITE = 'Lax' if IS_DEVELOPMENT else 'None'
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
 
-# CORS
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
-
-# En production, ajouter l'origine Render
-if RENDER_EXTERNAL_HOSTNAME:
-    CORS_ALLOWED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
-
 CORS_ALLOW_CREDENTIALS = True
-
-# Configuration selon l'environnement
-if IS_DEVELOPMENT:
-    CORS_ALLOW_ALL_ORIGINS = True
-else:
-    CORS_ALLOW_ALL_ORIGINS = False
 
 CACHES = {
     'default': {
@@ -344,28 +289,18 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'noreply@mutuelle.local'
 
 # =============================================================================
-# SÉCURITÉ PRODUCTION AVANCÉE
+# SÉCURITÉ PRODUCTION
 # =============================================================================
 
-if IS_PRODUCTION:
-    # Sécurité HTTPS
+if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    
-    # Headers de sécurité
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
-    
-    # HSTS (HTTP Strict Transport Security)
-    SECURE_HSTS_SECONDS = 31536000  # 1 an
+    SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
-    
-    # Référent
-    SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
-    
-    print(f"🔒 Sécurité production activée (HTTPS, HSTS, etc.)")
 else:
     SECURE_SSL_REDIRECT = False
     SECURE_HSTS_SECONDS = 0
@@ -417,18 +352,6 @@ for folder in ['logs', 'media', 'staticfiles']:
     folder_path = os.path.join(BASE_DIR, folder)
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
-        print(f"📁 Dossier créé: {folder_path}")
 
-print(f"🚀 Environnement: {'PRODUCTION' if IS_PRODUCTION else 'DÉVELOPPEMENT'}")
-print(f"🔧 DEBUG: {DEBUG}")
-print(f"🌐 ALLOWED_HOSTS: {ALLOWED_HOSTS[:3]}{'...' if len(ALLOWED_HOSTS) > 3 else ''}")
-print(f"🛡️ CSRF_TRUSTED_ORIGINS: {CSRF_TRUSTED_ORIGINS}")
-print(f"📁 STATIC_ROOT: {STATIC_ROOT}")
-
-# Avertissement sécurité
-if IS_PRODUCTION and DEBUG:
-    print("""
-    ⚠️  ⚠️  ⚠️  ATTENTION CRITIQUE ⚠️  ⚠️  ⚠️
-    DEBUG=True en production ! C'est une faille de sécurité.
-    Vérifiez que DEBUG est bien False.
-    """)
+print(f"✅ Configuration chargée - DEBUG={DEBUG} - Hosts: {ALLOWED_HOSTS}")
+print(f"📁 STATIC_ROOT: {STATIC_ROOT} - Existe: {os.path.exists(STATIC_ROOT)}")

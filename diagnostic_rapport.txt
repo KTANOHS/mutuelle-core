@@ -1,0 +1,174 @@
+==============================================
+  DIAGNOSTIC POUR DÉPLOIEMENT RENDER.COM
+==============================================
+Date: Mon Dec  8 15:50:12 GMT 2025
+
+1. VÉRIFICATION DE L'ENVIRONNEMENT PYTHON
+----------------------------------------
+[0;32m✓ Python détecté: Python 3.11.10[0m
+[0;32m✓ Version de Python compatible avec Render[0m
+
+2. VÉRIFICATION DES FICHIERS DJANGO
+-----------------------------------
+[0;32m✓ manage.py - Présent[0m
+[0;32m✓ requirements.txt - Présent[0m
+[0;32m✓   → Django présent dans requirements.txt[0m
+[0;32m✓   → Gunicorn présent dans requirements.txt[0m
+[0;32m✓   → psycopg2 présent (PostgreSQL)[0m
+[1;33m⚠ runtime.txt - Non présent (optionnel)[0m
+[0;32m✓ build.sh - Présent[0m
+[0;32m✓ render.yaml - Présent[0m
+[0;32m✓ Procfile - Présent[0m
+[0;31m✗   → Entrée 'web' manquante dans Procfile[0m
+[1;33m⚠ wsgi.py - Non présent (optionnel)[0m
+[1;33m⚠ gunicorn.conf.py - Non présent (optionnel)[0m
+
+3. STRUCTURE DU PROJET
+----------------------
+[0;32m✓ Fichiers settings.py trouvés:[0m
+[0;34mℹ   → ./mutuelle_core/settings.py[0m
+[0;34mℹ   → ./venv/lib/python3.11/site-packages/rest_framework_simplejwt/settings.py[0m
+[0;34mℹ   → ./venv/lib/python3.11/site-packages/rest_framework/settings.py[0m
+[0;34mℹ   → ./venv/lib/python3.11/site-packages/django_extensions/settings.py[0m
+[0;34mℹ   → ./venv/lib/python3.11/site-packages/debug_toolbar/panels/settings.py[0m
+
+[0;34mℹ Analyse de ./mutuelle_core/settings.py[0m
+[0;31m✗   → DEBUG est True (à désactiver en production)[0m
+[0;32m✓   → SECRET_KEY configuré[0m
+[0;32m✓   → ALLOWED_HOSTS configuré[0m
+[0;32m✓   → Utilise DATABASE_URL (compatible Render)[0m
+[0;32m✓   → STATIC_ROOT configuré[0m
+
+4. CONFIGURATION BASE DE DONNÉES
+--------------------------------
+Variables d'environnement DATABASE:
+[1;33m⚠   → DATABASE_URL non défini (sera défini par Render)[0m
+
+[0;34mℹ Vérification des migrations:[0m
+[0;31m✗ Erreur avec les commandes de migration[0m
+
+5. FICHIERS STATIQUES
+---------------------
+  File "/Users/koffitanohsoualiho/Documents/projet/venv/lib/python3.11/site-packages/django/conf/__init__.py", line 81, in __getattr__
+    self._setup(name)
+  File "/Users/koffitanohsoualiho/Documents/projet/venv/lib/python3.11/site-packages/django/conf/__init__.py", line 68, in _setup
+    self._wrapped = Settings(settings_module)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/koffitanohsoualiho/Documents/projet/venv/lib/python3.11/site-packages/django/conf/__init__.py", line 166, in __init__
+    mod = importlib.import_module(self.SETTINGS_MODULE)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/koffitanohsoualiho/.pyenv/versions/3.11.10/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/Users/koffitanohsoualiho/Documents/P FINALE AVANT SYNCHRO/p tres avancee /pf erreur/projet 21.49.30/mutuelle_core/settings.py", line 8, in <module>
+    import dj_database_url
+ModuleNotFoundError: No module named 'dj_database_url'
+[0;32m✓ collectstatic fonctionne[0m
+Erreur: No module named 'dj_database_url'
+
+6. CONFIGURATION GUNICORN
+-------------------------
+[0;32m✓ Gunicorn est installé[0m
+[0;34mℹ   → Version: 23.0.0[0m
+[1;33m⚠ Aucun fichier de configuration gunicorn spécifique trouvé[0m
+
+7. VÉRIFICATION DE SÉCURITÉ
+---------------------------
+Vérification sécurité Django:
+
+8. DÉPENDANCES
+--------------
+[0;34mℹ Analyse de requirements.txt:[0m
+Nombre de paquets:       15
+Django==5.2.6
+djangorestframework==3.15.2
+djangorestframework-simplejwt==5.3.1
+django-cors-headers==4.4.0
+django-crispy-forms==2.2
+django-extensions==3.2.3
+[0;32m✓   → Django présent[0m
+gunicorn==21.2.0
+[0;32m✓   → gunicorn présent[0m
+psycopg2-binary==2.9.11
+[0;32m✓   → psycopg2 présent[0m
+psycopg2-binary==2.9.11
+[0;32m✓   → psycopg2-binary présent[0m
+whitenoise==6.7.0
+[0;32m✓   → whitenoise présent[0m
+dj-database-url==2.2.0
+[0;32m✓   → dj-database-url présent[0m
+[0;32m✓   → Version Django compatible: Django==5.2.6[0m
+
+9. SCRIPT DE BUILD RENDER
+-------------------------
+[0;32m✓ build.sh présent[0m
+Contenu de build.sh:
+#!/usr/bin/env bash
+set -o errexit
+
+pip install -r requirements.txt
+
+python manage.py collectstatic --no-input
+
+python manage.py migrate
+10. TEST DE DÉMARRAGE
+---------------------
+[0;34mℹ Test de démarrage rapide:[0m
+./diagnostic_render.sh: line 372: timeout: command not found
+[0;31m✗ Erreur lors du chargement du projet[0m
+
+11. CONFIGURATION RÉSEAU
+------------------------
+[0;34mℹ Ports utilisés:[0m
+[1;33m⚠ Variable PORT non définie (Render définira PORT automatiquement)[0m
+
+==============================================
+  RÉSUMÉ DU DIAGNOSTIC
+==============================================
+Succès: 3 | Avertissements: 3 | Erreurs: 2
+
+[0;34mℹ RECOMMANDATIONS POUR RENDER:[0m
+1. Assurez-vous que DEBUG=False en production
+2. Utilisez une SECRET_KEY forte et sécurisée
+3. Configurez ALLOWED_HOSTS avec votre domaine Render
+4. Utilisez DATABASE_URL pour la connexion PostgreSQL
+5. Ajoutez whitenoise pour servir les fichiers statiques
+6. Configurez les variables d'environnement dans le dashboard Render:
+   - DATABASE_URL
+   - SECRET_KEY
+   - DJANGO_ENV=production
+7. Utilisez le plan gratuit PostgreSQL de Render
+
+[0;34mℹ Fichier render.yaml recommandé:[0m
+services:
+  - type: web
+    name: votre-app-django
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn mutuelle_core.wsgi:application"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: votre-bdd
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DJANGO_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: 3.11.0
+
+databases:
+  - name: votre-bdd
+    plan: free
+
+[0;34mℹ Pour tester localement avec les mêmes conditions que Render:[0m
+1. Créez un fichier .env.production avec vos variables
+2. Exécutez: export $(cat .env.production | xargs) && python manage.py runserver
+3. Ou utilisez: python manage.py runserver --settings=mutuelle_core.settings.production
