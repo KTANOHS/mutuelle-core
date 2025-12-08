@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from datetime import timedelta
 import dj_database_url
+from django.core.management.utils import get_random_secret_key  # IMPORT AJOUTÉ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -34,16 +35,14 @@ if IS_PRODUCTION:
 SECRET_KEY = os.environ.get('SECRET_KEY')
 if not SECRET_KEY:
     if IS_PRODUCTION:
-        # EN PRODUCTION : ÉCHEC SI PAS DE SECRET_KEY
         raise ValueError(
-            "❌ ERREUR: SECRET_KEY manquante en production!\n"
-            "Définissez-la : export SECRET_KEY='votre-clé-longue-et-aléatoire'\n"
+            "❌ SECRET_KEY manquante en production!\n"
             "Sur Render: Ajoutez SECRET_KEY dans Environment Variables"
         )
     else:
-        # DÉVELOPPEMENT : clé temporaire
-        SECRET_KEY = 'django-insecure-dev-key-change-before-production'
-        print(f"🔑 Clé de développement utilisée (à changer en production)")
+        # Clé de développement sécurisée
+        SECRET_KEY = 'django-dev-' + get_random_secret_key()
+        print(f"🔑 Clé de développement générée automatiquement")
 
 # =============================================================================
 # ALLOWED_HOSTS - CONFIGURATION INTELLIGENTE
@@ -67,6 +66,7 @@ if env_hosts:
 # En développement, autoriser tout pour faciliter les tests
 if IS_DEVELOPMENT:
     ALLOWED_HOSTS.append('*')
+    print(f"🔓 Mode développement: tous les hôtes autorisés (*)")
 else:
     # En production, retirer '*' s'il est présent
     if '*' in ALLOWED_HOSTS:
@@ -233,12 +233,14 @@ STATICFILES_DIRS = [
 # Configuration selon l'environnement
 if DEBUG:
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+    print(f"📁 Mode développement: fichiers statiques servis depuis STATICFILES_DIRS")
 else:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
     WHITENOISE_USE_FINDERS = True
     WHITENOISE_MANIFEST_STRICT = False
     WHITENOISE_ALLOW_ALL_ORIGINS = True
     WHITENOISE_AUTOREFRESH = False  # False en production pour la performance
+    print(f"📁 Mode production: WhiteNoise activé pour les fichiers statiques")
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -330,8 +332,10 @@ CORS_ALLOW_CREDENTIALS = True
 # Configuration selon l'environnement
 if IS_DEVELOPMENT:
     CORS_ALLOW_ALL_ORIGINS = True
+    print(f"🔓 CORS: toutes les origines autorisées en développement")
 else:
     CORS_ALLOW_ALL_ORIGINS = False
+    print(f"🔒 CORS: uniquement les origines spécifiques autorisées en production")
 
 CACHES = {
     'default': {
@@ -369,22 +373,54 @@ if IS_PRODUCTION:
 else:
     SECURE_SSL_REDIRECT = False
     SECURE_HSTS_SECONDS = 0
+    print(f"🔓 Sécurité développement: HTTPS désactivé")
 
 # Logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'verbose': {'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}', 'style': '{'},
-        'simple': {'format': '{levelname} {message}', 'style': '{'},
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
     },
     'handlers': {
-        'console': {'class': 'logging.StreamHandler', 'formatter': 'simple'},
-        'file': {'level': 'INFO', 'class': 'logging.FileHandler', 'filename': os.path.join(BASE_DIR, 'logs', 'django.log'), 'formatter': 'verbose'},
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
     },
     'loggers': {
-        'django': {'handlers': ['console', 'file'], 'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO')},
-        'agents': {'handlers': ['console', 'file'], 'level': 'INFO', 'propagate': False},
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,
+        },
+        'mutuelle': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'agents': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
     },
 }
 
@@ -405,7 +441,9 @@ MUTUELLE_CONFIG = {
 # Channels
 ASGI_APPLICATION = 'mutuelle_core.asgi.application'
 CHANNEL_LAYERS = {
-    'default': {'BACKEND': 'channels.layers.InMemoryChannelLayer'},
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
 }
 
 # =============================================================================
@@ -416,12 +454,12 @@ CHANNEL_LAYERS = {
 for folder in ['logs', 'media', 'staticfiles']:
     folder_path = os.path.join(BASE_DIR, folder)
     if not os.path.exists(folder_path):
-        os.makedirs(folder_path)
+        os.makedirs(folder_path, exist_ok=True)
         print(f"📁 Dossier créé: {folder_path}")
 
 print(f"🚀 Environnement: {'PRODUCTION' if IS_PRODUCTION else 'DÉVELOPPEMENT'}")
 print(f"🔧 DEBUG: {DEBUG}")
-print(f"🌐 ALLOWED_HOSTS: {ALLOWED_HOSTS[:3]}{'...' if len(ALLOWED_HOSTS) > 3 else ''}")
+print(f"🌐 ALLOWED_HOSTS: {ALLOWED_HOSTS}")
 print(f"🛡️ CSRF_TRUSTED_ORIGINS: {CSRF_TRUSTED_ORIGINS}")
 print(f"📁 STATIC_ROOT: {STATIC_ROOT}")
 
@@ -432,3 +470,5 @@ if IS_PRODUCTION and DEBUG:
     DEBUG=True en production ! C'est une faille de sécurité.
     Vérifiez que DEBUG est bien False.
     """)
+elif IS_PRODUCTION:
+    print("✅ Configuration production sécurisée: DEBUG=False, HTTPS activé")
