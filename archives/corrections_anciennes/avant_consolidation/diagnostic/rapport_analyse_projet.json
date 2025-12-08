@@ -1,0 +1,37 @@
+{
+  "timestamp": "2025-11-19T14:42:09.217875",
+  "project_info": {
+    "project_name": "mutuelle_core",
+    "total_size": 420586,
+    "python_files": 25,
+    "template_files": 0,
+    "static_files": 2,
+    "database_files": 0,
+    "migration_files": 0
+  },
+  "apps_analysis": {},
+  "models_analysis": {},
+  "views_analysis": {},
+  "urls_analysis": {},
+  "templates_analysis": {},
+  "static_analysis": {},
+  "security_analysis": {
+    "issues": []
+  },
+  "performance_analysis": {
+    "total_models": 0,
+    "total_views": 0,
+    "total_templates": 0,
+    "large_models": 0,
+    "complex_views": 0
+  },
+  "agents_module_analysis": {
+    "error": "Module agents non trouvé"
+  },
+  "issues": [],
+  "recommendations": [
+    "🔧 Module agents: Implémenter la gestion complète des membres",
+    "🔧 Module agents: Ajouter le système de communication",
+    "🔧 Module agents: Développer les fonctionnalités de reporting"
+  ]
+}

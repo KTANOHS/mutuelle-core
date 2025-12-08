@@ -1,0 +1,63 @@
+{
+  "timestamp": "2025-11-27T09:33:11.529162",
+  "module_django": "mutuelle_core",
+  "statistiques": {
+    "utilisateurs": 38,
+    "membres": 12,
+    "agents": 7,
+    "ordonnances": 3,
+    "consultations": 0,
+    "bons_de_soin": 0
+  },
+  "problemes": [
+    {
+      "type": "SYNCHRONISATION",
+      "description": "Faible ratio membres/utilisateurs (31.6%) - synchronisation incomplète",
+      "severite": "MOYENNE"
+    },
+    {
+      "type": "SYNCHRONISATION",
+      "description": "Seulement 58.3% des membres ont un user associé",
+      "severite": "MOYENNE"
+    },
+    {
+      "type": "RELATIONS BROYÉES",
+      "description": "5 membres sans utilisateur associé",
+      "severite": "HAUTE"
+    }
+  ],
+  "recommandations": [
+    {
+      "priorite": "HAUTE",
+      "action": "Corriger relations membres-user",
+      "description": "Associer tous les membres à un utilisateur ou les archiver"
+    },
+    {
+      "priorite": "MOYENNE",
+      "action": "Améliorer synchronisation",
+      "description": "Automatiser la création des membres pour les nouveaux utilisateurs"
+    },
+    {
+      "priorite": "BASSE",
+      "action": "Maintenance régulière",
+      "description": "Exécuter ce diagnostic mensuellement pour surveiller la santé des données"
+    }
+  ],
+  "performance": {
+    "indexes": 204,
+    "enregistrements_totaux": 1590
+  },
+  "synchronisation": {
+    "ratio_membres_utilisateurs": "31.6%",
+    "membres_avec_user": "7/12 (58.3%)",
+    "ratio_agent_membre": "1:1.7"
+  },
+  "resume_executif": {
+    "date_execution": "2025-11-27T09:33:11.529162",
+    "total_problemes": 3,
+    "problemes_haute_priorite": 1,
+    "problemes_moyenne_priorite": 2,
+    "problemes_basse_priorite": 0,
+    "etat_general": "ATTENTION REQUISE"
+  }
+}

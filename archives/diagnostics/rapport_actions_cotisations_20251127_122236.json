@@ -1,0 +1,59 @@
+{
+  "timestamp": "2025-11-27T12:22:36.608233",
+  "analyse": {
+    "statistiques": {
+      "membres_total": 24,
+      "membres_avec_verification": 27,
+      "membres_sans_verification": 18,
+      "verifications_total": 27,
+      "agents_total": 8,
+      "assureurs_total": 3
+    },
+    "verifications_par_statut": [
+      {
+        "statut_cotisation": "a_jour",
+        "count": 27
+      }
+    ]
+  },
+  "problemes": [
+    {
+      "type": "MEMBRES_SANS_CONTROLE",
+      "description": "18 membres sans aucune vérification de cotisation",
+      "severite": "MOYENNE",
+      "details": {
+        "count": 18,
+        "exemples": [
+          {
+            "id": 15,
+            "numero_unique": "USER0014",
+            "prenom": "Test",
+            "nom": "Correction"
+          },
+          {
+            "id": 24,
+            "numero_unique": "TEST_COTIS001",
+            "prenom": "Test",
+            "nom": "Cotisation"
+          },
+          {
+            "id": 22,
+            "numero_unique": "USER0023",
+            "prenom": "Mohamed",
+            "nom": "Diop"
+          }
+        ]
+      }
+    }
+  ],
+  "recommandations": [],
+  "actions_immediates": [
+    {
+      "action": "AFFECTER_VERIFICATIONS_MANQUANTES",
+      "description": "Assigner des agents pour vérifier les membres sans contrôle",
+      "urgence": "MOYENNE",
+      "script": "affecter_verifications_manquantes.py",
+      "details": "18 membres attendent une vérification"
+    }
+  ]
+}

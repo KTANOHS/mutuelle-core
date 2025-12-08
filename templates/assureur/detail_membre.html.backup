@@ -1,0 +1,348 @@
+{% extends 'assureur/base_assureur.html' %}
+
+{% block title %}Détails Membre - {{ membre.nom }} {{ membre.prenom }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- En-tête -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-user-circle me-2"></i>
+                    {{ membre.prenom }} {{ membre.nom }}
+                </h1>
+                <div>
+                    <a href="{% url 'liste_membres' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Retour
+                    </a>
+                    <!-- CORRECTION: URL correcte pour créer un bon -->
+                    <a href="{% url 'assureur:creer_bon_pour_membre' membre.id %}" class="btn btn-primary ms-2">
+                        <i class="fas fa-file-medical me-1"></i> Créer un bon
+                    </a>
+                </div>
+            </div>
+            <p class="text-muted mb-0">Membre depuis le {{ membre.date_inscription|date:"d/m/Y" }}</p>
+        </div>
+    </div>
+
+    <!-- Informations du membre -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Informations personnelles</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-5">Numéro unique:</dt>
+                        <dd class="col-sm-7"><strong>{{ membre.numero_unique }}</strong></dd>
+                        
+                        <dt class="col-sm-5">Email:</dt>
+                        <dd class="col-sm-7">{{ membre.email|default:"Non renseigné" }}</dd>
+                        
+                        <dt class="col-sm-5">Téléphone:</dt>
+                        <dd class="col-sm-7">{{ membre.telephone|default:"Non renseigné" }}</dd>
+                        
+                        <dt class="col-sm-5">Date naissance:</dt>
+                        <dd class="col-sm-7">{{ membre.date_naissance|date:"d/m/Y"|default:"Non renseigné" }}</dd>
+                        
+                        <dt class="col-sm-5">Profession:</dt>
+                        <dd class="col-sm-7">{{ membre.profession|default:"Non renseigné" }}</dd>
+                        
+                        <dt class="col-sm-5">Statut:</dt>
+                        <dd class="col-sm-7">
+                            <span class="badge {% if membre.statut == 'actif' %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ membre.get_statut_display|default:membre.statut }}
+                            </span>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="col-md-8">
+            <div class="row">
+                {% for key, value in stats_membre.items %}
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <h2 class="text-primary">{{ value }}</h2>
+                            <p class="text-muted mb-0">
+                                {% if key == 'total_bons' %}Bons total
+                                {% elif key == 'bons_valides' %}Bons validés
+                                {% elif key == 'bons_utilises' %}Bons utilisés
+                                {% elif key == 'total_soins' %}Soins total
+                                {% elif key == 'soins_valides' %}Soins validés
+                                {% elif key == 'total_paiements' %}Paiements
+                                {% elif key == 'montant_total_paye' %}Montant payé
+                                {% elif key == 'cotisations_en_retard' %}Cotisations retard
+                                {% elif key == 'montant_dette' %}Dette totale
+                                {% else %}{{ key }}{% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Onglets -->
+    <ul class="nav nav-tabs" id="membreTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="bons-tab" data-bs-toggle="tab" data-bs-target="#bons" type="button">
+                <i class="fas fa-file-medical me-1"></i> Bons de soin
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="soins-tab" data-bs-toggle="tab" data-bs-target="#soins" type="button">
+                <i class="fas fa-stethoscope me-1"></i> Soins
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="paiements-tab" data-bs-toggle="tab" data-bs-target="#paiements" type="button">
+                <i class="fas fa-money-bill-wave me-1"></i> Paiements
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="cotisations-tab" data-bs-toggle="tab" data-bs-target="#cotisations" type="button">
+                <i class="fas fa-coins me-1"></i> Cotisations
+            </button>
+        </li>
+    </ul>
+
+    <!-- Contenu des onglets -->
+    <div class="tab-content" id="membreTabContent">
+        <!-- Bons -->
+        <div class="tab-pane fade show active" id="bons" role="tabpanel">
+            <div class="card mt-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Bons de soin</h5>
+                    <a href="{% url 'assureur:creer_bon_pour_membre' membre.id %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus me-1"></i> Nouveau bon
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if bons %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Numéro</th>
+                                    <th>Type</th>
+                                    <th>Montant total</th>
+                                    <th>Montant pris en charge</th>
+                                    <th>Date création</th>
+                                    <th>Date expiration</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for bon in bons %}
+                                <tr>
+                                    <td>{{ bon.numero_bon|default:"N/A" }}</td>
+                                    <td>{{ bon.type_soin|default:"N/A" }}</td>
+                                    <td>{{ bon.montant_total|default:0 }} FCFA</td>
+                                    <td>{{ bon.montant_prise_charge|default:0 }} FCFA</td>
+                                    <td>{{ bon.date_creation|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ bon.date_expiration|date:"d/m/Y" }}</td>
+                                    <td>
+                                        {% if bon.statut == 'valide' %}
+                                        <span class="badge bg-success">Validé</span>
+                                        {% elif bon.statut == 'en_attente' %}
+                                        <span class="badge bg-warning">En attente</span>
+                                        {% elif bon.statut == 'utilise' %}
+                                        <span class="badge bg-info">Utilisé</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">{{ bon.statut }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'detail_bon' bon.id %}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Aucun bon de soin pour ce membre.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Soins -->
+        <div class="tab-pane fade" id="soins" role="tabpanel">
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Historique des soins</h5>
+                </div>
+                <div class="card-body">
+                    {% if soins %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Date</th>
+                                    <th>Montant facturé</th>
+                                    <th>Montant remboursé</th>
+                                    <th>Date soumission</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for soin in soins %}
+                                <tr>
+                                    <td>{{ soin.type_soin|default:"N/A" }}</td>
+                                    <td>{{ soin.date_soin|date:"d/m/Y" }}</td>
+                                    <td>{{ soin.montant_facture|default:0 }} FCFA</td>
+                                    <td>{{ soin.montant_rembourse|default:0 }} FCFA</td>
+                                    <td>{{ soin.date_soumission|date:"d/m/Y H:i" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Aucun soin enregistré pour ce membre.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Paiements -->
+        <div class="tab-pane fade" id="paiements" role="tabpanel">
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Historique des paiements</h5>
+                </div>
+                <div class="card-body">
+                    {% if paiements %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Référence</th>
+                                    <th>Date</th>
+                                    <th>Mode</th>
+                                    <th>Montant</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for paiement in paiements %}
+                                <tr>
+                                    <td>{{ paiement.reference|default:"N/A" }}</td>
+                                    <td>{{ paiement.date_paiement|date:"d/m/Y" }}</td>
+                                    <td>{{ paiement.mode_paiement|default:"N/A" }}</td>
+                                    <td>{{ paiement.montant|default:0 }} FCFA</td>
+                                    <td>
+                                        {% if paiement.statut == 'valide' %}
+                                        <span class="badge bg-success">Validé</span>
+                                        {% elif paiement.statut == 'initie' %}
+                                        <span class="badge bg-warning">Initié</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">{{ paiement.statut }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Aucun paiement enregistré pour ce membre.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Cotisations -->
+        <div class="tab-pane fade" id="cotisations" role="tabpanel">
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Historique des cotisations</h5>
+                </div>
+                <div class="card-body">
+                    {% if cotisations %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Référence</th>
+                                    <th>Période</th>
+                                    <th>Montant</th>
+                                    <th>Date émission</th>
+                                    <th>Date échéance</th>
+                                    <th>Statut</th>
+                                    <th>Date paiement</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cotisation in cotisations %}
+                                <tr>
+                                    <td>{{ cotisation.reference|default:"N/A" }}</td>
+                                    <td>{{ cotisation.periode|default:"N/A" }}</td>
+                                    <td>{{ cotisation.montant|default:0 }} FCFA</td>
+                                    <td>{{ cotisation.date_emission|date:"d/m/Y" }}</td>
+                                    <td>{{ cotisation.date_echeance|date:"d/m/Y" }}</td>
+                                    <td>
+                                        {% if cotisation.statut == 'payee' %}
+                                        <span class="badge bg-success">Payée</span>
+                                        {% elif cotisation.statut == 'en_retard' %}
+                                        <span class="badge bg-danger">En retard</span>
+                                        {% elif cotisation.statut == 'due' %}
+                                        <span class="badge bg-warning">Due</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">{{ cotisation.statut }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if cotisation.date_paiement %}
+                                        {{ cotisation.date_paiement|date:"d/m/Y" }}
+                                        {% else %}
+                                        <span class="text-muted">Non payée</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Aucune cotisation enregistrée pour ce membre.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Active le premier onglet au chargement
+    document.addEventListener('DOMContentLoaded', function() {
+        var tabTrigger = new bootstrap.Tab(document.querySelector('#bons-tab'));
+        tabTrigger.show();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,597 @@
+{% comment %}
+Template: dashboard.html
+Description: Tableau de bord principal de l'agent avec statistiques et actions rapides
+Variables attendues: agent, bons_du_jour, verifications_du_jour, notifications
+Dernière mise à jour: 2025-10-23
+{% endcomment %}
+
+{% extends "agents/base_agent.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Tableau de Bord Agent - {{ agent.nom_complet }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <!-- En-tête avec informations agent -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1 text-primary">
+                <i class="fas fa-tachometer-alt me-2"></i>Tableau de Bord
+            </h1>
+            <p class="text-muted mb-0">Bienvenue, {{ agent.nom_complet }} - {{ agent.poste }}</p>
+        </div>
+        <div class="text-end">
+            <div class="text-muted small">
+                <i class="fas fa-calendar me-1"></i>
+                {{ current_date|date:"l d F Y" }}
+            </div>
+            <div class="text-muted small">
+                <i class="fas fa-clock me-1"></i>
+                <span id="current-time">{{ current_date|date:"H:i" }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cartes de statistiques en temps réel -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-start-primary border-3 shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Bons Aujourd'hui
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="bons-du-jour">
+                                {{ bons_du_jour }}
+                            </div>
+                            <div class="text-xs text-muted mt-1">
+                                Limite: {{ agent.limite_bons_quotidienne }} | Restant: <span id="limite-restante">{{ agent.limite_bons_quotidienne|subtract:bons_du_jour }}</span>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-file-medical fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-start-success border-3 shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Vérifications
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="verifications-du-jour">
+                                {{ verifications_du_jour }}
+                            </div>
+                            <div class="text-xs text-muted mt-1">
+                                Cotisations vérifiées aujourd'hui
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-start-info border-3 shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Performance
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="performance-score">
+                                {{ bons_du_jour|percentage:agent.limite_bons_quotidienne }}%
+                            </div>
+                            <div class="text-xs text-muted mt-1">
+                                Taux d'utilisation quotidien
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-start-warning border-3 shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Ancienneté
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ agent.anciennete }} an{{ agent.anciennete|pluralize }}
+                            </div>
+                            <div class="text-xs text-muted mt-1">
+                                Depuis {{ agent.date_embauche|date:"d/m/Y" }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions rapides et contenu principal -->
+    <div class="row">
+        <!-- Colonne principale -->
+        <div class="col-lg-8">
+            <!-- Derniers bons de soin -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="card-title mb-0 text-primary">
+                        <i class="fas fa-history me-2"></i>Derniers Bons de Soin
+                    </h5>
+                    <div>
+                        <a href="{% url 'agents:creer_bon_soin' %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus me-1"></i>Nouveau Bon
+                        </a>
+                        <a href="{% url 'agents:historique_bons' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-list me-1"></i>Voir tout
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="border-0">Code</th>
+                                    <th class="border-0">Membre</th>
+                                    <th class="border-0">Création</th>
+                                    <th class="border-0">Expiration</th>
+                                    <th class="border-0">Montant</th>
+                                    <th class="border-0">Statut</th>
+                                    <th class="border-0 text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="derniers-bons">
+                                {% for bon in derniers_bons %}
+                                <tr>
+                                    <td>
+                                        <code class="text-primary">{{ bon.code }}</code>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-light rounded me-2">
+                                                <i class="fas fa-user text-muted p-2"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">{{ bon.membre.nom_complet|truncatewords:2 }}</div>
+                                                <small class="text-muted">{{ bon.membre.numero_membre }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <small>{{ bon.date_creation|date:"d/m H:i" }}</small>
+                                    </td>
+                                    <td>
+                                        <small class="{% if bon.est_expire %}text-danger{% else %}text-success{% endif %}">
+                                            {{ bon.date_expiration|date:"d/m H:i" }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold">{{ bon.montant_max|intcomma }} FCFA</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if bon.statut == 'valide' %}bg-success
+                                            {% elif bon.statut == 'en_attente' %}bg-warning
+                                            {% elif bon.statut == 'utilise' %}bg-info
+                                            {% else %}bg-danger{% endif %}">
+                                            {{ bon.get_statut_display }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" 
+                                                    onclick="afficherDetailsBon({{ bon.id }})"
+                                                    title="Voir les détails">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <a href="{% url 'agents:historique_bons' %}?q={{ bon.code }}" 
+                                               class="btn btn-outline-secondary"
+                                               title="Rechercher">
+                                                <i class="fas fa-search"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="fas fa-inbox fa-2x mb-2"></i>
+                                            <p>Aucun bon de soin créé aujourd'hui</p>
+                                            <a href="{% url 'agents:creer_bon_soin' %}" class="btn btn-primary">
+                                                Créer votre premier bon
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages récents -->
+            {% if recent_messages %}
+            <div class="card shadow mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0 text-primary">
+                        <i class="fas fa-comments me-2"></i>Messages Récents
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for message in recent_messages %}
+                        <div class="list-group-item px-0">
+                            <div class="d-flex align-items-start">
+                                <div class="avatar-sm bg-primary rounded me-3">
+                                    <i class="fas fa-user text-white p-2"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-1">{{ message.expediteur.get_full_name|default:"Système" }}</h6>
+                                        <small class="text-muted">{{ message.date_envoi|timesince }}</small>
+                                    </div>
+                                    <p class="mb-1 text-muted">{{ message.contenu|truncatewords:20 }}</p>
+                                    {% if message.bon_soin %}
+                                    <small class="text-primary">
+                                        <i class="fas fa-file-medical me-1"></i>
+                                        Bon: {{ message.bon_soin.code }}
+                                    </small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar droite -->
+        <div class="col-lg-4">
+            <!-- Actions rapides -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0 text-primary">
+                        <i class="fas fa-bolt me-2"></i>Actions Rapides
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'agents:creer_bon_soin' %}" class="btn btn-primary mb-2">
+                            <i class="fas fa-file-medical me-2"></i>Créer un Bon de Soin
+                        </a>
+                        <a href="{% url 'agents:liste_membres' %}" class="btn btn-outline-primary mb-2">
+                            <i class="fas fa-users me-2"></i>Liste des Membres
+                        </a>
+                        <a href="{% url 'agents:historique_bons' %}" class="btn btn-outline-secondary mb-2">
+                            <i class="fas fa-history me-2"></i>Historique des Bons
+                        </a>
+                        <a href="{% url 'agents:notifications' %}" class="btn btn-outline-info mb-2">
+                            <i class="fas fa-bell me-2"></i>Notifications
+                            {% if request.user.notification_set.filter|length > 0 %}
+                            <span class="badge bg-danger ms-1">{{ request.user.notification_set.filter.count }}</span>
+                            {% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alertes en temps réel -->
+            <div class="card border-warning shadow mb-4">
+                <div class="card-header bg-warning text-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Alertes
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="alertes-container">
+                        <div class="alert alert-warning mb-2">
+                            <div class="d-flex">
+                                <i class="fas fa-info-circle me-2 mt-1"></i>
+                                <div>
+                                    <strong>Limite quotidienne</strong><br>
+                                    <small>{{ bons_du_jour }}/{{ agent.limite_bons_quotidienne }} bons créés</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if bons_du_jour >= agent.limite_bons_quotidienne %}
+                        <div class="alert alert-danger">
+                            <div class="d-flex">
+                                <i class="fas fa-ban me-2 mt-1"></i>
+                                <div>
+                                    <strong>Limite atteinte!</strong><br>
+                                    <small>Vous ne pouvez plus créer de bons aujourd'hui</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% elif bons_du_jour >= agent.limite_bons_quotidienne|multiply:0.8 %}
+                        <div class="alert alert-warning">
+                            <div class="d-flex">
+                                <i class="fas fa-exclamation me-2 mt-1"></i>
+                                <div>
+                                    <strong>Limite proche</strong><br>
+                                    <small>{{ agent.limite_bons_quotidienne|subtract:bons_du_jour }} bons restants</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications récentes -->
+            <div class="card border-info shadow">
+                <div class="card-header bg-info text-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bell me-2"></i>
+                        Notifications Récentes
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div id="notifications-recentes">
+                        {% for notification in recent_notifications %}
+                        <div class="border-bottom p-3 {% if not notification.est_lue %}bg-light{% endif %}">
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <strong class="text-dark">{{ notification.titre }}</strong>
+                                <small class="text-muted">{{ notification.date_creation|timesince }}</small>
+                            </div>
+                            <p class="mb-1 text-muted small">{{ notification.message }}</p>
+                            {% if notification.lien %}
+                            <a href="{{ notification.lien }}" class="btn btn-sm btn-outline-info mt-1">
+                                Voir <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-bell-slash text-muted fa-2x mb-2"></i>
+                            <p class="text-muted mb-0">Aucune notification</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour les détails du bon -->
+<div class="modal fade" id="bonDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Détails du Bon de Soin</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="bon-details-content">
+                <!-- Contenu chargé dynamiquement -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Mise à jour de l'heure en temps réel
+function updateCurrentTime() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('fr-FR', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        second: '2-digit'
+    });
+    document.getElementById('current-time').textContent = timeString;
+}
+
+// Charger les derniers bons via API
+function loadDerniersBons() {
+    fetch('{% url "agents:api_derniers_bons" %}')
+        .then(response => {
+            if (!response.ok) throw new Error('Erreur réseau');
+            return response.json();
+        })
+        .then(data => {
+            const tbody = document.getElementById('derniers-bons');
+            
+            if (data.bons && data.bons.length > 0) {
+                tbody.innerHTML = '';
+                data.bons.forEach(bon => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><code class="text-primary">${bon.code}</code></td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm bg-light rounded me-2">
+                                    <i class="fas fa-user text-muted p-2"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">${bon.membre_nom}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><small>${bon.date_creation}</small></td>
+                        <td><small class="${bon.statut_class === 'danger' ? 'text-danger' : 'text-success'}">${bon.date_expiration}</small></td>
+                        <td><span class="fw-bold">${bon.montant_max} FCFA</span></td>
+                        <td>
+                            <span class="badge bg-${bon.statut_class}">
+                                ${bon.statut}
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" 
+                                        onclick="afficherDetailsBon(${bon.id})"
+                                        title="Voir les détails">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors du chargement des bons:', error);
+        });
+}
+
+// Afficher les détails d'un bon
+function afficherDetailsBon(bonId) {
+    fetch(`/agents/api/bons/${bonId}/`)
+        .then(response => response.json())
+        .then(data => {
+            const modalContent = document.getElementById('bon-details-content');
+            modalContent.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Informations du Bon</h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Code:</strong></td><td>${data.code}</td></tr>
+                            <tr><td><strong>Membre:</strong></td><td>${data.membre_nom}</td></tr>
+                            <tr><td><strong>Montant max:</strong></td><td>${data.montant_max} FCFA</td></tr>
+                            <tr><td><strong>Statut:</strong></td><td><span class="badge bg-${data.statut_class}">${data.statut}</span></td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Dates</h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Création:</strong></td><td>${data.date_creation}</td></tr>
+                            <tr><td><strong>Expiration:</strong></td><td>${data.date_expiration}</td></tr>
+                            <tr><td><strong>Temps restant:</strong></td><td>${data.temps_restant}</td></tr>
+                        </table>
+                    </div>
+                </div>
+                ${data.motif_consultation ? `
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6>Motif de consultation</h6>
+                        <p class="text-muted">${data.motif_consultation}</p>
+                    </div>
+                </div>
+                ` : ''}
+            `;
+            
+            const modal = new bootstrap.Modal(document.getElementById('bonDetailsModal'));
+            modal.show();
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors du chargement des détails du bon');
+        });
+}
+
+// Mettre à jour les statistiques en temps réel
+function updateStats() {
+    fetch('{% url "agents:api_stats_quotidiens" %}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.bons_du_jour !== undefined) {
+                document.getElementById('bons-du-jour').textContent = data.bons_du_jour;
+                document.getElementById('limite-restante').textContent = data.limite_restante;
+            }
+            if (data.verifications_du_jour !== undefined) {
+                document.getElementById('verifications-du-jour').textContent = data.verifications_du_jour;
+            }
+            
+            // Mettre à jour le score de performance
+            if (data.limite_totale > 0) {
+                const pourcentage = Math.round((data.bons_du_jour / data.limite_totale) * 100);
+                document.getElementById('performance-score').textContent = `${pourcentage}%`;
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors de la mise à jour des stats:', error);
+        });
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    // Mettre à jour l'heure
+    updateCurrentTime();
+    setInterval(updateCurrentTime, 1000);
+    
+    // Charger les données initiales
+    loadDerniersBons();
+    
+    // Mettre à jour périodiquement
+    setInterval(loadDerniersBons, 30000); // Toutes les 30 secondes
+    setInterval(updateStats, 60000); // Toutes les minutes
+    
+    // Analytics avancés (optionnel)
+    setTimeout(() => {
+        fetch('{% url "agents:api_analytics_dashboard" %}')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Analytics dashboard:', data);
+                // Vous pouvez utiliser ces données pour des graphiques avancés
+            })
+            .catch(error => console.error('Erreur analytics:', error));
+    }, 5000);
+});
+
+// Gestion des erreurs globales
+window.addEventListener('error', function(e) {
+    console.error('Erreur globale:', e.error);
+});
+</script>
+
+<style>
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card {
+    border: none;
+    border-radius: 0.5rem;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.border-start-primary { border-left-color: #4e73df !important; }
+.border-start-success { border-left-color: #1cc88a !important; }
+.border-start-info { border-left-color: #36b9cc !important; }
+.border-start-warning { border-left-color: #f6c23e !important; }
+
+.shadow {
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15) !important;
+}
+</style>
+{% endblock %}

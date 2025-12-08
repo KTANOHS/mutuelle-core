@@ -1,0 +1,439 @@
+{
+  "timestamp": "2025-10-21T11:41:28.458140",
+  "agents": {
+    "models": {
+      "nombre_classes": 3,
+      "classes": [
+        {
+          "nom": "Agent",
+          "heritage": [],
+          "champs": [
+            "user",
+            "matricule",
+            "poste",
+            "date_embauche",
+            "est_actif",
+            "limite_bons_quotidienne"
+          ],
+          "methodes": [
+            "__str__"
+          ]
+        },
+        {
+          "nom": "BonSoin",
+          "heritage": [],
+          "champs": [
+            "STATUT_CHOICES",
+            "code",
+            "membre",
+            "agent",
+            "date_creation",
+            "date_expiration",
+            "statut",
+            "montant_max",
+            "motif_consultation",
+            "medecin_destinataire"
+          ],
+          "methodes": [
+            "est_valide",
+            "utiliser"
+          ]
+        },
+        {
+          "nom": "VerificationCotisation",
+          "heritage": [],
+          "champs": [
+            "agent",
+            "membre",
+            "date_verification",
+            "est_a_jour",
+            "prochaine_echeance",
+            "observations"
+          ],
+          "methodes": []
+        }
+      ],
+      "champs_par_classe": {
+        "Agent": [
+          "user",
+          "matricule",
+          "poste",
+          "date_embauche",
+          "est_actif",
+          "limite_bons_quotidienne"
+        ],
+        "BonSoin": [
+          "STATUT_CHOICES",
+          "code",
+          "membre",
+          "agent",
+          "date_creation",
+          "date_expiration",
+          "statut",
+          "montant_max",
+          "motif_consultation",
+          "medecin_destinataire"
+        ],
+        "VerificationCotisation": [
+          "agent",
+          "membre",
+          "date_verification",
+          "est_a_jour",
+          "prochaine_echeance",
+          "observations"
+        ]
+      },
+      "methodes_par_classe": {
+        "Agent": [
+          "__str__"
+        ],
+        "BonSoin": [
+          "est_valide",
+          "utiliser"
+        ],
+        "VerificationCotisation": []
+      }
+    },
+    "views": {
+      "nombre_fonctions": 8,
+      "nombre_classes": 0,
+      "fonctions": [
+        {
+          "nom": "est_agent",
+          "decorateurs": [],
+          "parametres": [
+            "user"
+          ]
+        },
+        {
+          "nom": "dashboard_agent",
+          "decorateurs": [
+            "login_required",
+            "user_passes_test"
+          ],
+          "parametres": [
+            "request"
+          ]
+        },
+        {
+          "nom": "verifier_cotisation",
+          "decorateurs": [
+            "login_required",
+            "user_passes_test"
+          ],
+          "parametres": [
+            "request",
+            "membre_id"
+          ]
+        },
+        {
+          "nom": "creer_bon_soin",
+          "decorateurs": [
+            "login_required",
+            "user_passes_test"
+          ],
+          "parametres": [
+            "request"
+          ]
+        },
+        {
+          "nom": "liste_membres",
+          "decorateurs": [
+            "login_required",
+            "user_passes_test"
+          ],
+          "parametres": [
+            "request"
+          ]
+        },
+        {
+          "nom": "agents_notifications",
+          "decorateurs": [
+            "login_required",
+            "user_passes_test"
+          ],
+          "parametres": [
+            "request"
+          ]
+        },
+        {
+          "nom": "api_derniers_bons",
+          "decorateurs": [
+            "login_required"
+          ],
+          "parametres": [
+            "request"
+          ]
+        },
+        {
+          "nom": "api_stats_quotidiens",
+          "decorateurs": [
+            "login_required"
+          ],
+          "parametres": [
+            "request"
+          ]
+        }
+      ],
+      "classes": []
+    },
+    "urls": {
+      "nombre_urls": 10,
+      "urls": [
+        {
+          "type": "path",
+          "route": "dashboard/",
+          "vue": "views.dashboard_agent",
+          "nom": "dashboard_agent"
+        },
+        {
+          "type": "path",
+          "route": "verifier-cotisation/<int:membre_id>/",
+          "vue": "views.verifier_cotisation",
+          "nom": "verifier_cotisation"
+        },
+        {
+          "type": "path",
+          "route": "creer-bon-soin/",
+          "vue": "views.creer_bon_soin",
+          "nom": "creer_bon_soin"
+        },
+        {
+          "type": "path",
+          "route": "admin/agent/<int:agent_id>/toggle/",
+          "vue": "admin_views.toggle_agent",
+          "nom": "admin_agent_toggle"
+        },
+        {
+          "type": "path",
+          "route": "admin/bon-soin/<int:bon_id>/utiliser/",
+          "vue": "admin_views.utiliser_bon_soin",
+          "nom": "admin_bon_soin_utiliser"
+        },
+        {
+          "type": "path",
+          "route": "verifier-cotisation/",
+          "vue": "views.verification_cotisation",
+          "nom": "verification_cotisation"
+        },
+        {
+          "type": "path",
+          "route": "liste-membres/",
+          "vue": "views.liste_membres",
+          "nom": "liste_membres"
+        },
+        {
+          "type": "path",
+          "route": "notifications/",
+          "vue": "views.agents_notifications",
+          "nom": "agents_notifications"
+        },
+        {
+          "type": "path",
+          "route": "api/derniers-bons/",
+          "vue": "views.api_derniers_bons",
+          "nom": "api_derniers_bons"
+        },
+        {
+          "type": "path",
+          "route": "api/stats-quotidiens/",
+          "vue": "views.api_stats_quotidiens",
+          "nom": "api_stats_quotidiens"
+        }
+      ]
+    },
+    "admin": {
+      "nombre_classes_admin": 4,
+      "nombre_registrations": 4,
+      "registrations": [
+        {
+          "model": "Agent",
+          "admin_class": "AgentAdmin"
+        },
+        {
+          "model": "BonSoin",
+          "admin_class": "BonSoinAdmin"
+        },
+        {
+          "model": "VerificationCotisation",
+          "admin_class": "VerificationCotisationAdmin"
+        },
+        {
+          "model": "HistoriqueValidationDocument",
+          "admin_class": "HistoriqueValidationDocumentAdmin"
+        }
+      ]
+    },
+    "templates": {
+      "nombre_total": 9,
+      "nombre_partials": 3,
+      "templates": [
+        "base_agent.html",
+        "verification_cotisation.html",
+        "liste_membres.html",
+        "notifications.html",
+        "creer_bon_soin.html",
+        "dashboard.html",
+        "_stats_cards.html",
+        "_sidebar_agent.html",
+        "_quick_actions.html"
+      ],
+      "partials": [
+        "_stats_cards.html",
+        "_sidebar_agent.html",
+        "_quick_actions.html"
+      ]
+    }
+  },
+  "communication": {
+    "models": {
+      "nombre_classes": 2,
+      "classes": [
+        {
+          "nom": "MessageInterne",
+          "heritage": [],
+          "champs": [
+            "TYPE_MESSAGE",
+            "expediteur",
+            "destinataire",
+            "titre",
+            "contenu",
+            "type_message",
+            "date_envoi",
+            "est_lu",
+            "date_lecture"
+          ],
+          "methodes": []
+        },
+        {
+          "nom": "Notification",
+          "heritage": [],
+          "champs": [
+            "user",
+            "titre",
+            "message",
+            "type_notification",
+            "est_lue",
+            "date_creation",
+            "lien"
+          ],
+          "methodes": []
+        }
+      ],
+      "champs_par_classe": {
+        "MessageInterne": [
+          "TYPE_MESSAGE",
+          "expediteur",
+          "destinataire",
+          "titre",
+          "contenu",
+          "type_message",
+          "date_envoi",
+          "est_lu",
+          "date_lecture"
+        ],
+        "Notification": [
+          "user",
+          "titre",
+          "message",
+          "type_notification",
+          "est_lue",
+          "date_creation",
+          "lien"
+        ]
+      },
+      "methodes_par_classe": {
+        "MessageInterne": [],
+        "Notification": []
+      }
+    },
+    "views": {
+      "nombre_fonctions": 0,
+      "nombre_classes": 0,
+      "fonctions": [],
+      "classes": []
+    },
+    "urls": {
+      "nombre_urls": 5,
+      "urls": [
+        {
+          "type": "path",
+          "route": "messagerie/",
+          "vue": "views.messagerie",
+          "nom": "messagerie"
+        },
+        {
+          "type": "path",
+          "route": "notifications/",
+          "vue": "views.liste_notifications",
+          "nom": "liste_notifications"
+        },
+        {
+          "type": "path",
+          "route": "api/conversations/",
+          "vue": "views.api_conversations",
+          "nom": "api_conversations"
+        },
+        {
+          "type": "path",
+          "route": "api/messages/<int:destinataire_id>/",
+          "vue": "views.api_messages",
+          "nom": "api_messages"
+        },
+        {
+          "type": "path",
+          "route": "non-lue-count/",
+          "vue": "views.non_lue_count",
+          "nom": "non_lue_count"
+        }
+      ]
+    },
+    "admin": {
+      "nombre_classes_admin": 7,
+      "nombre_registrations": 5,
+      "registrations": [
+        {
+          "model": "MessageInterne",
+          "admin_class": "MessageInterneAdmin"
+        },
+        {
+          "model": "PieceJointe",
+          "admin_class": "PieceJointeAdmin"
+        },
+        {
+          "model": "Notification",
+          "admin_class": "NotificationAdmin"
+        },
+        {
+          "model": "GroupeCommunication",
+          "admin_class": "GroupeCommunicationAdmin"
+        },
+        {
+          "model": "MessageGroupe",
+          "admin_class": "MessageGroupeAdmin"
+        }
+      ]
+    },
+    "templates": {
+      "nombre_total": 5,
+      "nombre_partials": 2,
+      "templates": [
+        "notification_list.html",
+        "nouveau_message.html",
+        "messagerie.html",
+        "_messages_list.html",
+        "_conversations_list.html"
+      ],
+      "partials": [
+        "_messages_list.html",
+        "_conversations_list.html"
+      ]
+    }
+  },
+  "dependances": [
+    "agents → communication",
+    "agents → membres"
+  ],
+  "problemes": [],
+  "recommandations": []
+}

@@ -1,0 +1,37 @@
+=== DIAGNOSTIC SYSTÈME DE COMMUNICATION ===
+
+1. SESSIONS ACTIVES:
+   27 session(s) active(s)
+   - Session dypj9pv8fybagdm6ksl2f2i24v7vpibm: {}
+   - Session jtulxqe0uo93i874ylpucjiulxch49v6: {}
+   - Session 09b8p1zsa7aztrt60li5r9wod6xny3nr: {}
+   - Session n3vk38shx6kgbgrmgccn0q705ehfnu5h: {}
+   - Session l0n8u1ats8tbsgtz4nkbv81djrg4v00m: {}
+   - Session ud12ai4h5dhfiscbsc0hiedvpyaxcfop: {}
+   - Session crswggfax1ng24zvlwx0rkoufyyxzx33: {}
+   - Session 630i5m4rztenbgz22f86xloz3vly9zes: {}
+   - Session mkwjd6wv5fvfuobzp6abl0ti23lo9k2l: {}
+   - Session au5vdb2qo21gfn4cxpt8mn9r91xyziig: {}
+   - Session zkn9rk7tmppxq8dxcgevbql86hfdafh5: {}
+   - Session zf5b5b3ux3018ewvhew72wsxdekmcvu5: {}
+   - Session 4yuta3lpvfndd58z6f6k88x83m1emzvp: {}
+   - Session c7e3lnfhuh1wc9m7q798mkjsa6hlhno4: {}
+   - Session 4r8hyc7gdsq2ilwz2gjek8zb46l2d76f: {}
+   - Session oc7ongg3sq4gyco949bt5szown7nbxs7: {}
+   - Session wl7iwpex6frjfgjokrwdqyjb8dkxt03a: {}
+   - Session zflvz3z8fweycqlrryk0bope8mkomwrs: {}
+   - Session y7tu9a6lw8vq6ejsb57g490ag4gmvd8h: {}
+   - Session 112ci5ffv48ddkdp2ymzi43xexv8j9ys: {}
+   - Session hm4vdwvozmdp4jbcw34wekc85dievacp: {}
+   - Session 3ft4x248vhvcp2u15g05ilag5fiwomfr: {}
+   - Session 23x8xgih8vurcv5fx9i4h9qlqygoa8j9: {}
+   - Session 34tij7mubbowt5xur38dnkl2vh4u99xn: {}
+   - Session jocsd0pryrw5xo54v5regii2f98hdd6m: {}
+   - Session y4z0frnmk54069ez5zmm54zapt1mti58: {}
+   - Session i5ji4snqmkpsm45qnab4iwz2g2qh4q8u: {}
+
+2. UTILISATEURS:
+   0 assureur(s) trouvé(s)
+
+3. MESSAGES:
+   24 message(s) dans la base

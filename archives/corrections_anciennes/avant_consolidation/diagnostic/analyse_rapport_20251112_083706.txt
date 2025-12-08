@@ -1,0 +1,83 @@
+RAPPORT D'ANALYSE - PROJET MUTUELLE
+==================================================
+
+Erreurs: 0
+Avertissements: 7
+Informations: 61
+
+
+ERRORS:
+
+WARNINGS:
+  • ⚠️ Répertoire manquant: agents/templates
+  • ⚠️ DEBUG est activé - désactiver en production
+  • ⚠️ Package manquant: Django
+  • ⚠️ Package manquant: django-rest-framework
+  • ⚠️ Package manquant: django-cors-headers
+  • ⚠️ Package manquant: django-crispy-forms
+  • ⚠️ Package manquant: python-dotenv
+
+INFO:
+  • ✅ Répertoire trouvé: templates
+  • ✅ Répertoire trouvé: static
+  • ✅ Répertoire trouvé: media
+  • ✅ Répertoire trouvé: logs
+  • ✅ Répertoire trouvé: agents/static
+  • ✅ Fichier trouvé: manage.py
+  • ✅ Fichier trouvé: mutuelle_core/__init__.py
+  • ✅ Fichier trouvé: mutuelle_core/settings.py
+  • ✅ Fichier trouvé: mutuelle_core/urls.py
+  • ✅ Fichier trouvé: mutuelle_core/wsgi.py
+  • ✅ Fichier trouvé: agents/__init__.py
+  • ✅ Fichier trouvé: agents/models.py
+  • ✅ Fichier trouvé: agents/views.py
+  • ✅ Fichier trouvé: agents/urls.py
+  • ✅ SECRET_KEY configuré
+  • ✅ DEBUG configuré
+  • ✅ ALLOWED_HOSTS configuré
+  • ✅ DATABASES configuré
+  • ✅ INSTALLED_APPS configuré
+  • ✅ Application installée: membres
+  • ✅ Application installée: inscription
+  • ✅ Application installée: paiements
+  • ✅ Application installée: soins
+  • ✅ Application installée: notifications
+  • ✅ Application installée: api
+  • ✅ Application installée: assureur
+  • ✅ Application installée: medecin
+  • ✅ Application installée: pharmacien
+  • ✅ Application installée: core
+  • ✅ Application installée: mutuelle_core
+  • ✅ Application installée: pharmacie_public
+  • ✅ Application installée: agents
+  • ✅ Application installée: communication
+  • ✅ 37 patterns d'URL trouvés
+  • ✅ 70 modèles trouvés
+  •   📱 admin: 1 modèles
+  •   📱 auth: 3 modèles
+  •   📱 contenttypes: 1 modèles
+  •   📱 sessions: 1 modèles
+  •   📱 membres: 6 modèles
+  •   📱 paiements: 3 modèles
+  •   📱 soins: 6 modèles
+  •   📱 notifications: 2 modèles
+  •   📱 assureur: 10 modèles
+  •   📱 medecin: 9 modèles
+  •   📱 pharmacien: 5 modèles
+  •   📱 core: 3 modèles
+  •   📱 mutuelle_core: 2 modèles
+  •   📱 pharmacie_public: 5 modèles
+  •   📱 agents: 7 modèles
+  •   📱 communication: 6 modèles
+  • ✅ URL statique: /static/
+  • ✅ Racine statique: /Users/koffitanohsoualiho/Documents/VERIFICATION/projet/staticfiles
+  • ✅ 2 répertoire(s) statique(s)
+  • ✅ SQLite version: 3.39.5
+  • ✅ Configuration agent: LIMITE_BONS_QUOTIDIENNE = 10
+  • ✅ Configuration agent: DUREE_VALIDITE_BON = 24
+  • ✅ Fichier requirements.txt trouvé
+  • ✅ Package installé: channels
+  • ✅ Migrations appliquées: 39
+  • ✅ Toutes les migrations sont appliquées
+
+RECOMMENDATIONS:

@@ -1,0 +1,13 @@
+================================================================================
+RAPPORT DE DIAGNOSTIC DES PERMISSIONS
+================================================================================
+
+Problèmes identifiés:
+1. DOUA1: Assureur détecté comme Membre
+2. Assureurs redirigés vers /admin/ au lieu de /assureur/
+3. ORNELLA: Pas de profil Agent associé
+
+Solutions recommandées:
+1. Exécuter le script de correction
+2. Vérifier les fonctions dans core/utils.py
+3. Tester les redirections après correction

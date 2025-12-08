@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Test Messagerie Simplifié{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-lg">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-check me-2"></i>Test Messagerie - Version Simplifiée
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5>✅ Système de Messagerie Opérationnel</h5>
+                        <p class="mb-0">Cette page fonctionne ! Le problème était dans les URLs des autres templates.</p>
+                    </div>
+
+                    <div class="row text-center">
+                        <div class="col-md-3 mb-3">
+                            <div class="card border-primary">
+                                <div class="card-body">
+                                    <i class="fas fa-user fa-2x text-primary mb-2"></i>
+                                    <h6>Membre</h6>
+                                    <a href="{% url \'communication:messagerie_membre\' %}" class="btn btn-primary btn-sm">
+                                        Accéder
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card border-success">
+                                <div class="card-body">
+                                    <i class="fas fa-shield-alt fa-2x text-success mb-2"></i>
+                                    <h6>Assureur</h6>
+                                    <a href="{% url \'communication:messagerie_assureur\' %}" class="btn btn-success btn-sm">
+                                        Accéder
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card border-info">
+                                <div class="card-body">
+                                    <i class="fas fa-user-md fa-2x text-info mb-2"></i>
+                                    <h6>Médecin</h6>
+                                    <a href="/communication/medecin/messagerie/" class="btn btn-info btn-sm">
+                                        Accéder
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card border-warning">
+                                <div class="card-body">
+                                    <i class="fas fa-headset fa-2x text-warning mb-2"></i>
+                                    <h6>Agent</h6>
+                                    <a href="{% url \'communication:messagerie_agent\' %}" class="btn btn-warning btn-sm">
+                                        Accéder
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Test du Modal -->
+                    <div class="card mt-4">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-bolt me-2"></i>Test du Modal "Nouveau Message"
+                            </h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <p>Testez le fonctionnement du modal de message :</p>
+                            <button type="button" class="btn btn-primary btn-lg" 
+                                    data-bs-toggle="modal" data-bs-target="#nouveauMessageModal">
+                                <i class="fas fa-plus me-2"></i>Ouvrir le Modal
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Inclusion du modal universel -->
+{% include "communication/partials/_universal_message_modal.html" %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Test simplifié chargé avec succès!');
+    
+    // Vérifier Bootstrap
+    if (typeof bootstrap !== 'undefined') {
+        console.log('✅ Bootstrap détecté');
+    } else {
+        console.error('❌ Bootstrap non détecté');
+    }
+});
+</script>
+{% endblock %}

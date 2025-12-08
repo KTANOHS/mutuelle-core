@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Générer Cotisations - Assureur{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-file-invoice-dollar text-primary me-2"></i>
+            Générer les Cotisations
+        </h1>
+        <a href="{% url 'liste_cotisations' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Retour
+        </a>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Carte du formulaire -->
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-cog me-2"></i>
+                Génération Automatique des Cotisations
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <!-- Période -->
+                    <div class="col-md-6 mb-3">
+                        <label for="periode" class="form-label">
+                            <i class="fas fa-calendar-alt me-1"></i>
+                            Période <span class="text-danger">*</span>
+                        </label>
+                        <input type="month" 
+                               class="form-control" 
+                               id="periode" 
+                               name="periode"
+                               value="{{ current_month|date:'Y-m' }}"
+                               required>
+                        <div class="form-text">
+                            Sélectionnez le mois pour lequel générer les cotisations
+                        </div>
+                    </div>
+
+                    <!-- Statistiques -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="fas fa-chart-bar me-1"></i>
+                                    Statistiques
+                                </h6>
+                                <ul class="list-unstyled mb-0">
+                                    <li class="mb-1">
+                                        <i class="fas fa-users text-primary me-2"></i>
+                                        Membres actifs: 
+                                        <strong class="float-end">{{ membres_actifs_count }}</strong>
+                                    </li>
+                                    <li class="mb-1">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        Cotisations ce mois: 
+                                        <strong class="float-end">{{ cotisations_mois_count }}</strong>
+                                    </li>
+                                    <li>
+                                        <i class="fas fa-clock text-warning me-2"></i>
+                                        À générer: 
+                                        <strong class="float-end">{{ a_generer_count }}</strong>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations -->
+                <div class="alert alert-info">
+                    <h6 class="alert-heading">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Informations importantes
+                    </h6>
+                    <ul class="mb-0">
+                        <li>Seuls les membres avec le statut "actif" seront pris en compte</li>
+                        <li>Les cotisations déjà existantes pour la période seront ignorées</li>
+                        <li>La date d'échéance sera automatiquement fixée à la fin du mois</li>
+                        <li>Le montant par défaut est de 0 FCFA, vous pourrez le modifier ensuite</li>
+                    </ul>
+                </div>
+
+                <!-- Boutons d'action -->
+                <div class="d-flex justify-content-between mt-4">
+                    <div>
+                        <a href="{% url 'liste_cotisations' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i> Annuler
+                        </a>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-outline-info me-2" id="btn-preview">
+                            <i class="fas fa-eye me-1"></i> Prévisualiser
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="btn-generate">
+                            <i class="fas fa-play me-1"></i> Générer les cotisations
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de prévisualisation -->
+    <div class="modal fade" id="previewModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-eye me-2"></i>
+                        Prévisualisation
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="preview-content">
+                        <!-- Contenu chargé via AJAX -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Fermer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Prévisualisation
+    $('#btn-preview').click(function() {
+        const periode = $('#periode').val();
+        if (!periode) {
+            alert('Veuillez sélectionner une période');
+            return;
+        }
+
+        // Afficher le loader
+        $('#preview-content').html(`
+            <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Chargement...</span>
+                </div>
+                <p class="mt-2">Préparation de la prévisualisation...</p>
+            </div>
+        `);
+
+        // Ouvrir le modal
+        const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+        modal.show();
+
+        // Charger la prévisualisation via AJAX
+        $.ajax({
+            url: '{% url "preview_generation" %}',
+            type: 'GET',
+            data: { periode: periode },
+            success: function(data) {
+                $('#preview-content').html(data);
+            },
+            error: function() {
+                $('#preview-content').html(`
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Erreur lors du chargement de la prévisualisation
+                    </div>
+                `);
+            }
+        });
+    });
+
+    // Confirmation avant génération
+    $('form').submit(function(e) {
+        const periode = $('#periode').val();
+        if (!periode) {
+            e.preventDefault();
+            alert('Veuillez sélectionner une période');
+            return;
+        }
+
+        // Désactiver le bouton pendant le traitement
+        $('#btn-generate').prop('disabled', true);
+        $('#btn-generate').html(`
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Génération en cours...
+        `);
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,45 @@
+================================================================================
+📊 TABLEAU DE BORD COMPLET - VÉRIFICATIONS COTISATIONS
+================================================================================
+🎯 MÉTRIQUES GLOBALES
+────────────────────────────────────────
+👥 Membres totaux: 15
+✅ Vérifications créées: 15
+📋 Vérifications complétées: 15
+⏳ Taux complétion: 100.0%
+
+📈 RÉPARTITION DES STATUTS:
+  - a_jour: 15 (100.0%)
+
+────────────────────────────────────────────────────────────────────────────────
+👨‍💼 PERFORMANCE DES AGENTS
+────────────────────────────────────────
+Agent        Vérif. Total   Complétées   Taux %   Retard Moy   Dette Total 
+────────────────────────────────────────────────────────────────────────────────
+AG001        7              7            100.0  % 0.0         312.63      €
+AG002        2              2            100.0  % 0.0         57.47       €
+AG003        6              6            100.0  % 0.0         175.85      €
+
+────────────────────────────────────────────────────────────────────────────────
+🚨 ALERTES ET ANOMALIES
+────────────────────────────────────────
+
+🔵 INFORMATION:
+  • 1 échéances dans les 7 prochains jours
+
+────────────────────────────────────────────────────────────────────────────────
+📈 STATISTIQUES AVANCÉES
+────────────────────────────────────────
+📊 Retard moyen: 0.0 jours
+📊 Retard maximum: 0.0 jours
+
+💰 DISTRIBUTION DES DETTES:
+  - 0-50€: 9 membres (60.0%)
+  - 51-200€: 6 membres (40.0%)
+  - 201-500€: 0 membres (0.0%)
+  - 500+€: 0 membres (0.0%)
+
+🎯 TAUX DE RÉSOLUTION PAR AGENT:
+  - AG001: 100.0% de résolution
+  - AG002: 100.0% de résolution
+  - AG003: 100.0% de résolution

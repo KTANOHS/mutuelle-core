@@ -1,0 +1,401 @@
+<!-- templates/medecin/diagnostic_rendez_vous.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostic - Bouton Sélection Patient</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .diagnostic-section {
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .success { border-color: #28a745; background: #f8fff9; }
+        .warning { border-color: #ffc107; background: #fffef0; }
+        .danger { border-color: #dc3545; background: #fff5f5; }
+        .test-btn { margin: 5px; }
+        .log-container {
+            background: #1e1e1e;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-center mb-4">🔍 Diagnostic - Bouton Sélection Patient</h1>
+                
+                <!-- Section 1: Test Bootstrap -->
+                <div class="diagnostic-section" id="bootstrap-test">
+                    <h3>1. Test Bootstrap</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Tests Automatiques</h5>
+                            <div id="bootstrap-results"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Tests Manuel</h5>
+                            <button class="btn btn-primary test-btn" onclick="testBootstrapModal()">
+                                Test Modal Bootstrap
+                            </button>
+                            <button class="btn btn-info test-btn" onclick="testBootstrapComponents()">
+                                Test Composants Bootstrap
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Test Éléments DOM -->
+                <div class="diagnostic-section" id="dom-test">
+                    <h3>2. Test Éléments DOM</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Éléments Requis</h5>
+                            <ul id="dom-elements-list" class="list-group"></ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Test Interactivité</h5>
+                            <button class="btn btn-warning test-btn" onclick="testButtonClick()">
+                                Test Clic Bouton
+                            </button>
+                            <button class="btn btn-secondary test-btn" onclick="inspectModal()">
+                </div>
+
+                <!-- Section 3: Test Données -->
+                <div class="diagnostic-section" id="data-test">
+                    <h3>3. Test Données Backend</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Données Template</h5>
+                            <div id="template-data-results"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Test API</h5>
+                            <button class="btn btn-info test-btn" onclick="testPatientsAPI()">
+                                Test API Patients
+                            </button>
+                            <button class="btn btn-success test-btn" onclick="testConsultationURL()">
+                                Test URL Consultation
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Logs en Temps Réel -->
+                <div class="diagnostic-section">
+                    <h3>4. Logs de Diagnostic</h3>
+                    <div class="log-container">
+                        <div id="diagnostic-logs"></div>
+                    </div>
+                </div>
+
+                <!-- Section 5: Solution Rapide -->
+                <div class="diagnostic-section success">
+                    <h3>5. Solution Rapide</h3>
+                    <button class="btn btn-success btn-lg" onclick="applyQuickFix()">
+                        🔧 Appliquer Correctif Automatique
+                    </button>
+                    <div id="quick-fix-result" class="mt-3"></div>
+                </div>
+
+                <!-- Bouton de test original -->
+                <div class="text-center mt-4">
+                    <h4>Test du Bouton Original</h4>
+                    <button type="button" class="btn btn-primary btn-lg" id="originalPatientBtn" data-bs-toggle="modal" data-bs-target="#selectPatientModal">
+                        <i class="fas fa-plus me-2"></i>Sélectionner un patient (ORIGINAL)
+                    </button>
+                </div>
+
+                <!-- Modal de test -->
+                <div class="modal fade" id="selectPatientModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Modal de Test</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Si vous voyez ceci, le modal Bootstrap fonctionne !</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Logging function
+        function log(message, type = 'info') {
+            const logs = document.getElementById('diagnostic-logs');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'red' : type === 'success' ? '#00ff00' : '#ffff00';
+            logs.innerHTML += `<span style="color: ${color}">[${timestamp}] ${message}</span><br>`;
+            logs.scrollTop = logs.scrollHeight;
+            console.log(`[DIAGNOSTIC] ${message}`);
+        }
+
+        // Test 1: Bootstrap
+        function testBootstrap() {
+            log('🔧 Test Bootstrap en cours...');
+            const results = document.getElementById('bootstrap-results');
+            
+            // Test Bootstrap object
+            if (typeof bootstrap === 'undefined') {
+                results.innerHTML = '<div class="alert alert-danger">❌ Bootstrap NON chargé</div>';
+                log('ERREUR: Bootstrap non chargé', 'error');
+                return false;
+            }
+            
+            // Test Modal component
+            if (typeof bootstrap.Modal === 'undefined') {
+                results.innerHTML = '<div class="alert alert-danger">❌ Composant Modal NON disponible</div>';
+                log('ERREUR: Composant Modal non disponible', 'error');
+                return false;
+            }
+            
+            // Test jQuery (si utilisé)
+            if (typeof $ !== 'undefined') {
+                log('jQuery détecté', 'warning');
+            }
+            
+            results.innerHTML = '<div class="alert alert-success">✅ Bootstrap correctement chargé</div>';
+            log('SUCCÈS: Bootstrap fonctionnel', 'success');
+            return true;
+        }
+
+        // Test 2: Éléments DOM
+        function testDOMElements() {
+            log('🔍 Test des éléments DOM...');
+            const list = document.getElementById('dom-elements-list');
+            list.innerHTML = '';
+            
+            const elements = [
+                { id: 'originalPatientBtn', name: 'Bouton principal' },
+                { id: 'selectPatientModal', name: 'Modal' },
+                { id: 'searchPatient', name: 'Champ recherche' },
+                { class: 'patient-item', name: 'Items patients' }
+            ];
+            
+            let allFound = true;
+            
+            elements.forEach(element => {
+                const el = element.id ? 
+                    document.getElementById(element.id) : 
+                    document.getElementsByClassName(element.class)[0];
+                
+                const exists = !!el;
+                const status = exists ? '✅' : '❌';
+                const cssClass = exists ? 'list-group-item-success' : 'list-group-item-danger';
+                
+                list.innerHTML += `
+                    <li class="list-group-item ${cssClass}">
+                        ${status} ${element.name} 
+                        (${element.id || element.class})
+                    </li>
+                `;
+                
+                if (!exists) {
+                    log(`ERREUR: Élément manquant - ${element.name}`, 'error');
+                    allFound = false;
+                }
+            });
+            
+            if (allFound) {
+                log('SUCCÈS: Tous les éléments DOM présents', 'success');
+            }
+            
+            return allFound;
+        }
+
+        // Test 3: Données Template
+        function testTemplateData() {
+            log('📊 Test des données template...');
+            const results = document.getElementById('template-data-results');
+            
+            // Vérifier si les variables template existent
+            const tests = [
+                { name: 'Patients disponibles', value: window.patientCount || {{ patients|length|default:0 }} },
+                { name: 'Consultations', value: window.consultationCount || {{ consultations|length|default:0 }} }
+            ];
+            
+            let html = '';
+            tests.forEach(test => {
+                const status = test.value > 0 ? '✅' : '⚠️';
+                const cssClass = test.value > 0 ? 'alert-success' : 'alert-warning';
+                
+                html += `
+                    <div class="alert ${cssClass}">
+                        ${status} ${test.name}: ${test.value}
+                    </div>
+                `;
+                
+                if (test.value === 0) {
+                    log(`AVERTISSEMENT: ${test.name} = 0`, 'warning');
+                }
+            });
+            
+            results.innerHTML = html;
+            log('Données template analysées', 'info');
+        }
+
+        // Test 4: Interactivité
+        function testButtonClick() {
+            log('🖱️ Test d\'interactivité...');
+            const btn = document.getElementById('originalPatientBtn');
+            
+            if (!btn) {
+                log('ERREUR: Bouton non trouvé', 'error');
+                return;
+            }
+            
+            // Simuler le clic
+            btn.click();
+            log('Clic simulé sur le bouton', 'info');
+            
+            // Vérifier si le modal s'ouvre
+            setTimeout(() => {
+                const modal = document.getElementById('selectPatientModal');
+                const isVisible = modal && modal.classList.contains('show');
+                
+                if (isVisible) {
+                    log('SUCCÈS: Modal ouvert après clic', 'success');
+                } else {
+                    log('ERREUR: Modal non ouvert après clic', 'error');
+                }
+            }, 500);
+        }
+
+        // Test 5: API Patients
+        function testPatientsAPI() {
+            log('🌐 Test API patients...');
+            
+            // Tester différentes URLs d'API
+            const endpoints = [
+                '/api/patients/',
+                '/membres/api/recherche/',
+                '/medecin/api/patients/'
+            ];
+            
+            endpoints.forEach(endpoint => {
+                fetch(endpoint)
+                    .then(response => {
+                        if (response.ok) {
+                            log(`✅ API accessible: ${endpoint}`, 'success');
+                        } else {
+                            log(`❌ API non accessible: ${endpoint}`, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        log(`❌ Erreur API ${endpoint}: ${error.message}`, 'error');
+                    });
+            });
+        }
+
+        // Test 6: Correctif rapide
+        function applyQuickFix() {
+            log('🔧 Application du correctif rapide...');
+            const resultDiv = document.getElementById('quick-fix-result');
+            
+            // Solution 1: Réattacher les événements
+            const originalBtn = document.getElementById('originalPatientBtn');
+            if (originalBtn) {
+                originalBtn.setAttribute('onclick', '');
+                originalBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const modal = new bootstrap.Modal(document.getElementById('selectPatientModal'));
+                    modal.show();
+                });
+                log('Événement réattaché au bouton', 'success');
+            }
+            
+            // Solution 2: Créer un bouton de secours
+            const backupBtn = document.createElement('button');
+            backupBtn.className = 'btn btn-success btn-lg mt-3';
+            backupBtn.innerHTML = '<i class="fas fa-plus me-2"></i>Sélectionner un patient (BACKUP)';
+            backupBtn.onclick = function() {
+                const modal = new bootstrap.Modal(document.getElementById('selectPatientModal'));
+                modal.show();
+            };
+            
+            resultDiv.appendChild(backupBtn);
+            log('Bouton de secours créé', 'success');
+            log('✅ Correctif appliqué - Testez le bouton BACKUP', 'success');
+        }
+
+        // Tests manuels
+        function testBootstrapModal() {
+            log('🧪 Test manuel Modal Bootstrap...');
+            try {
+                const modal = new bootstrap.Modal(document.getElementById('selectPatientModal'));
+                modal.show();
+                log('SUCCÈS: Modal ouvert manuellement', 'success');
+            } catch (error) {
+                log(`ERREUR: ${error.message}`, 'error');
+            }
+        }
+
+        function testBootstrapComponents() {
+            log('🧪 Test composants Bootstrap...');
+            const components = ['Modal', 'Dropdown', 'Tooltip', 'Alert'];
+            components.forEach(comp => {
+                if (typeof bootstrap[comp] !== 'undefined') {
+                    log(`✅ ${comp} disponible`, 'success');
+                } else {
+                    log(`❌ ${comp} non disponible`, 'error');
+                }
+            });
+        }
+
+        function testConsultationURL() {
+            log('🔗 Test URL création consultation...');
+            // Tester si l'URL de création existe
+            fetch('/medecin/creer-consultation/1/')
+                .then(response => {
+                    if (response.status === 200) {
+                        log('✅ URL création consultation accessible', 'success');
+                    } else if (response.status === 404) {
+                        log('❌ URL création consultation NON TROUVÉE', 'error');
+                    } else {
+                        log(`⚠️ URL création consultation: statut ${response.status}`, 'warning');
+                    }
+                })
+                .catch(error => {
+                    log(`❌ Erreur test URL: ${error.message}`, 'error');
+                });
+        }
+
+        // Lancer les tests automatiques au chargement
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 Démarrage du diagnostic...');
+            
+            setTimeout(() => testBootstrap(), 100);
+            setTimeout(() => testDOMElements(), 200);
+            setTimeout(() => testTemplateData(), 300);
+            setTimeout(() => {
+                log('📋 Diagnostic complet terminé');
+                log('👉 Utilisez les boutons de test pour approfondir');
+            }, 500);
+        });
+
+        // Exposer les fonctions globalement pour les tests manuels
+        window.runDiagnostics = function() {
+            testBootstrap();
+            testDOMElements();
+            testTemplateData();
+        };
+    </script>
+</body>
+</html>

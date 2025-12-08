@@ -1,0 +1,82 @@
+{
+  "timestamp": "2025-11-27T10:13:01.924147",
+  "compatibilite": {
+    "timestamp": "2025-11-27T10:13:01.916117",
+    "scripts_analyses": [
+      {
+        "script": "diagnostic_sync_final.py",
+        "taille": 16536,
+        "lignes": 11,
+        "imports": [],
+        "modeles_references": [
+          "Agent",
+          "User",
+          "Ordonnance",
+          "BonDeSoin",
+          "Membre",
+          "Consultation"
+        ],
+        "derniere_modification": 1764235986.0594926,
+        "compatibilite": "COMPATIBLE"
+      },
+      {
+        "script": "correcteur_sync_urgence.py",
+        "taille": 11979,
+        "lignes": 7,
+        "imports": [],
+        "modeles_references": [
+          "Membre",
+          "User"
+        ],
+        "derniere_modification": 1764236173.1311727,
+        "compatibilite": "COMPATIBLE"
+      },
+      {
+        "script": "surveillance_simple.py",
+        "taille": 5956,
+        "lignes": 5,
+        "imports": [],
+        "modeles_references": [
+          "Membre",
+          "User"
+        ],
+        "derniere_modification": 1764236834.0483243,
+        "compatibilite": "COMPATIBLE"
+      },
+      {
+        "script": "surveillance_hebdomadaire.py",
+        "taille": 8058,
+        "lignes": 1,
+        "imports": [],
+        "modeles_references": [
+          "Membre",
+          "User"
+        ],
+        "derniere_modification": 1764237948.7597468,
+        "compatibilite": "COMPATIBLE"
+      }
+    ],
+    "problemes_compatibilite": [],
+    "recommandations_mise_a_jour": []
+  },
+  "etat_systeme": {
+    "utilisateurs": 43,
+    "membres": 22,
+    "synchronisation": 22,
+    "version_django": "5.2.7",
+    "python": "3.11.10 (main, Sep 18 2025, 08:11:13) [Clang 14.0.3 (clang-1403.0.22.14.1)]"
+  },
+  "plan_evolution": {
+    "priorites": [],
+    "maintenance": [
+      "Mettre \u00e0 jour les d\u00e9pendances Python",
+      "R\u00e9viser les scripts de surveillance",
+      "Sauvegarder les configurations"
+    ],
+    "ameliorations": [
+      "Ajouter plus de m\u00e9triques de performance",
+      "Impl\u00e9menter des alertes avanc\u00e9es",
+      "Cr\u00e9er des tableaux de bord"
+    ]
+  }
+}

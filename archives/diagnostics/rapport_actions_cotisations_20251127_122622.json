@@ -1,0 +1,22 @@
+{
+  "timestamp": "2025-11-27T12:26:22.031785",
+  "analyse": {
+    "statistiques": {
+      "membres_total": 24,
+      "membres_avec_verification": 45,
+      "membres_sans_verification": 0,
+      "verifications_total": 45,
+      "agents_total": 8,
+      "assureurs_total": 3
+    },
+    "verifications_par_statut": [
+      {
+        "statut_cotisation": "a_jour",
+        "count": 45
+      }
+    ]
+  },
+  "problemes": [],
+  "recommandations": [],
+  "actions_immediates": []
+}

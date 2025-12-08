@@ -1,0 +1,651 @@
+# forms.py - VERSION COMPLÈTEMENT CORRIGÉE AVEC CHAMPS RÉELS
+from django import forms
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.utils import timezone
+from django.db.models import F
+from .models import Membre, Bon, Soin, Paiement, ConfigurationAssurance, Cotisation, RapportAssureur
+
+# Vérifier les champs réels de chaque modèle
+print("DEBUG: Chargement de forms.py...")
+
+try:
+    # Vérifier ConfigurationAssurance
+    from .models import ConfigurationAssurance
+    config_fields = [field.name for field in ConfigurationAssurance._meta.fields]
+    print(f"DEBUG: Champs ConfigurationAssurance: {config_fields}")
+except Exception as e:
+    print(f"DEBUG: Erreur vérification ConfigurationAssurance: {e}")
+    config_fields = []
+
+# ============================================================================
+# FORMULAIRE MEMBRE - CORRIGÉ POUR LES CHAMPS RÉELS
+# ============================================================================
+
+class MembreForm(forms.ModelForm):
+    """Formulaire pour la création et modification des membres - VERSION CORRIGÉE"""
+    
+    # Champs supplémentaires pour la validation (non stockés en base)
+    confirmer_email = forms.EmailField(
+        label="Confirmer l'email",
+        required=True,
+        widget=forms.EmailInput(attrs={'class': 'form-control'})
+    )
+    
+    confirmer_telephone = forms.CharField(
+        max_length=20,
+        label="Confirmer le téléphone",
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+
+    class Meta:
+        model = Membre
+        # CORRECTION : Retirer 'numero_unique' car c'est un champ non-éditable
+        # CORRECTION : Utiliser uniquement les champs EXISTANTS et ÉDITABLES du modèle Membre
+        fields = [
+            # Champs de base
+            'nom', 'prenom', 'email', 'telephone', 
+            'date_naissance', 'adresse', 'profession',
+            
+            # Champs d'identification (éditables)
+            'statut', 'categorie', 'cmu_option',
+            'type_piece_identite', 'numero_piece_identite',
+            'date_expiration_piece',
+            
+            # Champs de contact d'urgence
+            'numero_urgence',
+            
+            # Champs de couverture
+            'taux_couverture',
+            
+            # Champs spécifiques femmes enceintes
+            'est_femme_enceinte', 'date_debut_grossesse',
+            'date_accouchement_prevue', 'date_accouchement_reelle',
+            
+            # Champs de paiement
+            'avance_payee', 'carte_adhesion_payee',
+            
+            # Champs de documents (fichiers)
+            'piece_identite_recto', 'piece_identite_verso',
+            'photo_identite',
+        ]
+        
+        widgets = {
+            # Champs texte
+            'nom': forms.TextInput(attrs={'class': 'form-control'}),
+            'prenom': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'telephone': forms.TextInput(attrs={'class': 'form-control'}),
+            'numero_urgence': forms.TextInput(attrs={'class': 'form-control'}),
+            'adresse': forms.Textarea(attrs={'rows': 2, 'class': 'form-control'}),
+            'profession': forms.TextInput(attrs={'class': 'form-control'}),
+            'numero_piece_identite': forms.TextInput(attrs={'class': 'form-control'}),
+            
+            # Champs date
+            'date_naissance': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'date_expiration_piece': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'date_debut_grossesse': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'date_accouchement_prevue': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'date_accouchement_reelle': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            
+            # Champs sélection
+            'statut': forms.Select(attrs={'class': 'form-control'}),
+            'categorie': forms.Select(attrs={'class': 'form-control'}),
+            'type_piece_identite': forms.Select(attrs={'class': 'form-control'}),
+            
+            # Champs numériques
+            'taux_couverture': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0', 'max': '100'}),
+            
+            # Checkboxes
+            'cmu_option': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'est_femme_enceinte': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'avance_payee': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'carte_adhesion_payee': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            
+            # Champs fichiers
+            'piece_identite_recto': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'piece_identite_verso': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'photo_identite': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }
+        
+        labels = {
+            'numero_urgence': 'Numéro d\'urgence',
+            'cmu_option': 'Bénéficiaire CMU',
+            'type_piece_identite': 'Type de pièce d\'identité',
+            'numero_piece_identite': 'Numéro de pièce',
+            'date_expiration_piece': 'Date d\'expiration',
+            'taux_couverture': 'Taux de couverture (%)',
+            'est_femme_enceinte': 'Femme enceinte',
+            'date_debut_grossesse': 'Date début grossesse',
+            'date_accouchement_prevue': 'Date accouchement prévue',
+            'date_accouchement_reelle': 'Date accouchement réelle',
+            'avance_payee': 'Avance payée',
+            'carte_adhesion_payee': 'Carte d\'adhésion payée',
+            'piece_identite_recto': 'Pièce d\'identité (recto)',
+            'piece_identite_verso': 'Pièce d\'identité (verso)',
+            'photo_identite': 'Photo d\'identité',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Si c'est une modification, rendre les champs de confirmation non obligatoires
+        if self.instance and self.instance.pk:
+            self.fields['confirmer_email'].required = False
+            self.fields['confirmer_telephone'].required = False
+            self.fields['confirmer_email'].initial = self.instance.email
+            self.fields['confirmer_telephone'].initial = self.instance.telephone
+        
+        # Masquer les champs de grossesse si la case n'est pas cochée
+        if not self.initial.get('est_femme_enceinte', False):
+            self.fields['date_debut_grossesse'].widget.attrs['disabled'] = True
+            self.fields['date_accouchement_prevue'].widget.attrs['disabled'] = True
+            self.fields['date_accouchement_reelle'].widget.attrs['disabled'] = True
+
+    def clean(self):
+        cleaned_data = super().clean()
+        email = cleaned_data.get('email')
+        confirmer_email = cleaned_data.get('confirmer_email')
+        telephone = cleaned_data.get('telephone')
+        confirmer_telephone = cleaned_data.get('confirmer_telephone')
+        date_naissance = cleaned_data.get('date_naissance')
+        est_femme_enceinte = cleaned_data.get('est_femme_enceinte')
+        date_debut_grossesse = cleaned_data.get('date_debut_grossesse')
+        date_expiration_piece = cleaned_data.get('date_expiration_piece')
+
+        # Validation de l'email
+        if email and confirmer_email and email != confirmer_email:
+            self.add_error('confirmer_email', "Les adresses email ne correspondent pas.")
+
+        # Validation du téléphone
+        if telephone and confirmer_telephone and telephone != confirmer_telephone:
+            self.add_error('confirmer_telephone', "Les numéros de téléphone ne correspondent pas.")
+
+        # Validation de la date de naissance
+        if date_naissance:
+            age = (timezone.now().date() - date_naissance).days // 365
+            if age < 0:
+                self.add_error('date_naissance', "La date de naissance ne peut pas être dans le futur.")
+            elif age > 120:
+                self.add_error('date_naissance', "L'âge semble incorrect (supérieur à 120 ans).")
+
+        # Validation des champs grossesse
+        if est_femme_enceinte:
+            if not date_debut_grossesse:
+                self.add_error('date_debut_grossesse', "La date de début de grossesse est requise.")
+            elif date_debut_grossesse > timezone.now().date():
+                self.add_error('date_debut_grossesse', "La date de début ne peut pas être dans le futur.")
+        else:
+            # Réinitialiser les champs si la case n'est pas cochée
+            cleaned_data['date_debut_grossesse'] = None
+            cleaned_data['date_accouchement_prevue'] = None
+            cleaned_data['date_accouchement_reelle'] = None
+
+        # Validation de la date d'expiration de la pièce
+        if date_expiration_piece and date_expiration_piece < timezone.now().date():
+            self.add_error('date_expiration_piece', "La pièce d'identité a expiré.")
+
+        return cleaned_data
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email:
+            # Vérifier l'unicité (en excluant l'instance actuelle pour les modifications)
+            queryset = Membre.objects.filter(email=email)
+            if self.instance and self.instance.pk:
+                queryset = queryset.exclude(pk=self.instance.pk)
+            if queryset.exists():
+                raise ValidationError("Cet email est déjà utilisé par un autre membre.")
+        return email
+
+# ============================================================================
+# FORMULAIRE BON - CORRIGÉ
+# ============================================================================
+
+class BonForm(forms.ModelForm):
+    """Formulaire pour la création et modification des bons - VERSION CORRIGÉE"""
+    
+    class Meta:
+        model = Bon
+        # Utiliser uniquement les champs existants du modèle Bon
+        fields = ['membre', 'type_soin', 'date_soin', 'description']
+        widgets = {
+            'membre': forms.Select(attrs={'class': 'form-control'}),
+            'type_soin': forms.Select(attrs={'class': 'form-control'}),
+            'date_soin': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'rows': 4, 'class': 'form-control', 'placeholder': 'Description détaillée des soins...'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filtrer les membres actifs seulement
+        self.fields['membre'].queryset = Membre.objects.filter(statut='actif')
+        
+        # Si un membre_id est passé dans le contexte, pré-sélectionner le membre
+        if 'initial' in kwargs and 'membre_id' in kwargs['initial']:
+            self.fields['membre'].initial = kwargs['initial']['membre_id']
+
+    def clean(self):
+        cleaned_data = super().clean()
+        date_soin = cleaned_data.get('date_soin')
+
+        # Validation des dates
+        if date_soin and date_soin > timezone.now().date():
+            self.add_error('date_soin', "La date des soins ne peut pas être dans le futur.")
+
+        return cleaned_data
+
+# ============================================================================
+# FORMULAIRE SOIN - CORRIGÉ POUR LES CHAMPS RÉELS
+# ============================================================================
+
+class SoinForm(forms.ModelForm):
+    """Formulaire pour la soumission et gestion des soins - VERSION CORRIGÉE AVEC CHAMPS RÉELS"""
+    
+    class Meta:
+        model = Soin
+        # CORRECTION : Utiliser uniquement les champs EXISTANTS du modèle Soin
+        fields = [
+            'membre', 'bon', 'type_soin', 'description', 
+            'montant_facture', 'montant_rembourse', 'date_soin',
+            'statut'
+        ]
+        widgets = {
+            'membre': forms.Select(attrs={'class': 'form-control'}),
+            'bon': forms.Select(attrs={'class': 'form-control'}),
+            'type_soin': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Type de soin...'}),
+            'description': forms.Textarea(attrs={'rows': 4, 'class': 'form-control', 'placeholder': 'Description détaillée des soins effectués...'}),
+            'montant_facture': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0', 'placeholder': 'Montant facturé...'}),
+            'montant_rembourse': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0', 'placeholder': 'Montant remboursé...'}),
+            'date_soin': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'statut': forms.Select(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'montant_facture': 'Montant facturé',
+            'montant_rembourse': 'Montant remboursé',
+            'date_soin': 'Date des soins',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filtrer les membres actifs seulement
+        self.fields['membre'].queryset = Membre.objects.filter(statut='actif')
+        
+        # Filtrer les bons disponibles
+        self.fields['bon'].queryset = Bon.objects.filter(statut='valide')
+        
+        # Définir la date de soumission par défaut
+        if not self.instance.pk:  # Si c'est une création
+            self.fields['date_soin'].initial = timezone.now().date()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        date_soin = cleaned_data.get('date_soin')
+        montant_facture = cleaned_data.get('montant_facture')
+        montant_rembourse = cleaned_data.get('montant_rembourse')
+
+        # Validation de la date des soins
+        if date_soin and date_soin > timezone.now().date():
+            self.add_error('date_soin', "La date des soins ne peut pas être dans le futur.")
+
+        # Validation du montant facturé
+        if montant_facture and montant_facture < 0:
+            self.add_error('montant_facture', "Le montant facturé ne peut pas être négatif.")
+
+        # Validation du montant remboursé
+        if montant_rembourse and montant_rembourse < 0:
+            self.add_error('montant_rembourse', "Le montant remboursé ne peut pas être négatif.")
+
+        # Validation cohérence des montants
+        if montant_rembourse and montant_facture and montant_rembourse > montant_facture:
+            self.add_error('montant_rembourse', "Le montant remboursé ne peut pas dépasser le montant facturé.")
+
+        return cleaned_data
+
+# ============================================================================
+# FORMULAIRE PAIEMENT - CORRIGÉ POUR CHAMPS RÉELS
+# ============================================================================
+
+class PaiementForm(forms.ModelForm):
+    """Formulaire pour la création et gestion des paiements - VERSION SIMPLIFIÉE"""
+    
+    class Meta:
+        model = Paiement
+        # Utiliser __all__ pour éviter les erreurs, ajustez après vérification
+        fields = '__all__'
+        
+        # Si vous préférez spécifier manuellement, vérifiez d'abord les champs :
+        # from .models import Paiement
+        # print([field.name for field in Paiement._meta.fields])
+        # Puis utilisez ces champs dans la liste
+        
+        widgets = {
+            'membre': forms.Select(attrs={'class': 'form-control'}),
+            'mode_paiement': forms.Select(attrs={'class': 'form-control'}),
+            'montant': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0'}),
+            'date_paiement': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filtrer les membres actifs
+        if 'membre' in self.fields:
+            self.fields['membre'].queryset = Membre.objects.filter(statut='actif')
+
+        # Définir la date actuelle comme valeur par défaut pour date_paiement
+        if 'date_paiement' in self.fields:
+            self.fields['date_paiement'].initial = timezone.now()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        montant = cleaned_data.get('montant')
+
+        # Validation du montant
+        if montant and montant <= 0:
+            self.add_error('montant', "Le montant doit être positif.")
+
+        return cleaned_data
+
+# ============================================================================
+# FORMULAIRE VALIDATION SOIN
+# ============================================================================
+
+class ValidationSoinForm(forms.ModelForm):
+    """Formulaire pour la validation/refus des soins - VERSION SIMPLIFIÉE"""
+    
+    ACTION_CHOICES = [
+        ('valider', 'Valider le soin'),
+        ('refuser', 'Refuser le soin'),
+    ]
+    
+    action = forms.ChoiceField(
+        choices=ACTION_CHOICES,
+        widget=forms.RadioSelect(attrs={'class': 'form-check-input'}),
+        label="Action à effectuer"
+    )
+    
+    montant_rembourse = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0'}),
+        label="Montant à rembourser"
+    )
+    
+    motif_refus = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'placeholder': 'Expliquez le motif du refus...'}),
+        label="Motif de refus"
+    )
+
+    class Meta:
+        model = Soin
+        fields = ['montant_rembourse']
+        widgets = {
+            'montant_rembourse': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0'}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        action = cleaned_data.get('action')
+        montant_rembourse = cleaned_data.get('montant_rembourse')
+        motif_refus = cleaned_data.get('motif_refus')
+
+        if action == 'valider':
+            if not montant_rembourse:
+                self.add_error('montant_rembourse', "Le montant à rembourser est requis pour la validation.")
+            elif montant_rembourse > self.instance.montant_facture:
+                self.add_error('montant_rembourse', f"Le montant remboursé ne peut pas dépasser {self.instance.montant_facture} €.")
+        
+        elif action == 'refuser':
+            if not motif_refus:
+                self.add_error('motif_refus', "Le motif de refus est requis.")
+
+        return cleaned_data
+
+# ============================================================================
+# FORMULAIRES DE RECHERCHE ET FILTRAGE
+# ============================================================================
+
+class RechercheMembreForm(forms.Form):
+    """Formulaire de recherche de membres"""
+    
+    TERME_RECHERCHE_CHOICES = [
+        ('numero_unique', 'Numéro de membre'),
+        ('nom', 'Nom'),
+        ('prenom', 'Prénom'),
+        ('email', 'Email'),
+        ('telephone', 'Téléphone'),
+        ('numero_piece_identite', 'Numéro de pièce'),
+    ]
+    
+    terme_recherche = forms.CharField(
+        max_length=100,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Entrez votre terme de recherche...'
+        }),
+        label="Terme à rechercher"
+    )
+    
+    champ_recherche = forms.ChoiceField(
+        choices=TERME_RECHERCHE_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Rechercher dans",
+        initial='nom'
+    )
+    
+    statut = forms.ChoiceField(
+        choices=[('', 'Tous les statuts')] + [(s, s) for s in Membre.objects.values_list('statut', flat=True).distinct()],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Filtrer par statut"
+    )
+
+class FiltreBonsForm(forms.Form):
+    """Formulaire de filtrage des bons"""
+    
+    statut = forms.ChoiceField(
+        choices=[('', 'Tous les statuts')] + [(s, s) for s in Bon.objects.values_list('statut', flat=True).distinct()],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Statut"
+    )
+    
+    type_soin = forms.ChoiceField(
+        choices=[('', 'Tous les types')] + [(t, t) for t in Bon.objects.values_list('type_soin', flat=True).distinct()],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Type de soin"
+    )
+    
+    date_debut = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        label="Date de début"
+    )
+    
+    date_fin = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        label="Date de fin"
+    )
+
+class FiltrePaiementsForm(forms.Form):
+    """Formulaire de filtrage des paiements"""
+    
+    statut = forms.ChoiceField(
+        choices=[('', 'Tous les statuts')] + [(s, s) for s in Paiement.objects.values_list('statut', flat=True).distinct()],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Statut"
+    )
+    
+    mode_paiement = forms.ChoiceField(
+        choices=[('', 'Tous les modes')] + [(m, m) for m in Paiement.objects.values_list('mode_paiement', flat=True).distinct()],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Mode de paiement"
+    )
+    
+    date_debut = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        label="Date de début"
+    )
+    
+    date_fin = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        label="Date de fin"
+    )
+
+class RechercheForm(forms.Form):
+    """Formulaire de recherche globale"""
+    query = forms.CharField(
+        max_length=100, 
+        required=False, 
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Rechercher un membre, bon, cotisation...',
+            'class': 'form-control'
+        })
+    )
+    type_recherche = forms.ChoiceField(
+        choices=[
+            ('tous', 'Tous'),
+            ('membres', 'Membres'),
+            ('bons', 'Bons de soin'),
+            ('cotisations', 'Cotisations'),
+            ('paiements', 'Paiements'),
+        ],
+        initial='tous',
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+# ============================================================================
+# FORMULAIRES ADMINISTRATIFS
+# ============================================================================
+
+class ConfigurationAssuranceForm(forms.ModelForm):
+    """Formulaire pour la configuration du système d'assurance - VERSION MINIMALE"""
+    
+    class Meta:
+        model = ConfigurationAssurance
+        # Utiliser __all__ temporairement, ou vérifier les champs réels
+        fields = '__all__'  # Django utilisera tous les champs existants
+        
+        # Si vous préférez spécifier manuellement, vérifiez d'abord :
+        # print([field.name for field in ConfigurationAssurance._meta.fields])
+        # Puis utilisez ces champs
+        
+        widgets = {
+            'nom_assureur': forms.TextInput(attrs={'class': 'form-control'}),
+            'taux_couverture_defaut': forms.NumberInput(attrs={
+                'class': 'form-control', 
+                'step': '0.01', 
+                'min': '0', 
+                'max': '100'
+            }),
+            'delai_validite_bon': forms.NumberInput(attrs={
+                'class': 'form-control', 
+                'min': '1', 
+                'max': '365'
+            }),
+        }
+        labels = {
+            'taux_couverture_defaut': 'Taux de couverture par défaut (%)',
+            'delai_validite_bon': 'Délai de validité des bons (jours)',
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        taux_couverture_defaut = cleaned_data.get('taux_couverture_defaut')
+        delai_validite_bon = cleaned_data.get('delai_validite_bon')
+
+        if taux_couverture_defaut and (taux_couverture_defaut < 0 or taux_couverture_defaut > 100):
+            self.add_error('taux_couverture_defaut', "Le taux de couverture doit être compris entre 0 et 100%.")
+
+        if delai_validite_bon and delai_validite_bon < 1:
+            self.add_error('delai_validite_bon', "Le délai de validité doit être d'au moins 1 jour.")
+
+        return cleaned_data
+
+class CotisationForm(forms.ModelForm):
+    """Formulaire pour la création et gestion des cotisations"""
+    
+    class Meta:
+        model = Cotisation
+        fields = ['membre', 'periode', 'type_cotisation', 'montant', 'date_echeance', 'notes']
+        widgets = {
+            'membre': forms.Select(attrs={'class': 'form-control'}),
+            'periode': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'YYYY-MM'}),
+            'type_cotisation': forms.Select(attrs={'class': 'form-control'}),
+            'montant': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0'}),
+            'date_echeance': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'notes': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'placeholder': 'Notes supplémentaires...'}),
+        }
+        labels = {
+            'periode': 'Période (YYYY-MM)',
+            'date_echeance': 'Date d\'échéance',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filtrer les membres actifs
+        self.fields['membre'].queryset = Membre.objects.filter(statut='actif')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        date_echeance = cleaned_data.get('date_echeance')
+        periode = cleaned_data.get('periode')
+        membre = cleaned_data.get('membre')
+
+        # Validation de la date d'échéance
+        if date_echeance and date_echeance < timezone.now().date():
+            self.add_error('date_echeance', "La date d'échéance ne peut pas être dans le passé.")
+
+        # Validation du format de période
+        if periode:
+            try:
+                from datetime import datetime
+                datetime.strptime(periode, '%Y-%m')
+            except ValueError:
+                self.add_error('periode', "Le format de période doit être YYYY-MM (ex: 2024-01).")
+
+        # Vérifier si une cotisation existe déjà pour cette période et ce membre
+        if membre and periode:
+            existing = Cotisation.objects.filter(membre=membre, periode=periode)
+            if self.instance and self.instance.pk:
+                existing = existing.exclude(pk=self.instance.pk)
+            if existing.exists():
+                self.add_error('periode', f"Une cotisation existe déjà pour {membre} pour la période {periode}.")
+
+        return cleaned_data
+
+class RepondreMessageForm(forms.Form):
+    contenu = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'rows': 5, 
+            'class': 'form-control',
+            'placeholder': 'Tapez votre réponse ici...'
+        }),
+        label="Votre réponse"
+    )
+
+class RapportForm(forms.ModelForm):
+    class Meta:
+        model = RapportAssureur
+        fields = ['titre', 'type_rapport', 'periode_debut', 'periode_fin', 'description']
+        widgets = {
+            'periode_debut': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'periode_fin': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'titre': forms.TextInput(attrs={'class': 'form-control'}),
+            'type_rapport': forms.Select(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
+        }
+
+# Alias pour compatibilité
+ConfigurationForm = ConfigurationAssuranceForm
+
+print("DEBUG: forms.py chargé avec succès!")

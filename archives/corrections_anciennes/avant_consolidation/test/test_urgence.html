@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Test Messagerie - Correctif d'urgence{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="alert alert-warning">
+        <h4>Correctif d'urgence - Système de Messagerie</h4>
+        <p>Cette page fonctionne même si le reste du système a des problèmes.</p>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5>Test du Modal</h5>
+                </div>
+                <div class="card-body text-center">
+                    <button type="button" class="btn btn-success btn-lg" 
+                            data-bs-toggle="modal" data-bs-target="#testModal">
+                        <i class="fas fa-bolt me-2"></i>Test Modal d'urgence
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5>Instructions</h5>
+                </div>
+                <div class="card-body">
+                    <p>Si ce modal fonctionne, le problème vient des templates spécifiques.</p>
+                    <p>Si ce modal ne fonctionne pas, le problème vient de Bootstrap.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de test d'urgence -->
+<div class="modal fade" id="testModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">✅ Modal de test</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Félicitations ! Le modal fonctionne correctement.</p>
+                <p>Le problème vient probablement des templates spécifiques à la messagerie.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Correctif durgence chargé');
+});
+</script>
+{% endblock %}

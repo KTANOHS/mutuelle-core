@@ -1,0 +1,26 @@
+#!/bin/bash
+
+echo "🔧 Correction spécifique pour mututlle_core..."
+
+# Active le virtualenv
+source venv/bin/activate
+
+# Exécute le script de correction
+python fix_mututlle_issues.py
+
+# Fait les migrations
+echo ""
+echo "🗃️ Création des migrations..."
+python manage.py makemigrations
+
+echo ""
+echo "🗃️ Application des migrations..."
+python manage.py migrate
+
+# Vérifie les corrections
+echo ""
+echo "🔍 Vérification finale..."
+python mututlle_checklist.py
+
+echo ""
+echo "✅ Corrections terminées pour mututlle_core!"

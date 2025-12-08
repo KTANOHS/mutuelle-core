@@ -1,0 +1,10 @@
+RAPPORT DE SCAN CSRF - Templates avec tokens manquants
+============================================================
+
+
+
+📊 STATISTIQUES:
+------------------------------
+🔴 Fichiers critiques: 0
+✅ Fichiers propres: 4
+📁 Total fichiers scannés: 4
