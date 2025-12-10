@@ -44,7 +44,7 @@ if not SECRET_KEY:
         print(f"🔑 Clé de développement générée automatiquement")
 
 # =============================================================================
-# ALLOWED_HOSTS - CONFIGURATION INTELLIGENTE
+# ALLOWED_HOSTS - CONFIGURATION CORRIGÉE
 # =============================================================================
 ALLOWED_HOSTS = []
 
@@ -57,20 +57,25 @@ if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
     ALLOWED_HOSTS.append('.onrender.com')  # Tous les sous-domaines Render
 
-# Ajouter les hosts depuis l'environnement
-env_hosts = os.environ.get('DJANGO_ALLOWED_HOSTS', '')
-if env_hosts:
-    ALLOWED_HOSTS.extend([host.strip() for host in env_hosts.split(',') if host.strip()])
-
 # En développement, autoriser tout pour faciliter les tests
 if IS_DEVELOPMENT:
     ALLOWED_HOSTS.append('*')
     print(f"🔓 Mode développement: tous les hôtes autorisés (*)")
 else:
-    # En production, retirer '*' s'il est présent
-    if '*' in ALLOWED_HOSTS:
-        ALLOWED_HOSTS.remove('*')
-        print(f"⚠️  '*' retiré de ALLOWED_HOSTS pour la production")
+    # En production, s'assurer qu'il y a au moins un hôte
+    if not ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append('localhost')  # Fallback de sécurité
+        print(f"⚠️  Aucun hôte spécifique, utilisation de 'localhost' comme fallback")
+
+# Ajouter les hosts depuis l'environnement
+env_hosts = os.environ.get('DJANGO_ALLOWED_HOSTS', '')
+if env_hosts:
+    ALLOWED_HOSTS.extend([host.strip() for host in env_hosts.split(',') if host.strip()])
+
+# Éviter les doublons
+ALLOWED_HOSTS = list(set(ALLOWED_HOSTS))
+
+print(f"🌐 ALLOWED_HOSTS configurés: {ALLOWED_HOSTS}")
 
 # =============================================================================
 # SUITE DE LA CONFIGURATION
@@ -150,20 +155,11 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
 }
 
-# SUPPRIMEZ CETTE SECTION - Inutile dans settings.py
-# GUNICORN_CONFIG = {
-#     'timeout': 120,
-#     'keepalive': 2,
-#     'worker_class': 'sync',
-#     'workers': 1,
-#     'threads': 2,
-# }
-
-# CORRECTION CRITIQUE : Ordre des Middleware
+# Middleware - ORDRE CRITIQUE
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # DOIT ÊTRE IMMÉDIATEMENT APRÈS SecurityMiddleware
-    'corsheaders.middleware.CorsMiddleware',  # CORS après WhiteNoise
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -228,11 +224,15 @@ if DATABASE_URL:
     except Exception as e:
         print(f"⚠️  Erreur configuration PostgreSQL: {e}")
         print(f"⚠️  Utilisation de SQLite comme fallback")
+        DATABASES['default'] = {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
 else:
     print(f"✅ Base de données SQLite configurée")
 
 # =============================================================================
-# FICHIERS STATIQUES - CONFIGURATION CORRIGÉE
+# FICHIERS STATIQUES
 # =============================================================================
 
 STATIC_URL = '/static/'
@@ -244,22 +244,15 @@ STATICFILES_DIRS = [
 
 # Configuration WhiteNoise optimisée
 if not DEBUG:
-    # Configuration production
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    
-    # Configuration WhiteNoise optimisée pour performance
     WHITENOISE_USE_FINDERS = True
     WHITENOISE_MANIFEST_STRICT = False
     WHITENOISE_ALLOW_ALL_ORIGINS = True
-    WHITENOISE_AUTOREFRESH = False  # IMPORTANT: False en production
+    WHITENOISE_AUTOREFRESH = False
     WHITENOISE_INDEX_FILE = False
-    
-    # Cache des fichiers statiques (1 an)
-    WHITENOISE_MAX_AGE = 31536000  # 1 an en secondes
-    
+    WHITENOISE_MAX_AGE = 31536000
     print(f"📁 Mode production: WhiteNoise activé pour les fichiers statiques")
 else:
-    # Configuration développement
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
     print(f"📁 Mode développement: fichiers statiques servis depuis STATICFILES_DIRS")
 
@@ -314,38 +307,51 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_SAVE_EVERY_REQUEST = True
 
 # =============================================================================
-# SÉCURITÉ
+# SÉCURITÉ - CORRECTION CRITIQUE
 # =============================================================================
 
-# CSRF - CRITIQUE POUR RENDER
+# CSRF - Configuration intelligente
 CSRF_TRUSTED_ORIGINS = []
 
-# Ajouter les origines de confiance
-if RENDER_EXTERNAL_HOSTNAME:
-    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
-    CSRF_TRUSTED_ORIGINS.append('https://*.onrender.com')
-
-# Ajouter depuis l'environnement
-csrf_env = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
-if csrf_env:
-    CSRF_TRUSTED_ORIGINS.extend([origin.strip() for origin in csrf_env.split(',')])
-
-# Cookies sécurisés - CORRECTION IMPORTANTE
+# Ajouter les origines de confiance seulement si on est sur HTTPS
 if IS_PRODUCTION:
+    # En production, on accepte HTTPS seulement
+    if RENDER_EXTERNAL_HOSTNAME:
+        CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
+        CSRF_TRUSTED_ORIGINS.append('https://*.onrender.com')
+    
+    # Ajouter depuis l'environnement
+    csrf_env = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
+    if csrf_env:
+        CSRF_TRUSTED_ORIGINS.extend([origin.strip() for origin in csrf_env.split(',') if origin.strip()])
+else:
+    # En développement, on accepte HTTP
+    CSRF_TRUSTED_ORIGINS.extend([
+        'http://localhost:8000',
+        'http://127.0.0.1:8000',
+        'http://localhost:3000',
+    ])
+
+# Cookies - Configuration intelligente
+if IS_PRODUCTION and RENDER_EXTERNAL_HOSTNAME:
+    # Production sur Render : HTTPS obligatoire
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    SESSION_COOKIE_SAMESITE = 'None'  # Pour Render
+    SESSION_COOKIE_SAMESITE = 'None'
     CSRF_COOKIE_SAMESITE = 'None'
-    CSRF_COOKIE_HTTPONLY = False  # Doit être False pour certaines APIs
+    print(f"🔒 Cookies sécurisés activés pour Render (HTTPS)")
 else:
+    # Développement local : HTTP seulement
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
     SESSION_COOKIE_SAMESITE = 'Lax'
     CSRF_COOKIE_SAMESITE = 'Lax'
+    print(f"🔓 Cookies non-sécurisés pour développement (HTTP)")
 
 SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False  # Doit être False pour AJAX
 
-# CORS - Configuration améliorée
+# CORS - Configuration corrigée
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
     CORS_ALLOW_CREDENTIALS = True
@@ -353,13 +359,25 @@ if DEBUG:
 else:
     CORS_ALLOW_ALL_ORIGINS = False
     CORS_ALLOW_CREDENTIALS = True
-    CORS_ALLOWED_ORIGINS = [
-        "https://*.onrender.com",
-        f"https://{RENDER_EXTERNAL_HOSTNAME}" if RENDER_EXTERNAL_HOSTNAME else "",
-    ]
-    # Filtrer les chaînes vides
-    CORS_ALLOWED_ORIGINS = [origin for origin in CORS_ALLOWED_ORIGINS if origin]
-    print(f"🔒 CORS: uniquement les origines spécifiques autorisées en production")
+    
+    # Liste des origines autorisées en production
+    CORS_ALLOWED_ORIGINS = []
+    
+    # Ajouter Render si présent
+    if RENDER_EXTERNAL_HOSTNAME:
+        CORS_ALLOWED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
+        CORS_ALLOWED_ORIGINS.append('https://*.onrender.com')
+    
+    # Ajouter depuis l'environnement
+    cors_env = os.environ.get('CORS_ALLOWED_ORIGINS', '')
+    if cors_env:
+        CORS_ALLOWED_ORIGINS.extend([origin.strip() for origin in cors_env.split(',') if origin.strip()])
+    
+    # S'assurer qu'il y a au moins une origine
+    if not CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append('https://localhost')  # Fallback
+    
+    print(f"🔒 CORS: {len(CORS_ALLOWED_ORIGINS)} origines autorisées en production")
 
 CACHES = {
     'default': {
@@ -372,34 +390,37 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'noreply@mutuelle.local'
 
 # =============================================================================
-# SÉCURITÉ PRODUCTION AVANCÉE
+# SÉCURITÉ PRODUCTION - CORRECTION IMPORTANTE
 # =============================================================================
 
-if IS_PRODUCTION:
-    # Sécurité HTTPS
+# DÉSACTIVER HTTPS REDIRECT EN LOCAL - C'EST LE PROBLÈME !
+if IS_PRODUCTION and RENDER_EXTERNAL_HOSTNAME:
+    # Production sur Render : activer HTTPS
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    
-    # Headers de sécurité
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    X_FRAME_OPTIONS = 'DENY'
-    
-    # HSTS (HTTP Strict Transport Security)
+    print(f"🔒 Redirection HTTPS activée pour Render")
+else:
+    # Développement local : DÉSACTIVER HTTPS
+    SECURE_SSL_REDIRECT = False
+    SECURE_PROXY_SSL_HEADER = None
+    print(f"🔓 Redirection HTTPS désactivée pour développement")
+
+# Headers de sécurité (toujours actifs)
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+
+# HSTS - Seulement en production HTTPS
+if IS_PRODUCTION and RENDER_EXTERNAL_HOSTNAME:
     SECURE_HSTS_SECONDS = 31536000  # 1 an
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
-    
-    # Référent
-    SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
-    
-    print(f"🔒 Sécurité production activée (HTTPS, HSTS, etc.)")
 else:
-    SECURE_SSL_REDIRECT = False
     SECURE_HSTS_SECONDS = 0
-    print(f"🔓 Sécurité développement: HTTPS désactivé")
 
-# Logging - Configuration simplifiée pour éviter les problèmes
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+
+# Logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -414,6 +435,12 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
         },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
+            'formatter': 'simple',
+        },
     },
     'root': {
         'handlers': ['console'],
@@ -421,12 +448,12 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'level': 'INFO',
             'propagate': False,
         },
-        'gunicorn': {
-            'handlers': ['console'],
+        'mutuelle': {
+            'handlers': ['console', 'file'],
             'level': 'INFO',
             'propagate': False,
         },
@@ -447,7 +474,7 @@ MUTUELLE_CONFIG = {
     'DUREE_VALIDITE_BON': 24,
 }
 
-# Channels (configuration simplifiée)
+# Channels
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels.layers.InMemoryChannelLayer',
@@ -470,12 +497,9 @@ print(f"🌐 ALLOWED_HOSTS: {ALLOWED_HOSTS}")
 print(f"🛡️ CSRF_TRUSTED_ORIGINS: {CSRF_TRUSTED_ORIGINS}")
 print(f"📁 STATIC_ROOT: {STATIC_ROOT}")
 
-# Avertissement sécurité
 if IS_PRODUCTION and DEBUG:
-    print("""
-    ⚠️  ⚠️  ⚠️  ATTENTION CRITIQUE ⚠️  ⚠️  ⚠️
-    DEBUG=True en production ! C'est une faille de sécurité.
-    Vérifiez que DEBUG est bien False.
-    """)
+    print("⚠️  ATTENTION: DEBUG=True en production!")
 elif IS_PRODUCTION:
-    print("✅ Configuration production sécurisée: DEBUG=False, HTTPS activé")
+    print("✅ Configuration production sécurisée")
+else:
+    print("✅ Configuration développement optimisée")
