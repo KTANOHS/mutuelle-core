@@ -14,6 +14,10 @@ export PYTHONDONTWRITEBYTECODE="1"
 export ALLOWED_HOSTS=".onrender.com,localhost,127.0.0.1"
 export CSRF_TRUSTED_ORIGINS="https://*.onrender.com"
 
+# Désactiver HTTPS en local (Render le gère)
+export SECURE_SSL_REDIRECT="False"
+export SECURE_PROXY_SSL_HEADER=""
+
 # Attendre que la base de données soit prête (pour PostgreSQL)
 if [ -n "$DATABASE_URL" ]; then
     echo "⏳ Vérification de la connexion à la base de données..."
@@ -34,8 +38,12 @@ python manage.py check --deploy || echo "⚠️  Avertissements lors de la véri
 
 # Démarrer Gunicorn avec configuration optimisée
 echo "⚡ Démarrage de Gunicorn avec timeout étendu..."
+
+# Utiliser le port de Render ou 8000 par défaut
+PORT=${PORT:-8000}
+
 exec gunicorn mutuelle_core.wsgi:application \
-    --bind 0.0.0.0:8000 \
+    --bind 0.0.0.0:$PORT \
     --workers 1 \
     --threads 2 \
     --timeout 120 \
