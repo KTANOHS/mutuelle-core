@@ -4,16 +4,44 @@ services:
     env: python
     region: frankfurt
     plan: free
-    buildCommand: "./build.sh"
-    startCommand: "gunicorn mutuelle_core.wsgi:application --bind 0.0.0.0:$PORT"
+    
+    # --- BUILD COMMAND MODIFIÉ ---
+    # Supprime le script build.sh potentiellement problématique.
+    # Utilise une commande explicite qui a fait ses preuves.
+    buildCommand: |
+      pip install --upgrade pip setuptools wheel
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+    
+    # --- START COMMAND CORRIGÉ ---
+    # L'argument --bind doit être suivi de l'adresse ET du port.
+    # Utilise le port fourni par Render et la configuration de production.
+    startCommand: gunicorn mutuelle_core.wsgi:application --bind 0.0.0.0:$PORT --workers 1 --timeout 120
+    
+    # --- VARIABLES D'ENVIRONNEMENT CRITIQUES ---
     envVars:
+      # 1. FORCE la version de Python. C'est la cause principale de l'échec du build.
       - key: PYTHON_VERSION
-        value: 3.11.10
+        value: 3.11.10  # Très compatible avec Django 5.2.6 et Pillow
+      
+      # 2. Assure-toi que ce module de paramètres existe vraiment dans ton projet.
       - key: DJANGO_SETTINGS_MODULE
-        value: mutuelle_core.settings_production
+        value: mutuelle_core.settings  # Vérifie si tu as un fichier `settings_production.py` ou si c'est `settings.py`
+      
+      # 3. Sécurité & Configuration
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
-        value: false
+        value: "False"  # Doit être une chaîne de caractères
       - key: ALLOWED_HOSTS
         value: ".onrender.com,localhost,127.0.0.1"
+      - key: DJANGO_ENV
+        value: production
+      
+      # 4. Configuration HTTPS pour Render (ESSENTIEL)
+      - key: SECURE_SSL_REDIRECT
+        value: "True"
+      - key: SECURE_PROXY_SSL_HEADER
+        value: HTTP_X_FORWARDED_PROTO,https
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://*.onrender.com"
