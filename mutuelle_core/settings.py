@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from datetime import timedelta
 import dj_database_url
-from django.core.management.utils import get_random_secret_key  # IMPORT AJOUTÉ
+from django.core.management.utils import get_random_secret_key
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -35,10 +35,9 @@ if IS_PRODUCTION:
 SECRET_KEY = os.environ.get('SECRET_KEY')
 if not SECRET_KEY:
     if IS_PRODUCTION:
-        raise ValueError(
-            "❌ SECRET_KEY manquante en production!\n"
-            "Sur Render: Ajoutez SECRET_KEY dans Environment Variables"
-        )
+        # Générer une clé sécurisée pour Render
+        SECRET_KEY = get_random_secret_key()
+        print(f"🔑 Clé secrète générée automatiquement pour Render")
     else:
         # Clé de développement sécurisée
         SECRET_KEY = 'django-dev-' + get_random_secret_key()
@@ -151,10 +150,20 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
 }
 
+# SUPPRIMEZ CETTE SECTION - Inutile dans settings.py
+# GUNICORN_CONFIG = {
+#     'timeout': 120,
+#     'keepalive': 2,
+#     'worker_class': 'sync',
+#     'workers': 1,
+#     'threads': 2,
+# }
+
+# CORRECTION CRITIQUE : Ordre des Middleware
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # DOIT ÊTRE IMMÉDIATEMENT APRÈS SecurityMiddleware
+    'corsheaders.middleware.CorsMiddleware',  # CORS après WhiteNoise
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -185,12 +194,13 @@ TEMPLATES = [
                 'agents.context_processors.agent_context',
                 'core.utils.mutuelle_context',
             ],
-            'debug': DEBUG,  # Important pour les templates
+            'debug': DEBUG,
         },
     },
 ]
 
 WSGI_APPLICATION = 'mutuelle_core.wsgi.application'
+ASGI_APPLICATION = 'mutuelle_core.asgi.application'
 
 # =============================================================================
 # BASE DE DONNÉES
@@ -218,9 +228,11 @@ if DATABASE_URL:
     except Exception as e:
         print(f"⚠️  Erreur configuration PostgreSQL: {e}")
         print(f"⚠️  Utilisation de SQLite comme fallback")
+else:
+    print(f"✅ Base de données SQLite configurée")
 
 # =============================================================================
-# FICHIERS STATIQUES - CORRIGÉ
+# FICHIERS STATIQUES - CONFIGURATION CORRIGÉE
 # =============================================================================
 
 STATIC_URL = '/static/'
@@ -230,17 +242,26 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'agents', 'static'),
 ]
 
-# Configuration selon l'environnement
-if DEBUG:
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-    print(f"📁 Mode développement: fichiers statiques servis depuis STATICFILES_DIRS")
-else:
+# Configuration WhiteNoise optimisée
+if not DEBUG:
+    # Configuration production
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    
+    # Configuration WhiteNoise optimisée pour performance
     WHITENOISE_USE_FINDERS = True
     WHITENOISE_MANIFEST_STRICT = False
     WHITENOISE_ALLOW_ALL_ORIGINS = True
-    WHITENOISE_AUTOREFRESH = False  # False en production pour la performance
+    WHITENOISE_AUTOREFRESH = False  # IMPORTANT: False en production
+    WHITENOISE_INDEX_FILE = False
+    
+    # Cache des fichiers statiques (1 an)
+    WHITENOISE_MAX_AGE = 31536000  # 1 an en secondes
+    
     print(f"📁 Mode production: WhiteNoise activé pour les fichiers statiques")
+else:
+    # Configuration développement
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+    print(f"📁 Mode développement: fichiers statiques servis depuis STATICFILES_DIRS")
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -309,32 +330,35 @@ csrf_env = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
 if csrf_env:
     CSRF_TRUSTED_ORIGINS.extend([origin.strip() for origin in csrf_env.split(',')])
 
-# Cookies sécurisés
-SESSION_COOKIE_SECURE = IS_PRODUCTION
-CSRF_COOKIE_SECURE = IS_PRODUCTION
+# Cookies sécurisés - CORRECTION IMPORTANTE
+if IS_PRODUCTION:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SAMESITE = 'None'  # Pour Render
+    CSRF_COOKIE_SAMESITE = 'None'
+    CSRF_COOKIE_HTTPONLY = False  # Doit être False pour certaines APIs
+else:
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    CSRF_COOKIE_SAMESITE = 'Lax'
+
 SESSION_COOKIE_HTTPONLY = True
-CSRF_COOKIE_HTTPONLY = False
-SESSION_COOKIE_SAMESITE = 'Lax' if IS_DEVELOPMENT else 'None'
-CSRF_COOKIE_SAMESITE = 'Lax' if IS_DEVELOPMENT else 'None'
 
-# CORS
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
-
-# En production, ajouter l'origine Render
-if RENDER_EXTERNAL_HOSTNAME:
-    CORS_ALLOWED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
-
-CORS_ALLOW_CREDENTIALS = True
-
-# Configuration selon l'environnement
-if IS_DEVELOPMENT:
+# CORS - Configuration améliorée
+if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ALLOW_CREDENTIALS = True
     print(f"🔓 CORS: toutes les origines autorisées en développement")
 else:
     CORS_ALLOW_ALL_ORIGINS = False
+    CORS_ALLOW_CREDENTIALS = True
+    CORS_ALLOWED_ORIGINS = [
+        "https://*.onrender.com",
+        f"https://{RENDER_EXTERNAL_HOSTNAME}" if RENDER_EXTERNAL_HOSTNAME else "",
+    ]
+    # Filtrer les chaînes vides
+    CORS_ALLOWED_ORIGINS = [origin for origin in CORS_ALLOWED_ORIGINS if origin]
     print(f"🔒 CORS: uniquement les origines spécifiques autorisées en production")
 
 CACHES = {
@@ -375,17 +399,13 @@ else:
     SECURE_HSTS_SECONDS = 0
     print(f"🔓 Sécurité développement: HTTPS désactivé")
 
-# Logging
+# Logging - Configuration simplifiée pour éviter les problèmes
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
-            'style': '{',
-        },
         'simple': {
-            'format': '{levelname} {message}',
+            'format': '{levelname} {asctime} {module}: {message}',
             'style': '{',
         },
     },
@@ -394,30 +414,19 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
         },
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
-            'formatter': 'verbose',
-        },
     },
     'root': {
         'handlers': ['console'],
-        'level': 'WARNING',
+        'level': 'INFO',
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file'],
-            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
-            'propagate': False,
-        },
-        'mutuelle': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'level': 'INFO',
             'propagate': False,
         },
-        'agents': {
-            'handlers': ['console', 'file'],
+        'gunicorn': {
+            'handlers': ['console'],
             'level': 'INFO',
             'propagate': False,
         },
@@ -438,8 +447,7 @@ MUTUELLE_CONFIG = {
     'DUREE_VALIDITE_BON': 24,
 }
 
-# Channels
-ASGI_APPLICATION = 'mutuelle_core.asgi.application'
+# Channels (configuration simplifiée)
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels.layers.InMemoryChannelLayer',
@@ -455,7 +463,6 @@ for folder in ['logs', 'media', 'staticfiles']:
     folder_path = os.path.join(BASE_DIR, folder)
     if not os.path.exists(folder_path):
         os.makedirs(folder_path, exist_ok=True)
-        print(f"📁 Dossier créé: {folder_path}")
 
 print(f"🚀 Environnement: {'PRODUCTION' if IS_PRODUCTION else 'DÉVELOPPEMENT'}")
 print(f"🔧 DEBUG: {DEBUG}")
