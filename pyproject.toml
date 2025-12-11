@@ -1,0 +1,12 @@
+# pyproject.toml
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mutuelle-core"
+version = "0.1.0"
+dependencies = []
+
+[tool.render]
+skip-poetry-install = true

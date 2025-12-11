@@ -9,7 +9,6 @@ crispy-bootstrap5==0.7
 # === SERVEUR & PERFORMANCES ===
 gunicorn==21.2.0
 whitenoise==6.7.0
-channels==4.1.0
 
 # === BASE DE DONNÉES (RENDER POSTGRESQL) ===
 psycopg2-binary==2.9.11
@@ -19,7 +18,6 @@ dj-database-url==2.2.0
 Pillow==12.0.0
 python-dotenv==1.0.1
 django-extensions==3.2.3
-psutil==5.9.8
 
 # === DÉPENDANCES INTERNES ===
 asgiref==3.11.0
@@ -28,6 +26,8 @@ pyjwt==2.10.1
 packaging==25.0
 typing-extensions==4.15.0
 
-# === WORKERS ASYNC (Optionnels - Utilisez des versions SPECIFIQUES) ===
-gevent==25.9.1      # Version stable et compatible avec Python 3.13
-eventlet==0.37.0    # Version compatible avec Python 3.13
+# === SUPPRIMEZ LES DÉPENDANCES PROBLÉMATIQUES ===
+# channels==4.1.0  # COMMENTEZ ou SUPPRIMEZ - cause des problèmes avec Python 3.13
+# gevent==25.9.1   # COMMENTEZ ou SUPPRIMEZ
+# eventlet==0.37.0 # COMMENTEZ ou SUPPRIMEZ
+# psutil==5.9.8    # COMMENTEZ si problèmes

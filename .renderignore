@@ -1,0 +1,26 @@
+# .renderignore
+.git
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+*.pot
+*.sqlite3
+media/
+staticfiles/
+.DS_Store
+.vscode/
+.idea/
