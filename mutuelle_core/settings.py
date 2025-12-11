@@ -16,10 +16,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # =============================================================================
 
 # Détecter si on est sur Render
-IS_RENDER = 'RENDER' in os.environ
+RENDER = os.environ.get('RENDER') == 'true'
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME', '')
 
 # Environnement simple
-IS_PRODUCTION = IS_RENDER or os.environ.get('DJANGO_ENV') == 'production'
+IS_PRODUCTION = RENDER or os.environ.get('DJANGO_ENV') == 'production'
 IS_DEVELOPMENT = not IS_PRODUCTION
 
 # DEBUG : False en production, True en développement
@@ -47,17 +48,23 @@ if not SECRET_KEY:
 # =============================================================================
 ALLOWED_HOSTS = []
 
-# Toujours autoriser localhost pour le développement
+# Mode développement local
 if IS_DEVELOPMENT:
-    ALLOWED_HOSTS.extend(['localhost', '127.0.0.1', '[::1]'])
+    ALLOWED_HOSTS.extend(['localhost', '127.0.0.1', '[::1]', '0.0.0.0', '*'])
     print(f"🌐 Mode développement: localhost autorisé")
 
-# Ajouter le host Render si présent
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
-    ALLOWED_HOSTS.append('.onrender.com')  # Tous les sous-domaines Render
-    print(f"🌐 Render host détecté: {RENDER_EXTERNAL_HOSTNAME}")
+# Mode production sur Render
+if RENDER:
+    # Hosts Render par défaut
+    if RENDER_EXTERNAL_HOSTNAME:
+        ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+    ALLOWED_HOSTS.extend([
+        '.onrender.com',
+        'mutuelle-core-18.onrender.com',
+        'mutuelle-core-17.onrender.com',
+        'mutuelle-core.onrender.com',
+    ])
+    print(f"🌐 Render host détecté: {RENDER_EXTERNAL_HOSTNAME or '.onrender.com'}")
 
 # Ajouter les hosts depuis l'environnement
 env_hosts = os.environ.get('ALLOWED_HOSTS', '')
@@ -114,7 +121,7 @@ INSTALLED_APPS = [
     'relances',
     'dashboard',
     
-    # 'channels',  # COMMENTÉ car pas dans requirements.txt - CAUSE DE L'ERREUR
+    # 'channels',  # COMMENTÉ car pas dans requirements.txt
     'django_extensions',
 ]
 
@@ -191,10 +198,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'mutuelle_core.wsgi.application'
-# ASGI_APPLICATION = 'mutuelle_core.asgi.application'  # COMMENTÉ car dépend de channels
 
 # =============================================================================
-# BASE DE DONNÉES
+# BASE DE DONNÉES - CONFIGURATION FLEXIBLE
 # =============================================================================
 
 # Configuration par défaut (SQLite pour développement)
@@ -205,7 +211,7 @@ DATABASES = {
     }
 }
 
-# Sur Render.com ou si DATABASE_URL est défini, utiliser PostgreSQL
+# Sur Render ou si DATABASE_URL est défini, utiliser PostgreSQL
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
     try:
@@ -221,6 +227,11 @@ if DATABASE_URL:
         print(f"⚠️  Utilisation de SQLite comme fallback")
 else:
     print(f"✅ Base de données SQLite configurée")
+
+# Sur Render, utiliser /tmp pour SQLite (car le système de fichiers est éphémère)
+if RENDER and DATABASES['default']['ENGINE'] == 'django.db.backends.sqlite3':
+    DATABASES['default']['NAME'] = '/tmp/db.sqlite3'
+    print(f"📁 SQLite configuré sur /tmp pour Render")
 
 # =============================================================================
 # FICHIERS STATIQUES - CONFIGURATION CRITIQUE POUR RENDER
@@ -300,11 +311,15 @@ SESSION_SAVE_EVERY_REQUEST = True
 # CSRF - Configuration pour Render
 CSRF_TRUSTED_ORIGINS = []
 
-if IS_PRODUCTION:
+if IS_PRODUCTION and RENDER:
     # En production sur Render
     if RENDER_EXTERNAL_HOSTNAME:
         CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
-    CSRF_TRUSTED_ORIGINS.append('https://*.onrender.com')
+    CSRF_TRUSTED_ORIGINS.extend([
+        'https://*.onrender.com',
+        'https://mutuelle-core-18.onrender.com',
+        'https://mutuelle-core-17.onrender.com',
+    ])
     
     # Ajouter depuis l'environnement
     csrf_env = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
@@ -316,14 +331,15 @@ else:
         'http://localhost:8000',
         'http://127.0.0.1:8000',
         'http://localhost:3000',
+        'http://0.0.0.0:8000',
     ])
 
 # Cookies - Configuration pour Render
-if IS_PRODUCTION and RENDER_EXTERNAL_HOSTNAME:
+if IS_PRODUCTION and RENDER:
     # Production sur Render : HTTPS obligatoire
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    SESSION_COOKIE_SAMESITE = 'Lax'  # 'None' si cross-domain, sinon 'Lax'
+    SESSION_COOKIE_SAMESITE = 'Lax'
     CSRF_COOKIE_SAMESITE = 'Lax'
     print(f"🔒 Cookies sécurisés activés (HTTPS)")
 else:
@@ -369,7 +385,7 @@ DEFAULT_FROM_EMAIL = 'noreply@mutuelle.local'
 # SÉCURITÉ PRODUCTION - CONFIGURATION POUR RENDER
 # =============================================================================
 
-if IS_PRODUCTION and RENDER_EXTERNAL_HOSTNAME:
+if IS_PRODUCTION and RENDER:
     # Production sur Render : activer HTTPS
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -386,7 +402,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 
 # HSTS - Seulement en production HTTPS
-if IS_PRODUCTION and RENDER_EXTERNAL_HOSTNAME:
+if IS_PRODUCTION and RENDER:
     SECURE_HSTS_SECONDS = 31536000  # 1 an
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
@@ -395,7 +411,10 @@ else:
 
 SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
-# Logging simplifié pour Render
+# =============================================================================
+# LOGGING SIMPLIFIÉ
+# =============================================================================
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -429,7 +448,10 @@ LOGGING = {
     },
 }
 
-# Configuration personnalisée
+# =============================================================================
+# CONFIGURATION PERSONNALISÉE
+# =============================================================================
+
 MUTUELLE_CONFIG = {
     'COTISATION_STANDARD': 5000,
     'COTISATION_FEMME_ENCEINTE': 7500,
@@ -443,12 +465,16 @@ MUTUELLE_CONFIG = {
     'DUREE_VALIDITE_BON': 24,
 }
 
-# Channels (commenté car pas installé)
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels.layers.InMemoryChannelLayer',
-#     },
-# }
+# =============================================================================
+# CORRECTIONS AUTOMATIQUES POUR RENDER
+# =============================================================================
+
+# Ajout de code pour appliquer les migrations automatiquement en production
+if RENDER and not os.environ.get('SKIP_AUTO_MIGRATE'):
+    print("🔄 NOTE: Les migrations doivent être appliquées automatiquement via app.py ou render.yaml")
+    print("   Assurez-vous que votre fichier app.py contient:")
+    print("   if os.environ.get('RENDER') == 'true':")
+    print("       subprocess.run(['python', 'manage.py', 'migrate', '--noinput'])")
 
 # =============================================================================
 # FIN DE LA CONFIGURATION

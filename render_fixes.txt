@@ -1,0 +1,12 @@
+Problèmes identifiés:
+1. Vérifiez que tous les fichiers essentiels existent
+2. Assurez-vous que requirements.txt contient:
+   Django>=4.0
+   gunicorn
+   whitenoise
+   psycopg2-binary
+3. Dans settings.py, assurez-vous que:
+   DEBUG = False
+   ALLOWED_HOSTS = ['*'] ou contient .onrender.com
+   STATIC_ROOT est défini
+   SECRET_KEY est définie

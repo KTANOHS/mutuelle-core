@@ -1,22 +1,18 @@
-# app.py - Fichier corrigé
 import os
 import sys
+import subprocess
 
-# Ajouter le répertoire courant au path Python
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Appliquer les migrations automatiquement sur Render
+if os.environ.get('RENDER') == 'true':
+    print("🔄 Application des migrations sur Render...")
+    try:
+        # Appliquer les migrations
+        subprocess.run(['python', 'manage.py', 'migrate', '--noinput'], check=False)
+        print("✅ Migrations appliquées")
+    except Exception as e:
+        print(f"⚠️ Erreur lors des migrations: {e}")
 
-try:
-    # Essayer d'importer l'application WSGI
-    from mutuelle_core.wsgi import application
-    app = application
-    print("✅ Application WSGI Django chargée avec succès")
-except ImportError as e:
-    print(f"⚠️ Erreur d'import WSGI: {e}")
-    # Fallback pour éviter l'erreur
-    app = None
-
-if __name__ == "__main__":
-    if app:
-        print("🚀 Application prête")
-    else:
-        print("❌ Application non chargée")
+# Charger l'application Django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mutuelle_core.settings')
+from django.core.wsgi import get_wsgi_application
+application = get_wsgi_application()
