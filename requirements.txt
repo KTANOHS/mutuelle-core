@@ -16,7 +16,7 @@ psycopg2-binary==2.9.11
 dj-database-url==2.2.0
 
 # === IMAGES & UTILITAIRES ===
-Pillow==10.6.0
+Pillow==12.0.0
 python-dotenv==1.0.1
 django-extensions==3.2.3
 psutil==5.9.8
