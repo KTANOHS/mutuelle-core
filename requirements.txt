@@ -28,6 +28,6 @@ pyjwt==2.10.1
 packaging==25.0
 typing-extensions==4.15.0
 
-# === WORKERS ASYNC (Optionnels) ===
-gevent==24.8.1
-eventlet==0.36.0
+# === WORKERS ASYNC (Optionnels - Utilisez des versions SPECIFIQUES) ===
+gevent==25.9.1      # Version stable et compatible avec Python 3.13
+eventlet==0.37.0    # Version compatible avec Python 3.13
