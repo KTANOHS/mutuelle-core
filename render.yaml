@@ -4,25 +4,26 @@ services:
     env: python
     region: frankfurt
     plan: free
-    # Build optimisé pour Render
+    
+    # Build command simplifié
     buildCommand: |
-      echo "🔧 Mise à jour de pip..."
+      echo "🔧 Installation des dépendances..."
       pip install --upgrade pip
-      
-      echo "📦 Installation des dépendances..."
       pip install -r requirements.txt
       
       echo "📁 Collecte des fichiers statiques..."
       python manage.py collectstatic --noinput
       
       echo "✅ Build terminé !"
-    # Start command optimisé
+    
+    # Start command CRITIQUE - gunicorn avec VOTRE module
     startCommand: |
       echo "🚀 Démarrage de l'application Django..."
+      export DJANGO_SETTINGS_MODULE=mutuelle_core.settings
       python manage.py migrate --noinput
       gunicorn mutuelle_core.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120 --access-logfile -
     
-    # Variables critiques pour Render
+    # Variables d'environnement ESSENTIELLES
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: mutuelle_core.settings
@@ -32,13 +33,13 @@ services:
         value: "False"
       - key: ALLOWED_HOSTS
         value: ".onrender.com"
-      - key: PYTHON_VERSION
-        value: "3.11.10"
+      - key: PORT
+        value: "10000"
+      - key: PYTHONUNBUFFERED
+        value: "True"
 
-# Base de données PostgreSQL
+# Optionnel : base de données PostgreSQL
 databases:
   - name: mutuelle-db
-    databaseName: mutuelle
-    user: mutuelle_user
     plan: free
     region: frankfurt
