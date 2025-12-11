@@ -4,29 +4,13 @@ services:
     env: python
     region: frankfurt
     plan: free
-
-    # --- BUILD COMMAND RENFORCÉ ---
-    # La commande est maintenant en une seule ligne pour éviter les problèmes d'interprétation.
-    # 'setuptools' et 'wheel' sont mis à jour avant toute installation.
     buildCommand: pip install --upgrade pip setuptools wheel && pip install -r requirements.txt && python manage.py collectstatic --noinput
-
-    # --- START COMMAND CORRIGÉ ---
     startCommand: gunicorn mutuelle_core.wsgi:application --bind 0.0.0.0:$PORT --workers 1 --timeout 120
-
-    # --- VARIABLES D'ENVIRONNEMENT CRITIQUES ---
     envVars:
-      # 1. VERSION DE PYTHON (SOLUTION PRINCIPALE)
-      # Render utilise par défaut la version la plus récente (3.13.4).
-      # Nous forçons explicitement une version compatible avec tous vos packages.
       - key: PYTHON_VERSION
-        value: 3.11.10  # Alternative très stable : 3.12.4
-
-      # 2. MODULE DE CONFIGURATION DJANGO (À CONFIRMER)
-      # Assure-toi que ce fichier existe : 'mutuelle_core/settings.py'
+        value: 3.11.10
       - key: DJANGO_SETTINGS_MODULE
         value: mutuelle_core.settings
-
-      # 3. CONFIGURATION DE SÉCURITÉ & APPLICATION
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
@@ -35,8 +19,6 @@ services:
         value: ".onrender.com,localhost,127.0.0.1"
       - key: DJANGO_ENV
         value: production
-
-      # 4. CONFIGURATION HTTPS POUR RENDER
       - key: SECURE_SSL_REDIRECT
         value: "True"
       - key: SECURE_PROXY_SSL_HEADER
