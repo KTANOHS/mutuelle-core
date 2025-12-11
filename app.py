@@ -1,20 +1,22 @@
-# app.py - Fichier temporaire pour contourner le bug Render
-"""
-Ce fichier est uniquement pour contourner le bug de Render
-qui cherche par défaut 'app:app'
-"""
-
+# app.py - Fichier corrigé
 import os
 import sys
 
-# Ajouter le chemin du projet
+# Ajouter le répertoire courant au path Python
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-# Importez l'application WSGI de Django
-from mutuelle_core.wsgi import application
-
-# L'application est directement accessible
-app = application
+try:
+    # Essayer d'importer l'application WSGI
+    from mutuelle_core.wsgi import application
+    app = application
+    print("✅ Application WSGI Django chargée avec succès")
+except ImportError as e:
+    print(f"⚠️ Erreur d'import WSGI: {e}")
+    # Fallback pour éviter l'erreur
+    app = None
 
 if __name__ == "__main__":
-    print("⚠️  Ce fichier est seulement pour Render, utilisez gunicorn mutuelle_core.wsgi:application")
+    if app:
+        print("🚀 Application prête")
+    else:
+        print("❌ Application non chargée")

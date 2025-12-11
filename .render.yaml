@@ -1,9 +1,24 @@
-# .render.yaml - Configuration pour Render Build
-buildCommand:
-  - pip install --upgrade pip
-  - pip install -r requirements.txt
-  - python manage.py collectstatic --noinput
-
-startCommand:
-  - python manage.py migrate --noinput
-  - gunicorn mutuelle_core.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+services:
+  - type: web
+    name: mutuelle-core
+    env: python
+    region: frankfurt
+    plan: free
+    
+    # Tout dans une seule commande
+    buildCommand: |
+      chmod +x build_and_run.sh
+      ./build_and_run.sh
+    
+    # Pas besoin de startCommand séparé si tout est dans buildCommand
+    startCommand: gunicorn mutuelle_core.wsgi:application --bind 0.0.0.0:$PORT
+    
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: mutuelle_core.settings
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
