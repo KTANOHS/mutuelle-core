@@ -5,14 +5,18 @@ services:
     region: frankfurt
     plan: free
     
-    # Tout dans une seule commande
+    # Build command simple
     buildCommand: |
-      chmod +x build_and_run.sh
-      ./build_and_run.sh
+      pip install --upgrade pip
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
     
-    # Pas besoin de startCommand séparé si tout est dans buildCommand
-    startCommand: gunicorn mutuelle_core.wsgi:application --bind 0.0.0.0:$PORT
+    # Start command simple et efficace
+    startCommand: |
+      python manage.py migrate --noinput
+      gunicorn mutuelle_core.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120
     
+    # Variables d'environnement critiques
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: mutuelle_core.settings
