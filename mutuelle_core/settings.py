@@ -114,7 +114,7 @@ INSTALLED_APPS = [
     'relances',
     'dashboard',
     
-    'channels',
+    # 'channels',  # COMMENTÉ car pas dans requirements.txt - CAUSE DE L'ERREUR
     'django_extensions',
 ]
 
@@ -191,7 +191,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'mutuelle_core.wsgi.application'
-ASGI_APPLICATION = 'mutuelle_core.asgi.application'
+# ASGI_APPLICATION = 'mutuelle_core.asgi.application'  # COMMENTÉ car dépend de channels
 
 # =============================================================================
 # BASE DE DONNÉES
@@ -443,12 +443,12 @@ MUTUELLE_CONFIG = {
     'DUREE_VALIDITE_BON': 24,
 }
 
-# Channels (pour websockets si nécessaire)
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
-    },
-}
+# Channels (commenté car pas installé)
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels.layers.InMemoryChannelLayer',
+#     },
+# }
 
 # =============================================================================
 # FIN DE LA CONFIGURATION
