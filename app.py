@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """
-APPLICATION WSGI ULTIME POUR RENDER.COM
-Garantit les migrations et démarre l'application Django
+APPLICATION WSGI ULTIME POUR RENDER.COM - VERSION CORRIGÉE
 """
 
 import os
@@ -130,3 +129,18 @@ def main():
 
 # Application WSGI
 application = main()
+
+# ALIAS POUR GUNICORN - CRITIQUE POUR RENDER
+# Gunicorn cherche 'app' dans 'app:app', donc nous créons un alias
+app = application
+
+# Pour le développement local
+if __name__ == "__main__":
+    logger.info("🏃 Exécution en mode développement...")
+    try:
+        from django.core.management import execute_from_command_line
+    except ImportError as exc:
+        raise ImportError(
+            "Impossible d'importer Django. Êtes-vous sûr qu'il est installé ?"
+        ) from exc
+    execute_from_command_line(sys.argv)
