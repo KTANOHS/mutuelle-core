@@ -1,45 +1,43 @@
 services:
   - type: web
-    name: mutuelle-django
+    name: mutuelle-core
     env: python
-    region: frankfurt
+    region: frankfurt  # Plus proche de l'Afrique
     plan: free
     
-    # Build command simplifié
+    # Construction
     buildCommand: |
-      echo "🔧 Installation des dépendances..."
-      pip install --upgrade pip
+      echo "📦 INSTALLATION DES DÉPENDANCES..."
       pip install -r requirements.txt
-      
-      echo "📁 Collecte des fichiers statiques..."
+      echo "📁 COLLECTE DES FICHIERS STATIQUES..."
       python manage.py collectstatic --noinput
-      
-      echo "✅ Build terminé !"
     
-    # Start command CRITIQUE - gunicorn avec VOTRE module
+    # Démarrage - AVEC MIGRATIONS FORCÉES
     startCommand: |
-      echo "🚀 Démarrage de l'application Django..."
-      export DJANGO_SETTINGS_MODULE=mutuelle_core.settings
-      python manage.py migrate --noinput
-      gunicorn mutuelle_core.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120 --access-logfile -
+      chmod +x start_render.sh
+      ./start_render.sh
     
-    # Variables d'environnement ESSENTIELLES
+    # Variables d'environnement CRITIQUES
     envVars:
-      - key: DJANGO_SETTINGS_MODULE
-        value: mutuelle_core.settings
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: RENDER
+        value: "true"
+      - key: DEBUG
+        value: "false"
+      - key: DISABLE_COLLECTSTATIC
+        value: "0"
       - key: SECRET_KEY
         generateValue: true
-      - key: DEBUG
-        value: "False"
       - key: ALLOWED_HOSTS
-        value: ".onrender.com"
-      - key: PORT
-        value: "10000"
-      - key: PYTHONUNBUFFERED
-        value: "True"
-
-# Optionnel : base de données PostgreSQL
-databases:
-  - name: mutuelle-db
-    plan: free
-    region: frankfurt
+        value: ".onrender.com,mutuelle-core-18.onrender.com,mutuelle-core-17.onrender.com,mutuelle-core.onrender.com"
+      - key: DATABASE_URL
+        value: "sqlite:///tmp/db.sqlite3"  # SQLite sur /tmp pour Render
+    
+    # Configuration avancée
+    healthCheckPath: /
+    autoDeploy: true
+    disk:
+      name: sqlite-data
+      mountPath: /tmp
+      sizeGB: 1
