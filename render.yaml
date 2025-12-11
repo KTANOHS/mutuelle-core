@@ -4,11 +4,12 @@ services:
     env: python
     region: frankfurt
     plan: free
-    buildCommand: pip install --upgrade pip setuptools wheel && pip install -r requirements.txt && python manage.py collectstatic --noinput
+    # Commande de build : installe les dépendances, collecte les fichiers statiques et applique les migrations
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt && python manage.py collectstatic --noinput
+    # Commande de démarrage CRITIQUE : pointe vers le module WSGI de VOTRE projet Django
     startCommand: gunicorn mutuelle_core.wsgi:application --bind 0.0.0.0:$PORT --workers 1 --timeout 120
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.10
+      # Spécifie le module de paramètres Django (vérifiez le nom exact de votre projet)
       - key: DJANGO_SETTINGS_MODULE
         value: mutuelle_core.settings
       - key: SECRET_KEY
@@ -17,11 +18,3 @@ services:
         value: "False"
       - key: ALLOWED_HOSTS
         value: ".onrender.com,localhost,127.0.0.1"
-      - key: DJANGO_ENV
-        value: production
-      - key: SECURE_SSL_REDIRECT
-        value: "True"
-      - key: SECURE_PROXY_SSL_HEADER
-        value: HTTP_X_FORWARDED_PROTO,https
-      - key: CSRF_TRUSTED_ORIGINS
-        value: "https://*.onrender.com"
