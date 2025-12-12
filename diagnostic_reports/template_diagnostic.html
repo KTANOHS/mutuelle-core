@@ -1,0 +1,2263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostic Templates Django - Rapport</title>
+    <style>
+        :root {
+            --primary: #2c5aa0;
+            --success: #34c759;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --dark: #343a40;
+            --light: #f8f9fa;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: #f5f7fa;
+            color: var(--dark);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary), #1e3a8a);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(44, 90, 160, 0.2);
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        
+        .card.success { border-left: 4px solid var(--success); }
+        .card.warning { border-left: 4px solid var(--warning); }
+        .card.danger { border-left: 4px solid var(--danger); }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+        
+        .file-list {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .file-header {
+            background: var(--light);
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .file-content {
+            padding: 1rem;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .issue {
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border-radius: 6px;
+            background: #fff;
+            border-left: 3px solid var(--warning);
+        }
+        
+        .issue.danger { border-left-color: var(--danger); }
+        .issue.success { border-left-color: var(--success); }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+        
+        .badge-danger { background: var(--danger); color: white; }
+        .badge-warning { background: var(--warning); color: var(--dark); }
+        .badge-info { background: #17a2b8; color: white; }
+        
+        .suggestion {
+            background: #e8f4fd;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        @media print {
+            body { background: white; }
+            .file-content { display: block !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Diagnostic des Templates Django</h1>
+            <p>Généré le 2025-12-12 11:14:20</p>
+        </div>
+        
+        <div class="summary-cards">
+            <div class="card success">
+                <h3>Templates Analysés</h3>
+                <div class="stat-number">218</div>
+            </div>
+            <div class="card warning">
+                <h3>Problèmes Trouvés</h3>
+                <div class="stat-number">114</div>
+            </div>
+            <div class="card danger">
+                <h3>Fichiers à Corriger</h3>
+                <div class="stat-number">55</div>
+            </div>
+        </div>
+        
+        <div class="file-list">
+
+            <div class="file-header" onclick="toggleFile('medecin_detail_ordonnance_public.html')">
+                <div>
+                    <strong>📄 medecin/detail_ordonnance_public.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        220 lignes • 9.7 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="medecin_detail_ordonnance_public.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 43:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% if request.user.is_authenticated and not est_patient %}   {{ request.user.get_full_name   }}  {% endif %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('medecin_detail_bon.html')">
+                <div>
+                    <strong>📄 medecin/detail_bon.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        142 lignes • 6.0 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">2 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="medecin_detail_bon.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 3:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Détail Bon #{{ bon.id }} - Médecin{% endblock %}
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 5:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block page_title %}Détail du Bon #{{ bon.id  }}  {% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('medecin_liste_bons.html')">
+                <div>
+                    <strong>📄 medecin/liste_bons.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        215 lignes • 13.0 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="medecin_liste_bons.html" style="display: none;">
+
+                <div class="issue missing_file">
+                    <div>
+                        <span class="badge badge-danger">missing_file</span>
+                        <strong>Ligne 92:</strong> Fichier statique introuvable: images/avatar-placeholder.png
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <img src="{% static 'images/avatar-placeholder.png' %}" class="rounded-circle" alt="patient">
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('medecin_dashboard.html')">
+                <div>
+                    <strong>📄 medecin/dashboard.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        556 lignes • 21.7 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">3 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="medecin_dashboard.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 4:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Tableau de Bord Médecin - {{ request.user.get_full_name  }}  {% endblock %}
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 128:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        Dr. {{ medecin.nom_complet|default:request.user.get_full_name  }}  {% else %}
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 129:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        Dr. {{ request.user.get_full_name|default:request.user.username  }}  {% endif %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('medecin_bons_attente.html')">
+                <div>
+                    <strong>📄 medecin/bons_attente.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        307 lignes • 13.8 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="medecin_bons_attente.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 6:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block page_subtitle %}   {{ total_bons  }} bon(s) nécessitent votre expertise médicale{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('medecin_detail_ordonnance.html')">
+                <div>
+                    <strong>📄 medecin/detail_ordonnance.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        265 lignes • 11.3 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">2 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="medecin_detail_ordonnance.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 4:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Détail de l'Ordonnance {{ ordonnance.ordonnance_medecin.numero  }}  {% endblock %}
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 206:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        ⚠️ {{ ordonnance.get_statut_display  }}  {% endif %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('medecin_suivi_chronique_liste_accompagnements.html')">
+                <div>
+                    <strong>📄 medecin/suivi_chronique/liste_accompagnements.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        146 lignes • 7.9 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="medecin_suivi_chronique_liste_accompagnements.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 34:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <option value="{{ maladie.id }}" {% if maladie_filter == maladie.id|stringformat:"s" %}selected{% endif %}>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('medecin_suivi_chronique_ajouter_suivi.html')">
+                <div>
+                    <strong>📄 medecin/suivi_chronique/ajouter_suivi.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        133 lignes • 7.4 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="medecin_suivi_chronique_ajouter_suivi.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 3:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Ajouter un Suivi - {{ programme.patient.get_full_name }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('medecin_suivi_chronique_detail_accompagnement.html')">
+                <div>
+                    <strong>📄 medecin/suivi_chronique/detail_accompagnement.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        235 lignes • 14.6 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="medecin_suivi_chronique_detail_accompagnement.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 3:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Détail Programme - {{ programme.patient.get_full_name }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('medecin_suivi_chronique_creer_accompagnement.html')">
+                <div>
+                    <strong>📄 medecin/suivi_chronique/creer_accompagnement.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        567 lignes • 23.4 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="medecin_suivi_chronique_creer_accompagnement.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 134:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {{ m.nom }} {% if m.categorie %}({{ m.categorie }}){% endif %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('agents_fiche_cotisation_unifiee.html')">
+                <div>
+                    <strong>📄 agents/fiche_cotisation_unifiee.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        284 lignes • 8.8 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="agents_fiche_cotisation_unifiee.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 5:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}{{ page_title }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('agents_historique_bons.html')">
+                <div>
+                    <strong>📄 agents/historique_bons.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        218 lignes • 10.0 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">5 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="agents_historique_bons.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 97:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page=1{% if query %}&q={{ query  }}  {% if statut %}&statut={{ statut  }}  {% endif %}{% endif %}">Premier</a>
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 100:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number  }}  {% if query %}&q={{ query  }}  {% if statut %}&statut={{ statut  }}  {% endif %}{% endif %}">Précédent</a>
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 109:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ num  }}  {% if query %}&q={{ query  }}  {% if statut %}&statut={{ statut  }}  {% endif %}{% endif %}">{{ num }}</a>
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 116:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number  }}  {% if query %}&q={{ query  }}  {% if statut %}&statut={{ statut  }}  {% endif %}{% endif %}">Suivant</a>
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 119:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages  }}  {% if query %}&q={{ query  }}  {% if statut %}&statut={{ statut  }}  {% endif %}{% endif %}">Dernier</a>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('agents_liste_membres.html')">
+                <div>
+                    <strong>📄 agents/liste_membres.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        604 lignes • 30.1 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">7 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="agents_liste_membres.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 140:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <i class="fas fa-envelope me-1"></i>{{ membre.email  }}  {% else %}
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 180:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {{ membre.derniere_verification.date_verification|date:"d/m/Y"  }}  {% else %}
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 278:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page=1{% if search_query %}&q={{ search_query  }}  {% endif %}" title="Première page">
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 283:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number  }}  {% if search_query %}&q={{ search_query  }}  {% endif %}" title="Page précédente">
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 304:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ num  }}  {% if search_query %}&q={{ search_query  }}  {% endif %}">{{ num }}</a>
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 312:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number  }}  {% if search_query %}&q={{ search_query  }}  {% endif %}" title="Page suivante">
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 317:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages  }}  {% if search_query %}&q={{ search_query  }}  {% endif %}" title="Dernière page">
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('agents_communication.html')">
+                <div>
+                    <strong>📄 agents/communication.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        177 lignes • 7.6 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="agents_communication.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 4:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}{{ page_title|default:"Communication" }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('agents_creer_membre.html')">
+                <div>
+                    <strong>📄 agents/creer_membre.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        271 lignes • 14.1 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="agents_creer_membre.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 4:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}{{ title }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('membres_detail_membre.html')">
+                <div>
+                    <strong>📄 membres/detail_membre.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        73 lignes • 3.4 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="membres_detail_membre.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 3:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Détail Membre - {{ membre.nom_complet }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('membres_detail_ordonnance.html')">
+                <div>
+                    <strong>📄 membres/detail_ordonnance.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        276 lignes • 13.4 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="membres_detail_ordonnance.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 5:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Détail de l'Ordonnance - {{ ordonnance.id }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('membres_mon_profil.html')">
+                <div>
+                    <strong>📄 membres/mon_profil.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        276 lignes • 14.5 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="membres_mon_profil.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 6:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Mon Profil - {{ membre.nom_complet }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_liste_soins.html')">
+                <div>
+                    <strong>📄 assureur/liste_soins.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        289 lignes • 13.5 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_liste_soins.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 41:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <option value="{{ type.id }}" {% if type_filter == type.id|stringformat:"s" %}selected{% endif %}>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_liste_paiements.html')">
+                <div>
+                    <strong>📄 assureur/liste_paiements.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        329 lignes • 15.8 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">9 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_liste_paiements.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 117:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% if stats_finances.paiements_valides %}  {{ stats_finances.paiements_valides   }}  {% else %}
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 183:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% if paiement.reference %}  {{ paiement.reference   }}  {% else %}
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 184:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        PAI-{{ paiement.id  }}  {% endif %}
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 190:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% if paiement.membre.numero_unique %}  {{ paiement.membre.numero_unique   }}  {% elif paiement.membre.numero_unique %}  {{ paiement.membre.numero_unique   }}  {% endif %}
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 198:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% if paiement.type_paiement %}  {{ paiement.get_type_paiement_display   }}  {% else %}
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 220:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% if paiement.date_paiement %}  {{ paiement.date_paiement|date:"d/m/Y"   }}  {% else %}  {{ paiement.date_creation|date:"d/m/Y"   }}  {% endif %}
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 248:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ paiements.previous_page_number  }}  {% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value  }}  {% endif %}{% endfor %}">
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 261:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ num  }}  {% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value  }}  {% endif %}{% endfor %}">
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 270:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ paiements.next_page_number  }}  {% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value  }}  {% endif %}{% endfor %}">
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_modifier_paiement.html')">
+                <div>
+                    <strong>📄 assureur/modifier_paiement.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        217 lignes • 10.5 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">4 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_modifier_paiement.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 4:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Modifier Paiement {{ paiement.reference }} - Assureur{% endblock %}
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 7:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block page_subtitle %}{{ paiement.reference }}{% endblock %}
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 72:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <option value="{{ mode }}" {% if paiement.mode_paiement == mode %}selected{% endif %}>
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 88:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <option value="{{ statut }}" {% if paiement.status == statut %}selected{% endif %}>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_enregistrer_paiement.html')">
+                <div>
+                    <strong>📄 assureur/enregistrer_paiement.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        173 lignes • 7.1 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_enregistrer_paiement.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 3:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Enregistrer Paiement - {{ membre.nom_complet }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_statistiques_paiements.html')">
+                <div>
+                    <strong>📄 assureur/statistiques_paiements.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        248 lignes • 11.0 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">2 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_statistiques_paiements.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 115:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% if s == statut.status %}{{ label }}{% endif %}
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 157:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% if m == mode.mode_paiement %}{{ label }}{% endif %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_historique_paiements_membre.html')">
+                <div>
+                    <strong>📄 assureur/historique_paiements_membre.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        213 lignes • 9.4 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">2 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_historique_paiements_membre.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 4:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Paiements de {{ membre.nom }} {{ membre.prenom }} - Assureur{% endblock %}
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 7:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block page_subtitle %}{{ membre.nom }} {{ membre.prenom }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_detail_cotisation.html')">
+                <div>
+                    <strong>📄 assureur/detail_cotisation.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        214 lignes • 11.1 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_detail_cotisation.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 4:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}{{ page_title|default:"Détail Cotisation" }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_recherche_membre.html')">
+                <div>
+                    <strong>📄 assureur/recherche_membre.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        269 lignes • 11.6 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">5 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_recherche_membre.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 134:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}">
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 139:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ membres.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 152:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 161:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ membres.next_page_number }}{% if query %}&q={{ query }}{% endif %}">
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 166:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ membres.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}">
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_detail_bon.html')">
+                <div>
+                    <strong>📄 assureur/detail_bon.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        253 lignes • 12.0 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">2 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_detail_bon.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 4:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Bon {{ bon.numero_bon }} - {{ bon.membre.nom }}{% endblock %}
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 7:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block page_subtitle %}{{ bon.numero_bon }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_liste_membres.html')">
+                <div>
+                    <strong>📄 assureur/liste_membres.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        425 lignes • 20.3 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">3 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_liste_membres.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 300:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        href="?page={{ page_obj.previous_page_number }}{% if filters.search %}&q={{ filters.search }}{% endif %}{% if filters.statut %}&statut={{ filters.statut }}{% endif %}">
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 314:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        href="?page={{ i }}{% if filters.search %}&q={{ filters.search }}{% endif %}{% if filters.statut %}&statut={{ filters.statut }}{% endif %}">
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 324:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        href="?page={{ page_obj.next_page_number }}{% if filters.search %}&q={{ filters.search }}{% endif %}{% if filters.statut %}&statut={{ filters.statut }}{% endif %}">
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_creer_paiement.html')">
+                <div>
+                    <strong>📄 assureur/creer_paiement.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        369 lignes • 16.2 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">2 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_creer_paiement.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 52:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %} alert-dismissible fade show">
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 116:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% if value %}{{ label }}{% if not forloop.last %}, {% endif %}{% endif %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_liste_bons.html')">
+                <div>
+                    <strong>📄 assureur/liste_bons.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        448 lignes • 22.4 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">12 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_liste_bons.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 25:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="dropdown-item" href="{% url 'assureur:export_donnees' type_donnees='bons' %}?format=csv&{% if statut_filter %}statut={{ statut_filter }}&{% endif %}{% if type_soin_filter %}type_soin={{ type_soin_filter }}&{% endif %}{% if date_debut %}date_debut={{ date_debut }}&{% endif %}{% if date_fin %}date_fin={{ date_fin }}&{% endif %}{% if search_query %}search={{ search_query }}{% endif %}">
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 30:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="dropdown-item" href="{% url 'assureur:export_donnees' type_donnees='bons' %}?format=pdf&{% if statut_filter %}statut={{ statut_filter }}&{% endif %}{% if type_soin_filter %}type_soin={{ type_soin_filter }}&{% endif %}{% if date_debut %}date_debut={{ date_debut }}&{% endif %}{% if date_fin %}date_fin={{ date_fin }}&{% endif %}{% if search_query %}search={{ search_query }}{% endif %}">
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 45:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <option value="{{ value }}" {% if statut_filter == value %}selected{% endif %}>
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 56:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <option value="{{ value }}" {% if type_soin_filter == value %}selected{% endif %}>
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 99:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a href="{% url 'assureur:liste_bons' %}?{% if type_soin_filter %}type_soin={{ type_soin_filter }}&{% endif %}{% if date_debut %}date_debut={{ date_debut }}&{% endif %}{% if date_fin %}date_fin={{ date_fin }}&{% endif %}{% if search_query %}search={{ search_query }}{% endif %}"
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 107:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a href="{% url 'assureur:liste_bons' %}?{% if statut_filter %}statut={{ statut_filter }}&{% endif %}{% if date_debut %}date_debut={{ date_debut }}&{% endif %}{% if date_fin %}date_fin={{ date_fin }}&{% endif %}{% if search_query %}search={{ search_query }}{% endif %}"
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 115:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a href="{% url 'assureur:liste_bons' %}?{% if statut_filter %}statut={{ statut_filter }}&{% endif %}{% if type_soin_filter %}type_soin={{ type_soin_filter }}&{% endif %}{% if date_fin %}date_fin={{ date_fin }}&{% endif %}{% if search_query %}search={{ search_query }}{% endif %}"
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 123:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a href="{% url 'assureur:liste_bons' %}?{% if statut_filter %}statut={{ statut_filter }}&{% endif %}{% if type_soin_filter %}type_soin={{ type_soin_filter }}&{% endif %}{% if date_debut %}date_debut={{ date_debut }}&{% endif %}{% if search_query %}search={{ search_query }}{% endif %}"
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 131:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a href="{% url 'assureur:liste_bons' %}?{% if statut_filter %}statut={{ statut_filter }}&{% endif %}{% if type_soin_filter %}type_soin={{ type_soin_filter }}&{% endif %}{% if date_debut %}date_debut={{ date_debut }}&{% endif %}{% if date_fin %}date_fin={{ date_fin }}{% endif %}"
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 313:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if statut_filter %}&statut={{ statut_filter }}{% endif %}{% if type_soin_filter %}&type_soin={{ type_soin_filter }}{% endif %}{% if date_debut %}&date_debut={{ date_debut }}{% endif %}{% if date_fin %}&date_fin={{ date_fin }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 326:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ num }}{% if statut_filter %}&statut={{ statut_filter }}{% endif %}{% if type_soin_filter %}&type_soin={{ type_soin_filter }}{% endif %}{% if date_debut %}&date_debut={{ date_debut }}{% endif %}{% if date_fin %}&date_fin={{ date_fin }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 335:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if statut_filter %}&statut={{ statut_filter }}{% endif %}{% if type_soin_filter %}&type_soin={{ type_soin_filter }}{% endif %}{% if date_debut %}&date_debut={{ date_debut }}{% endif %}{% if date_fin %}&date_fin={{ date_fin }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_creer_bon.html')">
+                <div>
+                    <strong>📄 assureur/creer_bon.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        426 lignes • 19.5 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_creer_bon.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 5:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Créer un Bon de Soin - {{ membre.nom_complet }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_detail_soins.html')">
+                <div>
+                    <strong>📄 assureur/detail_soins.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        133 lignes • 5.1 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_detail_soins.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 4:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Détail du Soin - {{ soin.type_soin.nom }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_detail_membre.html')">
+                <div>
+                    <strong>📄 assureur/detail_membre.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        408 lignes • 20.3 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">2 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_detail_membre.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 3:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Détails Membre - {{ membre.nom }} {{ membre.prenom }}{% endblock %}
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 101:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% else %}{{ key }}{% endif %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_rejeter_soin.html')">
+                <div>
+                    <strong>📄 assureur/rejeter_soin.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        68 lignes • 3.3 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_rejeter_soin.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 3:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Rejeter le Soin - {{ soin.type_soin.nom }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_creer_cotisation_membre.html')">
+                <div>
+                    <strong>📄 assureur/creer_cotisation_membre.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        186 lignes • 8.9 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_creer_cotisation_membre.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 56:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <option value="{{ mois }}" {% if mois == aujourd_hui %}selected{% endif %}>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_rapport_generer.html')">
+                <div>
+                    <strong>📄 assureur/rapport_generer.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        400 lignes • 13.2 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_rapport_generer.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 5:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Rapport Généré - {{ titre }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_rapport_statistiques.html')">
+                <div>
+                    <strong>📄 assureur/rapport_statistiques.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        387 lignes • 17.6 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_rapport_statistiques.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 4:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Statistiques - {{ assureur.user.get_full_name|default:assureur.user.username }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_configuration_configuration.html')">
+                <div>
+                    <strong>📄 assureur/configuration/configuration.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        256 lignes • 12.8 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_configuration_configuration.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 3:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}{{ title }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_rapports_generer_rapport.html')">
+                <div>
+                    <strong>📄 assureur/rapports/generer_rapport.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        267 lignes • 9.9 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_rapports_generer_rapport.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 5:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Rapport Généré - {{ titre }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_cotisations_liste_cotisations.html')">
+                <div>
+                    <strong>📄 assureur/cotisations/liste_cotisations.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        1071 lignes • 44.2 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">10 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_cotisations_liste_cotisations.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 40:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        onclick="window.location.href='?{% if periode_filter %}periode={{ periode_filter }}&{% endif %}'">
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 44:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        onclick="window.location.href='?statut=payee{% if periode_filter %}&periode={{ periode_filter }}{% endif %}'">
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 48:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        onclick="window.location.href='?statut=en_retard{% if periode_filter %}&periode={{ periode_filter }}{% endif %}'">
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 204:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <option value="{{ choice.0 }}" {% if statut_filter == choice.0 %}selected{% endif %}>
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 221:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <option value="{{ choice.0 }}" {% if type_cotisation_filter == choice.0 %}selected{% endif %}>
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 448:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page=1{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 454:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ cotisations.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 464:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 473:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ cotisations.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 479:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ cotisations.paginator.num_pages }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_cotisations_base_cotisations.html')">
+                <div>
+                    <strong>📄 assureur/cotisations/base_cotisations.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        33 lignes • 1.1 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">2 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_cotisations_base_cotisations.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 3:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}{{ title }}{% endblock %}
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 19:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <h1 class="h3 mb-0">{% block page_title %}{{ title }}{% endblock %}</h1>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_communication_detail_message.html')">
+                <div>
+                    <strong>📄 assureur/communication/detail_message.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        58 lignes • 2.7 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_communication_detail_message.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 4:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Message : {{ message.sujet }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('assureur_communication_repondre_message.html')">
+                <div>
+                    <strong>📄 assureur/communication/repondre_message.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        72 lignes • 3.4 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="assureur_communication_repondre_message.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 4:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Répondre à {{ message_original.expediteur.get_full_name }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('inscription_inscription.html')">
+                <div>
+                    <strong>📄 inscription/inscription.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        524 lignes • 22.8 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="inscription_inscription.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 4:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}{{ title }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('inscription_confirmation_rappel.html')">
+                <div>
+                    <strong>📄 inscription/confirmation_rappel.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        115 lignes • 5.9 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="inscription_confirmation_rappel.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 4:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}{{ title }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('pharmacien_valider_ordonnance.html')">
+                <div>
+                    <strong>📄 pharmacien/valider_ordonnance.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        133 lignes • 5.8 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="pharmacien_valider_ordonnance.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 4:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Valider Ordonnance #{{ ordonnance.id }} - Pharmacien{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('pharmacien_detail_ordonnance.html')">
+                <div>
+                    <strong>📄 pharmacien/detail_ordonnance.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        266 lignes • 11.5 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="pharmacien_detail_ordonnance.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 4:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}Détail Ordonnance #{{ ordonnance.id }} - Pharmacien{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('pharmacien_stock.html')">
+                <div>
+                    <strong>📄 pharmacien/stock.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        293 lignes • 15.9 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="pharmacien_stock.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 126:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <option value="{{ categorie.0 }}" {% if categorie_filter == categorie.0 %}selected{% endif %}>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('pharmacien_details_conversation.html')">
+                <div>
+                    <strong>📄 pharmacien/details_conversation.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        121 lignes • 5.4 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="pharmacien_details_conversation.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 51:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        value="{% for participant in conversation.participants.all %}{% if participant != request.user %}{{ participant.id }}{% endif %}{% endfor %}">
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('communication_detail_conversation.html')">
+                <div>
+                    <strong>📄 communication/detail_conversation.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        121 lignes • 5.4 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="communication_detail_conversation.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 51:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        value="{% for participant in conversation.participants.all %}{% if participant != request.user %}{{ participant.id }}{% endif %}{% endfor %}">
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('communication_message_list.html')">
+                <div>
+                    <strong>📄 communication/message_list.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        126 lignes • 6.7 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">3 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="communication_message_list.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 88:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.filtre %}&filtre={{ request.GET.filtre }}{% endif %}">Précédent</a>
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 99:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ num }}{% if request.GET.filtre %}&filtre={{ request.GET.filtre }}{% endif %}">{{ num }}</a>
+                    </div>
+
+                </div>
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 106:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.filtre %}&filtre={{ request.GET.filtre }}{% endif %}">Suivant</a>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('communication_liste_notifications.html')">
+                <div>
+                    <strong>📄 communication/liste_notifications.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        71 lignes • 3.6 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="communication_liste_notifications.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 5:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}{{ page_title }}{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('communication_message_detail.html')">
+                <div>
+                    <strong>📄 communication/message_detail.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        76 lignes • 3.3 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="communication_message_detail.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 3:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}{{ message.titre }} - Mutuelle App{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('communication_messagerie.html')">
+                <div>
+                    <strong>📄 communication/messagerie.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        555 lignes • 26.0 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="communication_messagerie.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 115:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        data-search="{% for participant in conversation.participants.all %}{% if participant != request.user %}{{ participant.get_full_name|default:participant.username }} {% endif %}{% endfor %}">
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-header" onclick="toggleFile('communication_groupe_detail.html')">
+                <div>
+                    <strong>📄 communication/groupe_detail.html</strong>
+                    <span style="margin-left: 1rem; color: #6c757d;">
+                        142 lignes • 6.2 KB
+                    </span>
+                </div>
+                <div>
+                    <span class="badge badge-danger">1 problèmes</span>
+                </div>
+            </div>
+            <div class="file-content" id="communication_groupe_detail.html" style="display: none;">
+
+                <div class="issue template_syntax">
+                    <div>
+                        <span class="badge badge-danger">template_syntax</span>
+                        <strong>Ligne 3:</strong> Erreur de syntaxe potentielle: balises Django mal fermées
+                    </div>
+                    <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace;">
+                        {% block title %}{{ groupe.nom }} - Mutuelle App{% endblock %}
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+        
+        <div class="card">
+            <h3>📋 Résumé des Actions Requises</h3>
+            <ul>
+                <li><strong>1. Chemins statiques incorrects:</strong> Remplacer 'mutuelle_core/' par des chemins directs</li>
+                <li><strong>2. Fichiers manquants:</strong> Vérifier l'existence des fichiers référencés</li>
+                <li><strong>3. URLs en dur:</strong> Utiliser les tags {% url %} au lieu des chemins absolus</li>
+                <li><strong>4. Syntaxe des templates:</strong> Vérifier la fermeture des balises Django</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        function toggleFile(fileId) {
+            const element = document.getElementById(fileId);
+            if (element.style.display === 'none') {
+                element.style.display = 'block';
+            } else {
+                element.style.display = 'none';
+            }
+        }
+        
+        // Ouvrir tous les fichiers avec des problèmes critiques
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.badge-danger').forEach(badge => {
+                const fileHeader = badge.closest('.file-header');
+                if (fileHeader) {
+                    const fileId = fileHeader.getAttribute('onclick').match(/'([^']+)'/)[1];
+                    document.getElementById(fileId).style.display = 'block';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

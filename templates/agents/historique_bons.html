@@ -94,10 +94,10 @@
             <ul class="pagination justify-content-center">
                 {% if page_obj.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% if statut %}&statut={{ statut }}{% endif %}{% endif %}">Premier</a>
+                    <a class="page-link" href="?page=1{% if query %}&q={{ query  }}  {% if statut %}&statut={{ statut  }}  {% endif %}{% endif %}">Premier</a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% if statut %}&statut={{ statut }}{% endif %}{% endif %}">Précédent</a>
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number  }}  {% if query %}&q={{ query  }}  {% if statut %}&statut={{ statut  }}  {% endif %}{% endif %}">Précédent</a>
                 </li>
                 {% endif %}
 
@@ -106,17 +106,17 @@
                     <li class="page-item active"><span class="page-link">{{ num }}</span></li>
                     {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% if statut %}&statut={{ statut }}{% endif %}{% endif %}">{{ num }}</a>
+                        <a class="page-link" href="?page={{ num  }}  {% if query %}&q={{ query  }}  {% if statut %}&statut={{ statut  }}  {% endif %}{% endif %}">{{ num }}</a>
                     </li>
                     {% endif %}
                 {% endfor %}
 
                 {% if page_obj.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% if statut %}&statut={{ statut }}{% endif %}{% endif %}">Suivant</a>
+                    <a class="page-link" href="?page={{ page_obj.next_page_number  }}  {% if query %}&q={{ query  }}  {% if statut %}&statut={{ statut  }}  {% endif %}{% endif %}">Suivant</a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% if statut %}&statut={{ statut }}{% endif %}{% endif %}">Dernier</a>
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages  }}  {% if query %}&q={{ query  }}  {% if statut %}&statut={{ statut  }}  {% endif %}{% endif %}">Dernier</a>
                 </li>
                 {% endif %}
             </ul>

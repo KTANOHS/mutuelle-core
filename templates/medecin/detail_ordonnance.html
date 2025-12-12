@@ -1,7 +1,7 @@
 <!-- medecin/templates/medecin/detail_ordonnance.html -->
 {% extends 'medecin/base.html' %}
 
-{% block title %}Détail de l'Ordonnance {{ ordonnance.ordonnance_medecin.numero }}{% endblock %}
+{% block title %}Détail de l'Ordonnance {{ ordonnance.ordonnance_medecin.numero  }}  {% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -203,8 +203,7 @@
                         {% elif ordonnance.statut == 'EXPIREE' %}
                             ❌ Expirée
                         {% else %}
-                            ⚠️ {{ ordonnance.get_statut_display }}
-                        {% endif %}
+                            ⚠️ {{ ordonnance.get_statut_display  }}  {% endif %}
                     </h3>
                     
                     {% if ordonnance.est_valide %}

@@ -91,8 +91,7 @@
                                 Montant Total
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {% if stats_finances.montant_total %}
-                                    {{ stats_finances.montant_total|floatformat:0 }} FCFA
+                                {% if stats_finances.montant_total %}  {{ stats_finances.montant_total|floatformat:0  }} FCFA
                                 {% else %}
                                     0 FCFA
                                 {% endif %}
@@ -115,9 +114,7 @@
                                 Paiements Validés
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {% if stats_finances.paiements_valides %}
-                                    {{ stats_finances.paiements_valides }}
-                                {% else %}
+                                {% if stats_finances.paiements_valides %}  {{ stats_finances.paiements_valides   }}  {% else %}
                                     0
                                 {% endif %}
                             </div>
@@ -183,21 +180,14 @@
                         {% for paiement in paiements %}
                         <tr>
                             <td class="fw-bold">
-                                {% if paiement.reference %}
-                                    {{ paiement.reference }}
-                                {% else %}
-                                    PAI-{{ paiement.id }}
-                                {% endif %}
+                                {% if paiement.reference %}  {{ paiement.reference   }}  {% else %}
+                                    PAI-{{ paiement.id  }}  {% endif %}
                             </td>
                             <td>
                                 {% if paiement.membre %}
                                     <strong>{{ paiement.membre.nom }} {{ paiement.membre.prenom }}</strong>
                                     <br><small class="text-muted">
-                                        {% if paiement.membre.numero_unique %}
-                                            {{ paiement.membre.numero_unique }}
-                                        {% elif paiement.membre.numero_unique %}
-                                            {{ paiement.membre.numero_unique }}
-                                        {% endif %}
+                                        {% if paiement.membre.numero_unique %}  {{ paiement.membre.numero_unique   }}  {% elif paiement.membre.numero_unique %}  {{ paiement.membre.numero_unique   }}  {% endif %}
                                     </small>
                                 {% else %}
                                     <span class="text-muted">Membre non spécifié</span>
@@ -205,9 +195,7 @@
                             </td>
                             <td>
                                 <span class="badge bg-info">
-                                    {% if paiement.type_paiement %}
-                                        {{ paiement.get_type_paiement_display }}
-                                    {% else %}
+                                    {% if paiement.type_paiement %}  {{ paiement.get_type_paiement_display   }}  {% else %}
                                         Remboursement
                                     {% endif %}
                                 </span>
@@ -229,11 +217,7 @@
                                 </span>
                             </td>
                             <td class="text-nowrap">
-                                {% if paiement.date_paiement %}
-                                    {{ paiement.date_paiement|date:"d/m/Y" }}
-                                {% else %}
-                                    {{ paiement.date_creation|date:"d/m/Y" }}
-                                {% endif %}
+                                {% if paiement.date_paiement %}  {{ paiement.date_paiement|date:"d/m/Y"   }}  {% else %}  {{ paiement.date_creation|date:"d/m/Y"   }}  {% endif %}
                             </td>
                             <td class="text-center">
                                 <a href="{% url 'assureur:detail_paiement' paiement.id %}" 
@@ -261,7 +245,7 @@
                     <ul class="pagination justify-content-center mb-0">
                         {% if paiements.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ paiements.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            <a class="page-link" href="?page={{ paiements.previous_page_number  }}  {% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value  }}  {% endif %}{% endfor %}">
                                 Précédent
                             </a>
                         </li>
@@ -274,7 +258,7 @@
                             </li>
                             {% elif num > paiements.number|add:'-3' and num < paiements.number|add:'3' %}
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <a class="page-link" href="?page={{ num  }}  {% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value  }}  {% endif %}{% endfor %}">
                                     {{ num }}
                                 </a>
                             </li>
@@ -283,7 +267,7 @@
 
                         {% if paiements.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ paiements.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            <a class="page-link" href="?page={{ paiements.next_page_number  }}  {% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value  }}  {% endif %}{% endfor %}">
                                 Suivant
                             </a>
                         </li>

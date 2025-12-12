@@ -40,7 +40,7 @@
                     {% if not est_public %}
                         <span class="badge bg-light text-dark fs-6">
                             {% if est_patient %}👤 Vue Patient{% endif %}
-                            {% if request.user.is_authenticated and not est_patient %}{{ request.user.get_full_name }}{% endif %}
+                            {% if request.user.is_authenticated and not est_patient %}   {{ request.user.get_full_name   }}  {% endif %}
                         </span>
                     {% endif %}
                 </div>

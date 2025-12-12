@@ -137,8 +137,7 @@
                                                 <h6 class="mb-1 fw-bold">{{ membre.prenom }} {{ membre.nom }}</h6>
                                                 <small class="text-muted">
                                                     {% if membre.email %}
-                                                    <i class="fas fa-envelope me-1"></i>{{ membre.email }}
-                                                    {% else %}
+                                                    <i class="fas fa-envelope me-1"></i>{{ membre.email  }}  {% else %}
                                                     <i class="fas fa-envelope me-1"></i>Email non renseigné
                                                     {% endif %}
                                                 </small>
@@ -178,8 +177,7 @@
                                         <small class="text-muted">
                                             {% if membre.derniere_verification %}
                                             <i class="fas fa-calendar-check me-1"></i>
-                                            {{ membre.derniere_verification.date_verification|date:"d/m/Y" }}
-                                            {% else %}
+                                            {{ membre.derniere_verification.date_verification|date:"d/m/Y"  }}  {% else %}
                                             <i class="fas fa-clock me-1"></i>
                                             Jamais vérifié
                                             {% endif %}
@@ -277,12 +275,12 @@
                             <!-- Premier et précédent -->
                             {% if page_obj.has_previous %}
                             <li class="page-item">
-                                <a class="page-link" href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}" title="Première page">
+                                <a class="page-link" href="?page=1{% if search_query %}&q={{ search_query  }}  {% endif %}" title="Première page">
                                     <i class="fas fa-angle-double-left"></i>
                                 </a>
                             </li>
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" title="Page précédente">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number  }}  {% if search_query %}&q={{ search_query  }}  {% endif %}" title="Page précédente">
                                     <i class="fas fa-angle-left"></i>
                                 </a>
                             </li>
@@ -303,7 +301,7 @@
                                 </li>
                                 {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
                                 <li class="page-item">
-                                    <a class="page-link" href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}">{{ num }}</a>
+                                    <a class="page-link" href="?page={{ num  }}  {% if search_query %}&q={{ search_query  }}  {% endif %}">{{ num }}</a>
                                 </li>
                                 {% endif %}
                             {% endfor %}
@@ -311,12 +309,12 @@
                             <!-- Suivant et dernier -->
                             {% if page_obj.has_next %}
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" title="Page suivante">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number  }}  {% if search_query %}&q={{ search_query  }}  {% endif %}" title="Page suivante">
                                     <i class="fas fa-angle-right"></i>
                                 </a>
                             </li>
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}" title="Dernière page">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages  }}  {% if search_query %}&q={{ search_query  }}  {% endif %}" title="Dernière page">
                                     <i class="fas fa-angle-double-right"></i>
                                 </a>
                             </li>

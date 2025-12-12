@@ -1,7 +1,7 @@
 {% extends "medecin/base.html" %}
 {% load static humanize %}
 
-{% block title %}Tableau de Bord Médecin - {{ request.user.get_full_name }}{% endblock %}
+{% block title %}Tableau de Bord Médecin - {{ request.user.get_full_name  }}  {% endblock %}
 
 {% block extra_css %}
 <style>
@@ -125,10 +125,8 @@
             <p class="text-muted mb-0">
                 Bienvenue, 
                 {% if medecin %}
-                    Dr. {{ medecin.nom_complet|default:request.user.get_full_name }}
-                {% else %}
-                    Dr. {{ request.user.get_full_name|default:request.user.username }}
-                {% endif %}
+                    Dr. {{ medecin.nom_complet|default:request.user.get_full_name  }}  {% else %}
+                    Dr. {{ request.user.get_full_name|default:request.user.username  }}  {% endif %}
             </p>
             {% if medecin and medecin.specialite %}
                 <small class="text-muted">Spécialité: {{ medecin.specialite }}</small>
@@ -256,8 +254,7 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <h3 class="stat-number text-info">
-                                {% if medecin and medecin.tarif_consultation %}
-                                    {{ medecin.tarif_consultation }}€
+                                {% if medecin and medecin.tarif_consultation %}   {{ medecin.tarif_consultation  }}€
                                 {% else %}
                                     N/C
                                 {% endif %}
