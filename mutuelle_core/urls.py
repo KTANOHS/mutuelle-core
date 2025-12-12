@@ -7,6 +7,7 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from . import views
 from django.conf.urls.static import static
 from django.conf import settings
+from django.http import HttpResponse  # <-- AJOUT IMPORT MANQUANT
 
 def health_check(request):
     """Simple health check pour Render"""
@@ -48,6 +49,11 @@ urlpatterns = [
     path('inscription/', include('inscription.urls')),
     path('communication/', include('communication.urls')),
     path('pharmacie-public/', include('pharmacie_public.urls')),
+    
+    # ========================
+    # API ENDPOINTS - AJOUTEZ CETTE LIGNE !!!
+    # ========================
+    path('api/', include('api.urls')),  # <-- LIGNE AJOUTÉE ICI
     
     # ========================
     # GESTION DES MEMBRES
