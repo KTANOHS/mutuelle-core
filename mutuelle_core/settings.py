@@ -404,35 +404,38 @@ SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 # LOGGING CONFIGURATION
 # =============================================================================
 
+# Dans settings.py - section LOGGING
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,  # CRITIQUE pour Railway
     'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
-            'style': '{',
-        },
         'simple': {
-            'format': '{levelname} {message}',
+            'format': '{message}',
             'style': '{',
         },
     },
     'handlers': {
         'console': {
-            'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
+            'formatter': 'simple',
+            'level': 'ERROR',  # Seulement les erreurs
         },
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': True,
+            'level': 'ERROR',
+            'propagate': False,
         },
-        'mutuelle': {
+        # Désactiver les loggers bruyants
+        'django.request': {
+            'level': 'ERROR',
             'handlers': ['console'],
-            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.db.backends': {
+            'level': 'ERROR',
+            'handlers': ['console'],
             'propagate': False,
         },
     },
