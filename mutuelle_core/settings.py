@@ -1,7 +1,3 @@
-"""
-Django settings for mutuelle_core project.
-Version optimisée pour Render.com + développement local
-"""
 import os
 from pathlib import Path
 from datetime import timedelta
@@ -15,16 +11,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # CONFIGURATION ENVIRONNEMENT
 # =============================================================================
 
-# Détecter si on est sur Render
-RENDER = os.environ.get('RENDER') == 'true'
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME', '')
+# Détecter l'environnement Railway
+RAILWAY = os.environ.get('RAILWAY') == 'true' or os.environ.get('RAILWAY') == 'True'
+RAILWAY_PUBLIC_DOMAIN = os.environ.get('RAILWAY_STATIC_URL', '')
 
 # Environnement simple
-IS_PRODUCTION = RENDER or os.environ.get('DJANGO_ENV') == 'production'
+IS_PRODUCTION = RAILWAY or os.environ.get('DJANGO_ENV') == 'production'
 IS_DEVELOPMENT = not IS_PRODUCTION
 
 # DEBUG : False en production, True en développement
-DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true' if IS_DEVELOPMENT else False
 
 # FORCER DEBUG=False en production
 if IS_PRODUCTION:
@@ -35,9 +31,9 @@ if IS_PRODUCTION:
 SECRET_KEY = os.environ.get('SECRET_KEY')
 if not SECRET_KEY:
     if IS_PRODUCTION:
-        # Générer une clé sécurisée pour Render
+        # Générer une clé sécurisée pour Railway
         SECRET_KEY = get_random_secret_key()
-        print(f"🔑 Clé secrète générée automatiquement pour Render")
+        print(f"🔑 Clé secrète générée automatiquement pour Railway")
     else:
         # Clé de développement
         SECRET_KEY = 'django-dev-' + get_random_secret_key()
@@ -50,41 +46,42 @@ ALLOWED_HOSTS = []
 
 # Mode développement local
 if IS_DEVELOPMENT:
-    ALLOWED_HOSTS.extend(['localhost', '127.0.0.1', '[::1]', '0.0.0.0', '*'])
+    ALLOWED_HOSTS.extend(['localhost', '127.0.0.1', '[::1]', '0.0.0.0'])
+    if DEBUG:
+        ALLOWED_HOSTS.append('*')  # Pour faciliter le dev, retirer en prod
     print(f"🌐 Mode développement: localhost autorisé")
 
-# Mode production sur Render
-if RENDER:
-    # Hosts Render par défaut
-    if RENDER_EXTERNAL_HOSTNAME:
-        ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
-    ALLOWED_HOSTS.extend([
-        '.onrender.com',
-        'mutuelle-core-18.onrender.com',
-        'mutuelle-core-17.onrender.com',
-        'mutuelle-core.onrender.com',
-    ])
-    print(f"🌐 Render host détecté: {RENDER_EXTERNAL_HOSTNAME or '.onrender.com'}")
+# Mode production sur Railway
+if RAILWAY:
+    # Domaine Railway principal
+    railway_domain = os.environ.get('RAILWAY_PUBLIC_DOMAIN', '')
+    if railway_domain:
+        ALLOWED_HOSTS.append(railway_domain)
+    
+    # Domaine générique Railway
+    ALLOWED_HOSTS.append('.railway.app')
+    
+    print(f"🌐 Railway host détecté: {railway_domain or '.railway.app'}")
 
 # Ajouter les hosts depuis l'environnement
 env_hosts = os.environ.get('ALLOWED_HOSTS', '')
 if env_hosts:
     ALLOWED_HOSTS.extend([host.strip() for host in env_hosts.split(',') if host.strip()])
 
-# Éviter les doublons et vérifier qu'on a au moins un host
-ALLOWED_HOSTS = list(set(ALLOWED_HOSTS))
+# Éviter les doublons et nettoyer
+ALLOWED_HOSTS = list(set([h for h in ALLOWED_HOSTS if h]))
 if not ALLOWED_HOSTS:
-    ALLOWED_HOSTS.append('localhost')
-    print(f"⚠️  Aucun host configuré, utilisation de 'localhost'")
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
+    print(f"⚠️  Aucun host configuré, utilisation de hosts par défaut")
 
 print(f"✅ ALLOWED_HOSTS configurés: {ALLOWED_HOSTS}")
 
 # =============================================================================
-# SUITE DE LA CONFIGURATION
+# APPLICATION DEFINITION
 # =============================================================================
 
-# Application definition
 INSTALLED_APPS = [
+    # Django core
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -99,20 +96,19 @@ INSTALLED_APPS = [
     'corsheaders',
     'crispy_forms',
     'crispy_bootstrap5',
-    'whitenoise.runserver_nostatic',
+    'django_filters',
+    'django_extensions',
     
-    # Vos applications
+    # Vos applications (dans l'ordre logique)
+    'core',
     'membres',
     'inscription',
     'paiements',
     'soins',
     'notifications',
-    'api',
     'assureur',
     'medecin',
     'pharmacien',
-    'core',
-    'mutuelle_core',
     'pharmacie_public',
     'agents',
     'communication',
@@ -120,48 +116,20 @@ INSTALLED_APPS = [
     'scoring',
     'relances',
     'dashboard',
-    
-    # 'channels',  # COMMENTÉ car pas dans requirements.txt
-    'django_extensions',
+    'api',  # API REST doit être en dernier pour éviter les conflits d'import
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-# Configuration de REST Framework
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 20,
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer' if DEBUG else None,
-    ),
-}
+# =============================================================================
+# MIDDLEWARE - ORDRE CRITIQUE
+# =============================================================================
 
-# Filtrer les renderers None
-REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = [
-    r for r in REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] if r is not None
-]
-
-# Configuration de JWT
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
-}
-
-# Middleware - ORDRE CRITIQUE POUR RENDER
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # CRITIQUE: juste après SecurityMiddleware
-    'corsheaders.middleware.CorsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # CRITIQUE pour les fichiers statiques
+    'corsheaders.middleware.CorsMiddleware',  # Après WhiteNoise
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -169,17 +137,21 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
-    'membres.middleware.TrackingConnexionsMiddleware',  # Votre middleware personnalisé
 ]
 
 ROOT_URLCONF = 'mutuelle_core.urls'
+
+# =============================================================================
+# TEMPLATES
+# =============================================================================
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'templates'),
-            os.path.join(BASE_DIR, 'agents', 'templates'),
+            BASE_DIR / 'templates',
+            BASE_DIR / 'agents' / 'templates',
+            BASE_DIR / 'core' / 'templates',
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -189,8 +161,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
-                'agents.context_processors.agent_context',
-                'core.utils.mutuelle_context',
+                'core.context_processors.mutuelle_context',
             ],
             'debug': DEBUG,
         },
@@ -200,7 +171,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'mutuelle_core.wsgi.application'
 
 # =============================================================================
-# BASE DE DONNÉES - CONFIGURATION FLEXIBLE
+# BASE DE DONNÉES - CONFIGURATION RAILWAY
 # =============================================================================
 
 # Configuration par défaut (SQLite pour développement)
@@ -211,53 +182,65 @@ DATABASES = {
     }
 }
 
-# Sur Render ou si DATABASE_URL est défini, utiliser PostgreSQL
+# Utiliser PostgreSQL sur Railway via DATABASE_URL
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
     try:
-        DATABASES['default'] = dj_database_url.config(
+        # Configuration PostgreSQL pour Railway
+        db_config = dj_database_url.config(
             default=DATABASE_URL,
             conn_max_age=600,
             conn_health_checks=True,
             ssl_require=IS_PRODUCTION,
         )
-        print(f"✅ Base de données PostgreSQL configurée")
+        
+        # S'assurer que ENGINE est correct
+        if 'ENGINE' in db_config:
+            db_config['ENGINE'] = 'django.db.backends.postgresql'
+        
+        DATABASES['default'] = db_config
+        print(f"✅ Base de données PostgreSQL configurée via DATABASE_URL")
     except Exception as e:
         print(f"⚠️  Erreur configuration PostgreSQL: {e}")
         print(f"⚠️  Utilisation de SQLite comme fallback")
 else:
-    print(f"✅ Base de données SQLite configurée")
-
-# Sur Render, utiliser /tmp pour SQLite (car le système de fichiers est éphémère)
-if RENDER and DATABASES['default']['ENGINE'] == 'django.db.backends.sqlite3':
-    DATABASES['default']['NAME'] = '/tmp/db.sqlite3'
-    print(f"📁 SQLite configuré sur /tmp pour Render")
+    print(f"✅ Base de données SQLite configurée (développement local)")
 
 # =============================================================================
-# FICHIERS STATIQUES - CONFIGURATION CRITIQUE POUR RENDER
+# FICHIERS STATIQUES - CONFIGURATION RAILWAY
 # =============================================================================
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Dossiers où Django cherchera les fichiers statiques
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-    os.path.join(BASE_DIR, 'agents', 'static'),
+    BASE_DIR / 'static',
+    BASE_DIR / 'core' / 'static',
+    BASE_DIR / 'agents' / 'static',
 ]
 
-# Configuration WhiteNoise optimisée pour Render
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Configuration WhiteNoise optimisée pour Railway
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
-# Configuration WhiteNoise
-WHITENOISE_USE_FINDERS = False  # Désactiver pour performance
+# Options WhiteNoise
+WHITENOISE_USE_FINDERS = True
 WHITENOISE_AUTOREFRESH = DEBUG  # Auto-refresh seulement en développement
 WHITENOISE_MAX_AGE = 31536000  # 1 an pour le cache
 
 print(f"📁 WhiteNoise configuré pour les fichiers statiques")
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
 
-# Password validation
+# =============================================================================
+# VALIDATION DES MOTS DE PASSE
+# =============================================================================
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -274,11 +257,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Internationalization
+# =============================================================================
+# INTERNATIONALISATION
+# =============================================================================
+
 LANGUAGE_CODE = 'fr-fr'
 TIME_ZONE = 'Africa/Abidjan'
 USE_I18N = True
-USE_L10N = True
 USE_TZ = True
 
 LANGUAGES = [
@@ -286,115 +271,121 @@ LANGUAGES = [
     ('en', 'English'),
 ]
 
-LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale')]
+LOCALE_PATHS = [BASE_DIR / 'locale']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # =============================================================================
-# CONFIGURATION SPÉCIFIQUE
+# CONFIGURATION AUTHENTIFICATION
 # =============================================================================
 
-LOGIN_REDIRECT_URL = '/redirect-after-login/'
+LOGIN_REDIRECT_URL = '/dashboard/'
 LOGIN_URL = '/accounts/login/'
 LOGOUT_REDIRECT_URL = '/'
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-SESSION_COOKIE_NAME = 'mutuelle_sessionid'
-SESSION_COOKIE_AGE = 1209600  # 2 semaines
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False
-SESSION_SAVE_EVERY_REQUEST = True
-
 # =============================================================================
-# SÉCURITÉ - CONFIGURATION POUR RENDER
+# REST FRAMEWORK CONFIGURATION
 # =============================================================================
 
-# CSRF - Configuration pour Render
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer' if DEBUG else None,
+    ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ),
+}
+
+# Filtrer les renderers None
+REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = [
+    r for r in REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] if r is not None
+]
+
+# =============================================================================
+# SIMPLE JWT CONFIGURATION
+# =============================================================================
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+# =============================================================================
+# SÉCURITÉ - CONFIGURATION POUR RAILWAY
+# =============================================================================
+
+# CSRF - Configuration pour Railway
 CSRF_TRUSTED_ORIGINS = []
 
-if IS_PRODUCTION and RENDER:
-    # En production sur Render
-    if RENDER_EXTERNAL_HOSTNAME:
-        CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
+if RAILWAY:
+    # En production sur Railway
+    if RAILWAY_PUBLIC_DOMAIN:
+        CSRF_TRUSTED_ORIGINS.append(f'https://{RAILWAY_PUBLIC_DOMAIN}')
     CSRF_TRUSTED_ORIGINS.extend([
-        'https://*.onrender.com',
-        'https://mutuelle-core-18.onrender.com',
-        'https://mutuelle-core-17.onrender.com',
+        'https://*.railway.app',
+        'https://web-production-*.up.railway.app',
     ])
-    
-    # Ajouter depuis l'environnement
-    csrf_env = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
-    if csrf_env:
-        CSRF_TRUSTED_ORIGINS.extend([origin.strip() for origin in csrf_env.split(',') if origin.strip()])
 else:
     # Développement local
     CSRF_TRUSTED_ORIGINS.extend([
         'http://localhost:8000',
         'http://127.0.0.1:8000',
-        'http://localhost:3000',
         'http://0.0.0.0:8000',
     ])
 
-# Cookies - Configuration pour Render
-if IS_PRODUCTION and RENDER:
-    # Production sur Render : HTTPS obligatoire
+# Cookies - Configuration pour Railway
+if RAILWAY:
+    # Production sur Railway : HTTPS obligatoire
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    SESSION_COOKIE_SAMESITE = 'Lax'
-    CSRF_COOKIE_SAMESITE = 'Lax'
-    print(f"🔒 Cookies sécurisés activés (HTTPS)")
+    SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    print(f"🔒 Cookies sécurisés et HTTPS activés (Railway)")
 else:
     # Développement local : HTTP seulement
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
-    SESSION_COOKIE_SAMESITE = 'Lax'
-    CSRF_COOKIE_SAMESITE = 'Lax'
-    print(f"🔓 Cookies non-sécurisés (HTTP)")
+    SECURE_SSL_REDIRECT = False
+    print(f"🔓 Cookies non-sécurisés (développement local)")
 
 SESSION_COOKIE_HTTPONLY = True
-CSRF_COOKIE_HTTPONLY = False  # Doit être False pour AJAX
+CSRF_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
 
-# CORS - Configuration simplifiée
+# =============================================================================
+# CORS CONFIGURATION
+# =============================================================================
+
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
-    CORS_ALLOW_CREDENTIALS = True
     print(f"🔓 CORS: toutes les origines autorisées (développement)")
 else:
     CORS_ALLOW_ALL_ORIGINS = False
-    CORS_ALLOW_CREDENTIALS = True
-    
-    # Liste des origines autorisées en production
-    CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS.copy()  # Mêmes que CSRF
-    
-    # S'assurer qu'il y a au moins une origine
-    if not CORS_ALLOWED_ORIGINS:
-        CORS_ALLOWED_ORIGINS.append('https://localhost')
-    
+    CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS.copy()
     print(f"🔒 CORS: {len(CORS_ALLOWED_ORIGINS)} origines autorisées")
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
-    }
-}
-
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'noreply@mutuelle.local'
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 
 # =============================================================================
-# SÉCURITÉ PRODUCTION - CONFIGURATION POUR RENDER
+# SÉCURITÉ PRODUCTION
 # =============================================================================
-
-if IS_PRODUCTION and RENDER:
-    # Production sur Render : activer HTTPS
-    SECURE_SSL_REDIRECT = True
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    print(f"🔒 Redirection HTTPS activée")
-else:
-    # Développement local : DÉSACTIVER HTTPS
-    SECURE_SSL_REDIRECT = False
-    SECURE_PROXY_SSL_HEADER = None
-    print(f"🔓 Redirection HTTPS désactivée")
 
 # Headers de sécurité (toujours actifs)
 SECURE_BROWSER_XSS_FILTER = True
@@ -402,43 +393,42 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 
 # HSTS - Seulement en production HTTPS
-if IS_PRODUCTION and RENDER:
+if RAILWAY:
     SECURE_HSTS_SECONDS = 31536000  # 1 an
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
-else:
-    SECURE_HSTS_SECONDS = 0
 
 SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 # =============================================================================
-# LOGGING SIMPLIFIÉ
+# LOGGING CONFIGURATION
 # =============================================================================
 
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
         'simple': {
-            'format': '{levelname} {asctime} {module}: {message}',
+            'format': '{levelname} {message}',
             'style': '{',
         },
     },
     'handlers': {
         'console': {
+            'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple',
+            'formatter': 'verbose',
         },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
             'level': 'INFO',
-            'propagate': False,
+            'propagate': True,
         },
         'mutuelle': {
             'handlers': ['console'],
@@ -466,28 +456,23 @@ MUTUELLE_CONFIG = {
 }
 
 # =============================================================================
-# CORRECTIONS AUTOMATIQUES POUR RENDER
+# CRÉATION DES DOSSIERS NÉCESSAIRES
 # =============================================================================
 
-# Ajout de code pour appliquer les migrations automatiquement en production
-if RENDER and not os.environ.get('SKIP_AUTO_MIGRATE'):
-    print("🔄 NOTE: Les migrations doivent être appliquées automatiquement via app.py ou render.yaml")
-    print("   Assurez-vous que votre fichier app.py contient:")
-    print("   if os.environ.get('RENDER') == 'true':")
-    print("       subprocess.run(['python', 'manage.py', 'migrate', '--noinput'])")
+# Créer les dossiers nécessaires pour Railway
+for folder in ['staticfiles', 'media', 'logs']:
+    folder_path = BASE_DIR / folder
+    if not folder_path.exists():
+        folder_path.mkdir(parents=True, exist_ok=True)
+        print(f"📁 Dossier créé: {folder_path}")
 
 # =============================================================================
-# FIN DE LA CONFIGURATION
+# CONFIGURATION FINALE
 # =============================================================================
 
-# Créer les dossiers nécessaires
-for folder in ['logs', 'media', 'staticfiles']:
-    folder_path = os.path.join(BASE_DIR, folder)
-    if not os.path.exists(folder_path):
-        os.makedirs(folder_path, exist_ok=True)
-
-print(f"🚀 Configuration Django chargée")
-print(f"   Environnement: {'PRODUCTION' if IS_PRODUCTION else 'DÉVELOPPEMENT'}")
+print(f"🚀 Configuration Django chargée avec succès")
+print(f"   Environnement: {'PRODUCTION (Railway)' if RAILWAY else 'DÉVELOPPEMENT'}")
 print(f"   DEBUG: {DEBUG}")
-print(f"   STATIC_ROOT: {STATIC_ROOT}")
 print(f"   Base de données: {'PostgreSQL' if DATABASE_URL else 'SQLite'}")
+print(f"   Hosts autorisés: {', '.join(ALLOWED_HOSTS[:3])}{'...' if len(ALLOWED_HOSTS) > 3 else ''}")
+print(f"   Fichiers statiques: {STATIC_ROOT}")
