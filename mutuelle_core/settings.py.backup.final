@@ -20,17 +20,18 @@ print("⚡ SETTINGS ULTIME ACTIVÉ")
 print("="*80)
 
 # B. DEBUG FORCÉ
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+DEBUG = True
 print(f"🔧 DEBUG = {DEBUG}")
 
 # C. SECRET KEY
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-ultimate-fix-railway-2024-key-secure-change-me')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-ultimate-fix-railway-2024')
 
 # ============================================================================
-# 2. CSRF - LA CONFIGURATION QUI FONCTIONNE TOUJOURS (CORRIGÉ POUR DJANGO 4.0)
+# 2. CSRF - LA CONFIGURATION QUI FONCTIONNE TOUJOURS
 # ============================================================================
 
 # DÉFINIR CSRF_TRUSTED_ORIGINS de 3 MANIÈRES DIFFÉRENTES
+# (l'une d'elles DOIT fonctionner)
 
 # Méthode 1: Directe
 CSRF_TRUSTED_ORIGINS_DIRECT = [
@@ -45,11 +46,11 @@ if env_csrf:
 else:
     CSRF_TRUSTED_ORIGINS_ENV = []
 
-# Méthode 3: Wildcard pour être sûr (SANS '*')
+# Méthode 3: Wildcard pour être sûr
 CSRF_TRUSTED_ORIGINS_WILDCARD = [
     'https://*.railway.app',
     'http://*.railway.app',
-    # '*' EST INTERDIT DEPUIS DJANGO 4.0
+    '*',
 ]
 
 # COMBINER TOUT
@@ -58,15 +59,6 @@ CSRF_TRUSTED_ORIGINS = list(set(
     CSRF_TRUSTED_ORIGINS_ENV + 
     CSRF_TRUSTED_ORIGINS_WILDCARD
 ))
-
-# ============================================================================
-# CORRECTION CRITIQUE POUR DJANGO 4.0+
-# ============================================================================
-# Supprime toutes les entrées qui ne commencent pas par http:// ou https://
-CSRF_TRUSTED_ORIGINS = [
-    origin for origin in CSRF_TRUSTED_ORIGINS 
-    if origin.startswith(('http://', 'https://'))
-]
 
 print(f"\n🔐 CSRF_TRUSTED_ORIGINS ({len(CSRF_TRUSTED_ORIGINS)} origines):")
 for origin in list(CSRF_TRUSTED_ORIGINS)[:8]:
@@ -94,13 +86,13 @@ print(f"\n🌐 PROXY CONFIGURÉ: {SECURE_PROXY_SSL_HEADER}")
 # ============================================================================
 CSRF_COOKIE_DOMAIN = None  # DOIT ÊTRE None
 SESSION_COOKIE_DOMAIN = None
-CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'False') == 'True'
-SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'False') == 'True'
+CSRF_COOKIE_SECURE = False  # False pour test, True en prod
+SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = False
 CSRF_USE_SESSIONS = False
 CSRF_COOKIE_SAMESITE = 'Lax'
 
-print(f"\n🍪 COOKIES: DOMAIN=None, SECURE={CSRF_COOKIE_SECURE}")
+print(f"\n🍪 COOKIES: DOMAIN=None")
 
 # ============================================================================
 # 5. ALLOWED_HOSTS - PERMISSIF POUR TEST
@@ -113,14 +105,8 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     '[::1]',
-    '*',  # Ici '*' est OK pour ALLOWED_HOSTS
+    '*',  # Wildcard pour être sûr
 ]
-
-# Ajouter depuis variable d'environnement si présente
-env_hosts = os.environ.get('ALLOWED_HOSTS', '')
-if env_hosts:
-    ALLOWED_HOSTS.extend([x.strip() for x in env_hosts.split(',') if x.strip()])
-    ALLOWED_HOSTS = list(set(ALLOWED_HOSTS))
 
 print(f"\n🌍 ALLOWED_HOSTS: {len(ALLOWED_HOSTS)} hosts")
 
@@ -129,104 +115,44 @@ print(f"\n🌍 ALLOWED_HOSTS: {len(ALLOWED_HOSTS)} hosts")
 # ============================================================================
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = [
-    f'https://{RAILWAY_DOMAIN}',
-    f'http://{RAILWAY_DOMAIN}',
-    'https://*.railway.app',
-    'http://*.railway.app',
-]
 
 print(f"\n🔗 CORS: toutes origines autorisées")
 
 # ============================================================================
-# 7. APPLICATIONS INSTALLÉES - TOUTES VOS APPLICATIONS
+# 7. CONFIGURATION DE BASE (le reste)
 # ============================================================================
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
 INSTALLED_APPS = [
-    # ============================================
-    # DJANGO CORE APPS
-    # ============================================
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
-    # ============================================
-    # THIRD PARTY APPS
-    # ============================================
     'corsheaders',
-    'rest_framework',
-    
-    # ============================================
-    # VOS APPLICATIONS PERSONNALISÉES - COMPLÈTE
-    # ============================================
-    'agents',
-    'api',
-    'assureur',
-    'communication',
-    'core',
-    'ia_detection',
-    'inscription',
-    'medecin',
-    'membres',
-    'mutuelle_core',
-    'notifications',
-    'paiements',
-    'pharmacie_public',
-    'pharmacien',
-    'relances',
-    'scoring',
-    'soins',
-    
-    # Si vous avez aussi ces dossiers comme applications:
-    'apps',
-    'rapports_performance',
-    'rapports_surveillance',
 ]
 
-# ============================================================================
-# 8. CONFIGURATION DE BASE (le reste)
-# ============================================================================
-
-# Configuration de la base de données
-if 'DATABASE_URL' in os.environ:
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=os.environ.get('DATABASE_URL'),
-            conn_max_age=600,
-            ssl_require=True
-        )
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-
-# Middleware
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Pour servir les fichiers statiques
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# URLs
 ROOT_URLCONF = 'mutuelle_core.urls'
 
-# Templates
 TEMPLATES = [{
     'BACKEND': 'django.template.backends.django.DjangoTemplates',
-    'DIRS': [BASE_DIR / 'templates'],
+    'DIRS': [],
     'APP_DIRS': True,
     'OPTIONS': {
         'context_processors': [
@@ -238,50 +164,15 @@ TEMPLATES = [{
     },
 }]
 
-# WSGI
 WSGI_APPLICATION = 'mutuelle_core.wsgi.application'
 
-# Internationalisation
 LANGUAGE_CODE = 'fr-fr'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
-
-# Fichiers statiques
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-# Default primary key field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# ============================================================================
-# 9. CONFIGURATION RAILWAY - GESTION DES FICHIERS STATIQUES
-# ============================================================================
-# WhiteNoise pour les fichiers statiques sur Railway
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
 
 print("\n" + "="*80)
 print("✅ CONFIGURATION ULTIME PRÊTE")
-print("="*80)
-
-# ============================================================================
-# 10. VALIDATION FINALE
-# ============================================================================
-if DEBUG:
-    print("\n⚠️  ATTENTION: DEBUG est ACTIVÉ")
-    print("   En production, définissez DEBUG=False dans les variables d'environnement")
-else:
-    print("\n✅ DEBUG est DÉSACTIVÉ (mode production)")
-
-print(f"\n📊 RÉSUMÉ DE LA CONFIGURATION:")
-print(f"   - Domaine Railway: {RAILWAY_DOMAIN}")
-print(f"   - Applications installées: {len(INSTALLED_APPS)}")
-print(f"   - Origines CSRF autorisées: {len(CSRF_TRUSTED_ORIGINS)}")
-print(f"   - Hôtes autorisés: {len(ALLOWED_HOSTS)}")
-
-print("\n" + "="*80)
-print("🚀 PRÊT POUR LE DÉPLOIEMENT RAILWAY")
 print("="*80)
