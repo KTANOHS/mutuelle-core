@@ -15,7 +15,7 @@ from django.shortcuts import redirect as django_redirect
 from django.contrib import messages as django_messages
 
 # LIGNE MANQUANTE - AJOUTEZ EN HAUT DU FICHIER
-from affichage_unifie import afficher_fiche_cotisation_unifiee, determiner_statut_cotisation
+from agents.affichage_unifie import afficher_fiche_cotisation_unifiee, determiner_statut_cotisation
 from .models import Agent
 import random
 import string
@@ -164,7 +164,7 @@ except ImportError as e:
 # =============================================================================
 
 try:
-    from affichage_unifie import afficher_fiche_cotisation_unifiee, determiner_statut_cotisation
+    from agents.affichage_unifie import afficher_fiche_cotisation_unifiee, determiner_statut_cotisation
     logger.info("✅ Module affichage_unifie importé avec succès")
 except ImportError as e:
     logger.warning(f"Module affichage_unifie non disponible: {e}")
