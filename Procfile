@@ -1,1 +1,2 @@
-web: python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn mutuelle_core.wsgi:application --bind 0.0.0.0:$PORT --workers 3 --threads 2 --timeout 120 --keep-alive 2
+web: python manage.py migrate && gunicorn mutuelle_core.wsgi:application --bind 0.0.0.0:$PORT --workers 3 --timeout 120
+release: python manage.py migrate

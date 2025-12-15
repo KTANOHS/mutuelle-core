@@ -1,11 +1,15 @@
 [phases.setup]
-cmds = ["pip install -r requirements.txt"]
+nixPkgs = ["python311", "postgresql", "libpqxx"]
 
 [phases.build]
-cmds = ["python manage.py collectstatic --noinput"]
+cmds = [
+    "pip install --upgrade pip",
+    "pip install -r requirements.txt",
+    "python manage.py collectstatic --noinput"
+]
 
 [start]
-cmd = "gunicorn mutuelle_core.wsgi:application --bind 0.0.0.0:$PORT --workers 3 --threads 2 --timeout 120 --keep-alive 2"
+cmd = "python manage.py migrate && gunicorn mutuelle_core.wsgi:application --bind 0.0.0.0:$PORT --workers 3 --threads 2 --timeout 120 --keep-alive 2"
 
 [build.args]
 PYTHON_VERSION = "3.11.10"
