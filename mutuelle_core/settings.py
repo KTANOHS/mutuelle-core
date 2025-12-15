@@ -8,16 +8,25 @@ from django.core.management.utils import get_random_secret_key
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # =============================================================================
+# CORRECTION URGENTE CSRF POUR RAILWAY
+# AJOUTER CES 2 LIGNES EN HAUT DU FICHIER
+# =============================================================================
+
+# FORCER l'ajout du domaine exact Railway à CSRF_TRUSTED_ORIGINS
+RAILWAY_EXACT_DOMAIN = "web-production-555c.up.railway.app"
+print(f"🛡️  CONFIGURATION CSRF URGENCE POUR: {RAILWAY_EXACT_DOMAIN}")
+
+# =============================================================================
 # CONFIGURATION ENVIRONNEMENT
 # =============================================================================
 
 # Détecter l'environnement Railway
-RAILWAY = os.environ.get('RAILWAY') == 'true' or os.environ.get('RAILWAY') == 'True'
+RAILWAY = os.environ.get('RAILWAY') == 'true' or os.environ.get('RAILWAY') == 'True' or os.environ.get('PORT') is not None
 RAILWAY_PUBLIC_DOMAIN = os.environ.get('RAILWAY_STATIC_URL', '') or os.environ.get('RAILWAY_PUBLIC_DOMAIN', '')
 
 # Si pas de domaine défini mais sur Railway, utiliser le domaine standard
 if RAILWAY and not RAILWAY_PUBLIC_DOMAIN:
-    RAILWAY_PUBLIC_DOMAIN = os.environ.get('RAILWAY_SERVICE_NAME', 'web-production-555c') + '.up.railway.app'
+    RAILWAY_PUBLIC_DOMAIN = RAILWAY_EXACT_DOMAIN  # Utiliser le domaine exact
 
 # Environnement simple
 IS_PRODUCTION = RAILWAY or os.environ.get('DJANGO_ENV') == 'production'
@@ -57,19 +66,15 @@ if IS_DEVELOPMENT:
 
 # Mode production sur Railway
 if RAILWAY:
-    # Domaine Railway principal
-    railway_domain = RAILWAY_PUBLIC_DOMAIN
-    if railway_domain:
-        # Nettoyer le domaine (enlever http:// ou https://)
-        railway_domain = railway_domain.replace('http://', '').replace('https://', '').split('/')[0]
-        ALLOWED_HOSTS.append(railway_domain)
-        ALLOWED_HOSTS.append(f'.{railway_domain}')  # Sous-domaines
+    # Ajouter le domaine exact Railway (IMPORTANT)
+    ALLOWED_HOSTS.append(RAILWAY_EXACT_DOMAIN)
+    ALLOWED_HOSTS.append(f'.{RAILWAY_EXACT_DOMAIN}')  # Sous-domaines
     
     # Domaines génériques Railway
     ALLOWED_HOSTS.append('.railway.app')
-    ALLOWED_HOSTS.append('web-production-555c.up.railway.app')  # Domaine spécifique
+    ALLOWED_HOSTS.append('*.railway.app')
     
-    print(f"🌐 Railway host détecté: {railway_domain or '.railway.app'}")
+    print(f"🌐 Railway host configuré: {RAILWAY_EXACT_DOMAIN}")
 
 # Ajouter les hosts depuis l'environnement
 env_hosts = os.environ.get('ALLOWED_HOSTS', '')
@@ -85,13 +90,30 @@ if not ALLOWED_HOSTS:
 print(f"✅ ALLOWED_HOSTS configurés: {ALLOWED_HOSTS}")
 
 # =============================================================================
-# CONFIGURATION CSRF POUR RAILWAY - CORRIGÉ
+# CONFIGURATION CSRF POUR RAILWAY - CORRIGÉ DÉFINITIVEMENT
 # =============================================================================
 
-# Configuration CSRF - CRITIQUE pour Railway
+# Configuration CSRF - AJOUT ABSOLU DU DOMAINE EXACT
 CSRF_TRUSTED_ORIGINS = []
 
-# Développement local
+# 1. D'ABORD LE DOMAINE EXACT RAILWAY (CRITIQUE)
+CSRF_TRUSTED_ORIGINS.extend([
+    f'https://{RAILWAY_EXACT_DOMAIN}',
+    f'http://{RAILWAY_EXACT_DOMAIN}',
+])
+
+# 2. Production Railway - domaines génériques
+if RAILWAY:
+    CSRF_TRUSTED_ORIGINS.extend([
+        'https://*.railway.app',
+        'http://*.railway.app',
+        'https://*.up.railway.app',
+        'http://*.up.railway.app',
+        'https://web-production-*.up.railway.app',
+        'http://web-production-*.up.railway.app',
+    ])
+
+# 3. Développement local
 if IS_DEVELOPMENT:
     CSRF_TRUSTED_ORIGINS.extend([
         'http://localhost:8000',
@@ -101,35 +123,23 @@ if IS_DEVELOPMENT:
         'http://127.0.0.1:3000',
     ])
 
-# Production Railway
-if RAILWAY:
-    # Domaines Railway spécifiques
-    if RAILWAY_PUBLIC_DOMAIN:
-        railway_domain_clean = RAILWAY_PUBLIC_DOMAIN.replace('http://', '').replace('https://', '').split('/')[0]
-        CSRF_TRUSTED_ORIGINS.extend([
-            f'https://{railway_domain_clean}',
-            f'http://{railway_domain_clean}',
-        ])
-    
-    # Domaines Railway génériques
-    CSRF_TRUSTED_ORIGINS.extend([
-        'https://*.railway.app',
-        'http://*.railway.app',
-        'https://*.up.railway.app',
-        'http://*.up.railway.app',
-        'https://web-production-*.up.railway.app',
-        'http://web-production-*.up.railway.app',
-        'https://web-production-555c.up.railway.app',  # Domaine exact
-        'http://web-production-555c.up.railway.app',
-    ])
-
 # Éviter les doublons
 CSRF_TRUSTED_ORIGINS = list(set([origin for origin in CSRF_TRUSTED_ORIGINS if origin]))
 
-print(f"🛡️  CSRF_TRUSTED_ORIGINS configurés: {CSRF_TRUSTED_ORIGINS[:3]}...")
+print(f"🛡️  CSRF_TRUSTED_ORIGINS configurés ({len(CSRF_TRUSTED_ORIGINS)}):")
+for origin in CSRF_TRUSTED_ORIGINS[:5]:  # Afficher les 5 premiers
+    print(f"   - {origin}")
+
+# Vérification CRITIQUE
+if f'https://{RAILWAY_EXACT_DOMAIN}' not in CSRF_TRUSTED_ORIGINS:
+    print(f"⚠️  ATTENTION: Le domaine exact {RAILWAY_EXACT_DOMAIN} n'est pas dans CSRF_TRUSTED_ORIGINS")
+    # Forcer l'ajout
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RAILWAY_EXACT_DOMAIN}')
+    CSRF_TRUSTED_ORIGINS.append(f'http://{RAILWAY_EXACT_DOMAIN}')
+    print(f"✅ Domaine ajouté de force")
 
 # =============================================================================
-# CONFIGURATION COOKIES POUR RAILWAY - CORRIGÉ
+# CONFIGURATION COOKIES POUR RAILWAY - CORRIGÉ DÉFINITIF
 # =============================================================================
 
 if RAILWAY:
@@ -139,14 +149,18 @@ if RAILWAY:
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     
-    # Configuration importante pour Railway
-    CSRF_COOKIE_DOMAIN = None  # CRITIQUE: Doit être None pour Railway
-    SESSION_COOKIE_DOMAIN = None  # CRITIQUE: Doit être None pour Railway
+    # Configuration CRITIQUE pour Railway - DOIT ÊTRE EXACTEMENT COMME ÇA
+    CSRF_COOKIE_DOMAIN = None  # IMPÉRATIF: None pour Railway
+    SESSION_COOKIE_DOMAIN = None  # IMPÉRATIF: None pour Railway
     CSRF_COOKIE_HTTPONLY = False  # Doit être False pour que JS puisse lire
     CSRF_USE_SESSIONS = False  # Utiliser les cookies, pas les sessions
-    CSRF_COOKIE_SAMESITE = 'Lax'  # Lax pour compatibilité
+    CSRF_COOKIE_SAMESITE = 'Lax'  # 'Lax' pour compatibilité
+    CSRF_COOKIE_PATH = '/'  # Chemin racine
+    CSRF_COOKIE_AGE = 31449600  # 1 an en secondes
     
     print(f"🔒 Cookies sécurisés et HTTPS activés (Railway)")
+    print(f"   CSRF_COOKIE_DOMAIN = {CSRF_COOKIE_DOMAIN} (CRITIQUE)")
+    print(f"   SESSION_COOKIE_DOMAIN = {SESSION_COOKIE_DOMAIN} (CRITIQUE)")
 else:
     # Développement local : HTTP seulement
     SESSION_COOKIE_SECURE = False
@@ -157,11 +171,13 @@ else:
     CSRF_COOKIE_HTTPONLY = False
     CSRF_USE_SESSIONS = False
     CSRF_COOKIE_SAMESITE = 'Lax'
+    CSRF_COOKIE_PATH = '/'
     
     print(f"🔓 Cookies non-sécurisés (développement local)")
 
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_PATH = '/'
 
 # =============================================================================
 # APPLICATION DEFINITION
@@ -331,7 +347,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # =============================================================================
-# CORS CONFIGURATION - CORRIGÉ
+# CORS CONFIGURATION - SYNCHRONISÉ AVEC CSRF
 # =============================================================================
 
 if DEBUG or IS_DEVELOPMENT:
@@ -340,9 +356,14 @@ if DEBUG or IS_DEVELOPMENT:
     print(f"🔓 CORS: toutes les origines autorisées (développement)")
 else:
     CORS_ALLOW_ALL_ORIGINS = False
-    CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS.copy()
+    # SYNCHRONISER avec CSRF_TRUSTED_ORIGINS
+    CORS_ALLOWED_ORIGINS = [
+        origin for origin in CSRF_TRUSTED_ORIGINS 
+        if origin.startswith('http://') or origin.startswith('https://')
+    ]
     CORS_ALLOW_CREDENTIALS = True
     print(f"🔒 CORS: {len(CORS_ALLOWED_ORIGINS)} origines autorisées")
+    print(f"   Inclut: {RAILWAY_EXACT_DOMAIN}")
 
 CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 CORS_ALLOW_HEADERS = [
@@ -355,7 +376,12 @@ CORS_ALLOW_HEADERS = [
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
+    'referer',
 ]
+
+# IMPORTANT: Permettre les credentials pour les cookies CSRF
+CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
+CORS_ALLOW_CREDENTIALS = True
 
 # =============================================================================
 # VALIDATION DES MOTS DE PASSE
@@ -478,6 +504,10 @@ LOGGING = {
             'format': '{message}',
             'style': '{',
         },
+        'csrf_debug': {
+            'format': '[CSRF DEBUG] {asctime} {message}',
+            'style': '{',
+        },
     },
     'handlers': {
         'console': {
@@ -489,6 +519,11 @@ LOGGING = {
             'filename': BASE_DIR / 'logs' / 'django.log',
             'formatter': 'verbose',
         },
+        'csrf_file': {
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'csrf.log',
+            'formatter': 'csrf_debug',
+        },
     },
     'loggers': {
         'django': {
@@ -497,8 +532,13 @@ LOGGING = {
             'propagate': True,
         },
         'django.request': {
-            'handlers': ['console'],
-            'level': 'WARNING',
+            'handlers': ['console', 'csrf_file'],
+            'level': 'DEBUG' if DEBUG else 'WARNING',
+            'propagate': False,
+        },
+        'django.security.csrf': {
+            'handlers': ['console', 'csrf_file'],
+            'level': 'DEBUG',
             'propagate': False,
         },
         'django.db.backends': {
@@ -551,7 +591,7 @@ MUTUELLE_WEBSITE = "https://www.mutuelle.com"
 
 # Informations générales du site
 SITE_NAME = "Mutuelle de Santé"
-SITE_URL = "http://localhost:8000" if IS_DEVELOPMENT else "https://web-production-555c.up.railway.app"
+SITE_URL = "http://localhost:8000" if IS_DEVELOPMENT else f"https://{RAILWAY_EXACT_DOMAIN}"
 CONTACT_EMAIL = "contact@mutuelle.com"
 VERSION = "1.0.0"
 
@@ -560,13 +600,25 @@ IS_PRODUCTION = IS_PRODUCTION
 IS_DEVELOPMENT = IS_DEVELOPMENT
 
 # =============================================================================
-# CONFIGURATION FINALE
+# CONFIGURATION FINALE ET VÉRIFICATION
 # =============================================================================
 
-print(f"🚀 Configuration Django chargée avec succès")
+print(f"\n" + "="*60)
+print(f"🚀 CONFIGURATION DJANGO CHARGÉE AVEC SUCCÈS")
+print(f"="*60)
 print(f"   Environnement: {'PRODUCTION (Railway)' if RAILWAY else 'DÉVELOPPEMENT'}")
 print(f"   DEBUG: {DEBUG}")
 print(f"   Base de données: {'PostgreSQL' if DATABASE_URL else 'SQLite'}")
-print(f"   Hosts autorisés: {', '.join(ALLOWED_HOSTS[:3])}{'...' if len(ALLOWED_HOSTS) > 3 else ''}")
+print(f"   Hosts autorisés: {len(ALLOWED_HOSTS)} hosts")
 print(f"   Fichiers statiques: {STATIC_ROOT}")
-print(f"   CSRF Trusted Origins: {len(CSRF_TRUSTED_ORIGINS)} origines configurées")
+print(f"\n🔐 CONFIGURATION CSRF VÉRIFIÉE:")
+print(f"   Domaine exact: {RAILWAY_EXACT_DOMAIN}")
+print(f"   Dans CSRF_TRUSTED_ORIGINS: {'✅ OUI' if f'https://{RAILWAY_EXACT_DOMAIN}' in CSRF_TRUSTED_ORIGINS else '❌ NON'}")
+print(f"   CSRF_COOKIE_DOMAIN: {CSRF_COOKIE_DOMAIN}")
+print(f"   Total origines de confiance: {len(CSRF_TRUSTED_ORIGINS)}")
+print(f"\n🌐 URL DE VOTRE APPLICATION:")
+print(f"   https://{RAILWAY_EXACT_DOMAIN}")
+print(f"   Admin: https://{RAILWAY_EXACT_DOMAIN}/admin/")
+print(f"   API Health: https://{RAILWAY_EXACT_DOMAIN}/api/health/")
+print(f"="*60)
+print(f"✅ PRÊT POUR LE DÉPLOIEMENT SUR RAILWAY !")
