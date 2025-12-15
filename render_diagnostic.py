@@ -1,220 +1,101 @@
-# views.py - À ajouter à vos vues Django
+#!/usr/bin/env python
 import os
 import sys
-import subprocess
-import platform
-from django.conf import settings
-from django.http import JsonResponse, HttpResponse
-from django.views import View
-from django.contrib.auth.decorators import user_passes_test
-from django.utils.decorators import method_decorator
-import json
+import django
 
-def is_superuser(user):
-    return user.is_superuser
+print("🔍 DIAGNOSTIC COMPLET POUR RENDER")
+print("=" * 70)
 
-class RenderDiagnosticView(View):
-    """
-    Vue de diagnostic pour Render.com
-    Accessible uniquement aux superutilisateurs en production
-    """
+# Test 1: Vérifier les imports critiques
+print("\n1. Vérification des imports critiques:")
+try:
+    from django.http import HttpResponse
+    print("   ✅ django.http.HttpResponse")
+except ImportError as e:
+    print(f"   ❌ Erreur: {e}")
+
+try:
+    from rest_framework_simplejwt.views import TokenObtainPairView
+    print("   ✅ rest_framework_simplejwt.views.TokenObtainPairView")
+except ImportError as e:
+    print(f"   ❌ Erreur: {e}")
+
+# Test 2: Vérifier la configuration
+print("\n2. Vérification de la configuration Django:")
+try:
+    sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mutuelle_core.settings')
+    django.setup()
+    print("   ✅ Django configuré avec succès")
     
-    @method_decorator(user_passes_test(is_superuser))
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+    from django.conf import settings
+    print(f"   - DEBUG: {settings.DEBUG}")
+    print(f"   - ALLOWED_HOSTS: {settings.ALLOWED_HOSTS[:3]}...")
     
-    def get(self, request):
-        diagnostic_data = self.run_diagnostics()
-        return JsonResponse(diagnostic_data)
+    # Vérifier la base de données
+    db_engine = settings.DATABASES['default']['ENGINE']
+    print(f"   - DATABASE ENGINE: {db_engine}")
     
-    def run_diagnostics(self):
-        """Exécute les diagnostics système"""
-        data = {
-            "status": "running",
-            "timestamp": datetime.now().isoformat(),
-            "environment": self.get_environment_info(),
-            "django": self.get_django_info(),
-            "database": self.get_database_info(),
-            "filesystem": self.get_filesystem_info(),
-            "services": self.get_services_info(),
-            "issues": [],
-            "recommendations": []
-        }
+except Exception as e:
+    print(f"   ❌ Erreur de configuration: {e}")
+    import traceback
+    traceback.print_exc()
+
+# Test 3: Vérifier les URLs
+print("\n3. Vérification des URLs:")
+try:
+    from django.urls import get_resolver
+    
+    # Chercher spécifiquement l'URL /api/token/
+    resolver = get_resolver()
+    
+    def find_url(pattern, url_patterns, prefix=''):
+        for p in url_patterns:
+            if hasattr(p, 'pattern'):
+                current = prefix + str(p.pattern)
+                if 'token' in current.lower():
+                    return current
+                if hasattr(p, 'url_patterns'):
+                    result = find_url(pattern, p.url_patterns, current)
+                    if result:
+                        return result
+        return None
+    
+    token_url = find_url('token', resolver.url_patterns)
+    if token_url:
+        print(f"   ✅ URL token trouvée: {token_url}")
+    else:
+        print("   ❌ URL /api/token/ non trouvée")
         
-        # Vérifications automatiques
-        self.check_migrations(data)
-        self.check_static_files(data)
-        self.check_environment_vars(data)
+except Exception as e:
+    print(f"   ❌ Erreur: {e}")
+
+# Test 4: Vérifier les fichiers critiques
+print("\n4. Vérification des fichiers:")
+files_to_check = [
+    ('./mutuelle_core/urls.py', 'Fichier URLs principal'),
+    ('./api/urls.py', 'Fichier URLs API'),
+    ('./api/views.py', 'Vues API'),
+    ('./mutuelle_core/settings.py', 'Configuration Django'),
+]
+
+for file_path, description in files_to_check:
+    if os.path.exists(file_path):
+        print(f"   ✅ {description}: {os.path.getsize(file_path)} octets")
         
-        data["status"] = "complete"
-        return data
-    
-    def get_environment_info(self):
-        """Informations sur l'environnement"""
-        return {
-            "python_version": sys.version,
-            "platform": platform.platform(),
-            "current_directory": os.getcwd(),
-            "is_render": os.environ.get('RENDER') is not None,
-            "render_service_id": os.environ.get('RENDER_SERVICE_ID'),
-            "render_instance_id": os.environ.get('RENDER_INSTANCE_ID'),
-        }
-    
-    def get_django_info(self):
-        """Informations Django"""
-        return {
-            "version": settings.VERSION if hasattr(settings, 'VERSION') else "N/A",
-            "debug": settings.DEBUG,
-            "allowed_hosts": settings.ALLOWED_HOSTS,
-            "installed_apps_count": len(settings.INSTALLED_APPS),
-            "middleware_count": len(settings.MIDDLEWARE),
-            "database_engine": settings.DATABASES['default']['ENGINE'],
-            "static_root": settings.STATIC_ROOT,
-            "secret_key_set": bool(settings.SECRET_KEY and settings.SECRET_KEY != 'django-insecure-'),
-        }
-    
-    def get_database_info(self):
-        """Informations sur la base de données"""
-        try:
-            from django.db import connection
-            
-            with connection.cursor() as cursor:
-                # Tables Django essentielles
-                cursor.execute("""
-                    SELECT name FROM sqlite_master 
-                    WHERE type='table' 
-                    AND name IN ('django_migrations', 'django_session', 'auth_user', 'django_content_type')
-                """)
-                essential_tables = [row[0] for row in cursor.fetchall()]
-                
-                # Nombre de migrations appliquées
-                cursor.execute("SELECT COUNT(*) FROM django_migrations")
-                migrations_count = cursor.fetchone()[0]
-                
-                # Nombre d'utilisateurs
-                cursor.execute("SELECT COUNT(*) FROM auth_user")
-                users_count = cursor.fetchone()[0]
-                
-            return {
-                "essential_tables_found": essential_tables,
-                "essential_tables_missing": [t for t in ['django_migrations', 'django_session', 'auth_user', 'django_content_type'] 
-                                           if t not in essential_tables],
-                "migrations_applied": migrations_count,
-                "users_count": users_count,
-                "connection_ok": True,
-            }
-        except Exception as e:
-            return {
-                "connection_ok": False,
-                "error": str(e),
-            }
-    
-    def get_filesystem_info(self):
-        """Informations sur le système de fichiers"""
-        paths_to_check = [
-            ("static_root", settings.STATIC_ROOT),
-            ("base_dir", settings.BASE_DIR),
-            ("current_dir", os.getcwd()),
-        ]
-        
-        info = {}
-        for name, path in paths_to_check:
-            if path:
-                try:
-                    if os.path.exists(path):
-                        if os.path.isdir(path):
-                            # Compter les fichiers
-                            count = sum(len(files) for _, _, files in os.walk(path))
-                            info[name] = {
-                                "exists": True,
-                                "is_directory": True,
-                                "file_count": count,
-                                "path": path,
-                            }
-                        else:
-                            info[name] = {
-                                "exists": True,
-                                "is_directory": False,
-                                "path": path,
-                            }
-                    else:
-                        info[name] = {
-                            "exists": False,
-                            "path": path,
-                        }
-                except Exception as e:
-                    info[name] = {
-                        "error": str(e),
-                        "path": path,
-                    }
-        
-        return info
-    
-    def get_services_info(self):
-        """Informations sur les services"""
-        return {
-            "web_concurrency": os.environ.get('WEB_CONCURRENCY', '1'),
-            "port": os.environ.get('PORT', '10000'),
-            "disable_collectstatic": os.environ.get('DISABLE_COLLECTSTATIC', '0'),
-            "python_version_env": os.environ.get('PYTHON_VERSION', 'N/A'),
-        }
-    
-    def check_migrations(self, data):
-        """Vérifie l'état des migrations"""
-        try:
-            result = subprocess.run(
-                ['python', 'manage.py', 'showmigrations', '--list'],
-                capture_output=True,
-                text=True,
-                timeout=10
-            )
-            
-            if result.returncode == 0:
-                lines = result.stdout.split('\n')
-                pending = [line for line in lines if '[ ]' in line]
-                
-                if pending:
-                    data["issues"].append(f"{len(pending)} migration(s) en attente")
-                    data["recommendations"].append("Exécuter: python manage.py migrate")
-            else:
-                data["issues"].append("Impossible de vérifier les migrations")
-                
-        except subprocess.TimeoutExpired:
-            data["issues"].append("Timeout lors de la vérification des migrations")
-        except Exception as e:
-            data["issues"].append(f"Erreur vérification migrations: {str(e)}")
-    
-    def check_static_files(self, data):
-        """Vérifie les fichiers statiques"""
-        static_root = settings.STATIC_ROOT
-        
-        if static_root and os.path.exists(static_root):
-            # Vérifier les fichiers critiques
-            critical_files = [
-                os.path.join(static_root, "mutuelle_core", "images", "logo.jpg"),
-                os.path.join(static_root, "js", "messagerie-integration.js"),
-                os.path.join(static_root, "img", "favicon.ico"),
-            ]
-            
-            missing_files = []
-            for file_path in critical_files:
-                if not os.path.exists(file_path):
-                    missing_files.append(os.path.relpath(file_path, static_root))
-            
-            if missing_files:
-                data["issues"].append(f"Fichiers statiques manquants: {', '.join(missing_files)}")
-                data["recommendations"].append("Exécuter: python manage.py collectstatic")
-        else:
-            data["issues"].append("Répertoire STATIC_ROOT non configuré ou inexistant")
-    
-    def check_environment_vars(self, data):
-        """Vérifie les variables d'environnement critiques"""
-        critical_vars = {
-            'SECRET_KEY': 'Clé secrète Django',
-            'ALLOWED_HOSTS': 'Hosts autorisés',
-            'DATABASE_URL': 'URL de base de données',
-        }
-        
-        for var, description in critical_vars.items():
-            if var not in os.environ and not hasattr(settings, var):
-                data["issues"].append(f"Variable d'environnement manquante: {var} ({description})")
+        # Vérifier le contenu
+        with open(file_path, 'r') as f:
+            content = f.read()
+            if 'HttpResponse' in file_path and 'from django.http import HttpResponse' not in content:
+                print(f"      ⚠️  Import HttpResponse manquant")
+            if 'api/urls.py' in file_path and 'TokenObtainPairView' not in content:
+                print(f"      ⚠️  TokenObtainPairView non trouvé")
+    else:
+        print(f"   ❌ {description}: Fichier manquant")
+
+print("\n" + "=" * 70)
+print("📋 RECOMMANDATIONS:")
+print("1. Vérifiez les logs Render pour l'erreur exacte")
+print("2. Assurez-vous que les imports sont corrects dans urls.py")
+print("3. Vérifiez que 'api' est dans INSTALLED_APPS")
+print("4. Testez avec: python manage.py check --deploy")

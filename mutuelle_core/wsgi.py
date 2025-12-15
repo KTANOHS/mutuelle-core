@@ -1,15 +1,15 @@
+# mutuelle_core/wsgi.py - Assurez-vous qu'il ressemble à ceci
 """
 WSGI config for mutuelle_core project.
-
-It exposes the WSGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/5.2/howto/deployment/wsgi/
 """
-# mutuelle_core/wsgi.py
+
 import os
 from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mutuelle_core.settings')
 
 application = get_wsgi_application()
+
+# Pour WhiteNoise (servir les fichiers statiques)
+from whitenoise import WhiteNoise
+application = WhiteNoise(application, root='staticfiles')

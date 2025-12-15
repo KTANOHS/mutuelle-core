@@ -469,6 +469,29 @@ for folder in ['staticfiles', 'media', 'logs']:
         folder_path.mkdir(parents=True, exist_ok=True)
         print(f"📁 Dossier créé: {folder_path}")
 
+
+# =============================================================================
+# CONFIGURATION PERSONNALISÉE - AJOUTEZ CES LIGNES
+# =============================================================================
+
+# Informations de la mutuelle
+MUTUELLE_NAME = "Mutuelle de Santé"
+MUTUELLE_SLOGAN = "Votre santé, notre priorité"
+MUTUELLE_PHONE = "01 23 45 67 89"
+MUTUELLE_EMAIL = "contact@mutuelle.com"
+MUTUELLE_ADDRESS = "123 Rue de la Santé, 75000 Paris"
+MUTUELLE_WEBSITE = "https://www.mutuelle.com"
+
+# Informations générales du site
+SITE_NAME = "Mutuelle de Santé"
+SITE_URL = "http://localhost:8000" if IS_DEVELOPMENT else "https://votre-domaine.com"
+CONTACT_EMAIL = "contact@mutuelle.com"
+VERSION = "1.0.0"
+
+# Exposer les variables d'environnement pour les templates
+IS_PRODUCTION = IS_PRODUCTION
+IS_DEVELOPMENT = IS_DEVELOPMENT
+
 # =============================================================================
 # CONFIGURATION FINALE
 # =============================================================================

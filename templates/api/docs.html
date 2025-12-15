@@ -1,0 +1,386 @@
+<!-- api/templates/api/docs.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+        }
+        .sidebar {
+            border-right: 1px solid #e0e0e0;
+            padding-right: 1rem;
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+        .main-content {
+            padding: 1rem;
+        }
+        .section {
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 0.5rem;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 2rem;
+        }
+        h3 {
+            color: #7f8c8d;
+        }
+        .endpoint {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-left: 4px solid #3498db;
+        }
+        .method {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-right: 0.5rem;
+            text-transform: uppercase;
+        }
+        .get { background: #e8f5e9; color: #2e7d32; }
+        .post { background: #e3f2fd; color: #1565c0; }
+        .put { background: #fff3e0; color: #ef6c00; }
+        .patch { background: #f3e5f5; color: #6a1b9a; }
+        .delete { background: #ffebee; color: #c62828; }
+        code {
+            background: #f1f3f4;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #d63384;
+        }
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+        }
+        .param {
+            display: flex;
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 4px;
+        }
+        .param-name {
+            font-weight: bold;
+            min-width: 120px;
+            color: #2980b9;
+        }
+        .param-type {
+            color: #27ae60;
+            margin: 0 1rem;
+        }
+        .param-desc {
+            color: #7f8c8d;
+        }
+        .required {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .optional {
+            color: #f39c12;
+        }
+        .nav-link {
+            display: block;
+            padding: 0.5rem 1rem;
+            color: #3498db;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 0.2rem 0;
+        }
+        .nav-link:hover {
+            background: #ecf0f1;
+        }
+        .nav-section {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        .example-request {
+            margin: 1rem 0;
+        }
+        .response {
+            margin: 1rem 0;
+        }
+        .response-code {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+        .note strong {
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="nav-section">Authentification</div>
+            <a href="#auth-token" class="nav-link">Token Authentication</a>
+            <a href="#auth-jwt" class="nav-link">JWT Authentication</a>
+            
+            <div class="nav-section">Soins</div>
+            <a href="#soins-list" class="nav-link">Liste des soins</a>
+            <a href="#soins-create" class="nav-link">Créer un soin</a>
+            <a href="#soins-detail" class="nav-link">Détail d'un soin</a>
+            
+            <div class="nav-section">Membres</div>
+            <a href="#membres-list" class="nav-link">Liste des membres</a>
+            <a href="#membres-detail" class="nav-link">Détail d'un membre</a>
+            
+            <div class="nav-section">Statistiques</div>
+            <a href="#statistiques" class="nav-link">Statistiques</a>
+            
+            <div class="nav-section">Santé</div>
+            <a href="#health" class="nav-link">Health Check</a>
+            
+            <div class="note" style="margin-top: 2rem;">
+                <strong>Note:</strong> Toutes les requêtes nécessitent une authentification sauf <code>/api/health/</code>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Introduction -->
+            <div class="section">
+                <h2>Introduction</h2>
+                <p>Cette API permet de gérer les opérations de la mutuelle de santé, incluant la gestion des soins, des membres, des paiements et des statistiques.</p>
+                
+                <div class="note">
+                    <strong>Base URL:</strong> <code>http://votre-domaine.com/api/</code><br>
+                    <strong>Format des données:</strong> JSON<br>
+                    <strong>Encodage:</strong> UTF-8
+                </div>
+            </div>
+            
+            <!-- Authentication -->
+            <div class="section" id="auth">
+                <h2>Authentification</h2>
+                
+                <div class="endpoint" id="auth-token">
+                    <h3>
+                        <span class="method post">POST</span>
+                        <code>/api/token/</code>
+                    </h3>
+                    <p>Authentification avec token DRF standard.</p>
+                    
+                    <div class="example-request">
+                        <strong>Requête:</strong>
+                        <pre>{
+  "username": "votre_utilisateur",
+  "password": "votre_mot_de_passe"
+}</pre>
+                    </div>
+                    
+                    <div class="response">
+                        <strong>Réponse (200):</strong>
+                        <pre>{
+  "token": "9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b"
+}</pre>
+                    </div>
+                    
+                    <p><strong>Utilisation:</strong> Ajouter le header <code>Authorization: Token {votre_token}</code> aux requêtes suivantes.</p>
+                </div>
+                
+                <div class="endpoint" id="auth-jwt">
+                    <h3>
+                        <span class="method post">POST</span>
+                        <code>/api/auth/token/</code>
+                    </h3>
+                    <p>Authentification avec JSON Web Tokens (JWT).</p>
+                    
+                    <div class="example-request">
+                        <strong>Requête:</strong>
+                        <pre>{
+  "username": "votre_utilisateur",
+  "password": "votre_mot_de_passe"
+}</pre>
+                    </div>
+                    
+                    <div class="response">
+                        <strong>Réponse (200):</strong>
+                        <pre>{
+  "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+}</pre>
+                    </div>
+                    
+                    <div class="note">
+                        <strong>Refresh Token:</strong> Utiliser <code>/api/auth/token/refresh/</code> pour rafraîchir le token d'accès.
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Soins -->
+            <div class="section" id="soins">
+                <h2>Gestion des Soins</h2>
+                
+                <div class="endpoint" id="soins-list">
+                    <h3>
+                        <span class="method get">GET</span>
+                        <code>/api/soins/</code>
+                    </h3>
+                    <p>Récupère la liste des soins avec pagination et filtres.</p>
+                    
+                    <div class="param">
+                        <div class="param-name">Paramètres GET</div>
+                        <div class="param-type">Query</div>
+                        <div class="param-desc">
+                            <code>page</code> - Numéro de page (défaut: 1)<br>
+                            <code>page_size</code> - Taille de page (défaut: 20)<br>
+                            <code>search</code> - Recherche textuelle<br>
+                            <code>ordering</code> - Tri (ex: date_realisation)<br>
+                            <code>statut</code> - Filtre par statut
+                        </div>
+                    </div>
+                    
+                    <div class="response">
+                        <strong>Réponse (200):</strong>
+                        <pre>{
+  "count": 42,
+  "next": "http://api.example.com/api/soins/?page=2",
+  "previous": null,
+  "results": [...]
+}</pre>
+                    </div>
+                </div>
+                
+                <div class="endpoint" id="soins-create">
+                    <h3>
+                        <span class="method post">POST</span>
+                        <code>/api/soins/</code>
+                    </h3>
+                    <p>Crée un nouveau soin (réservé aux médecins).</p>
+                    
+                    <div class="param">
+                        <div class="param-name">patient</div>
+                        <div class="param-type">Integer</div>
+                        <div class="param-desc">ID du patient <span class="required">Requis</span></div>
+                    </div>
+                    
+                    <div class="param">
+                        <div class="param-name">type_soin</div>
+                        <div class="param-type">Integer</div>
+                        <div class="param-desc">ID du type de soin <span class="required">Requis</span></div>
+                    </div>
+                    
+                    <div class="param">
+                        <div class="param-name">date_realisation</div>
+                        <div class="param-type">Date</div>
+                        <div class="param-desc">Date de réalisation (YYYY-MM-DD) <span class="required">Requis</span></div>
+                    </div>
+                    
+                    <div class="example-request">
+                        <strong>Requête:</strong>
+                        <pre>{
+  "patient": 1,
+  "type_soin": 3,
+  "date_realisation": "2024-01-15",
+  "cout": 150.00,
+  "description": "Consultation générale",
+  "diagnostic": "Grippe saisonnière"
+}</pre>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Health Check -->
+            <div class="section" id="health">
+                <h2>Vérification de Santé</h2>
+                
+                <div class="endpoint">
+                    <h3>
+                        <span class="method get">GET</span>
+                        <code>/api/health/</code>
+                    </h3>
+                    <p>Vérifie si l'API est fonctionnelle. Ne nécessite pas d'authentification.</p>
+                    
+                    <div class="response">
+                        <strong>Réponse (200):</strong>
+                        <pre>{
+  "status": "healthy",
+  "service": "Mutuelle Core API",
+  "version": "1.0",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "environment": "production"
+}</pre>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Statistiques -->
+            <div class="section" id="statistiques">
+                <h2>Statistiques</h2>
+                
+                <div class="endpoint">
+                    <h3>
+                        <span class="method get">GET</span>
+                        <code>/api/statistiques/</code>
+                    </h3>
+                    <p>Récupère les statistiques selon le rôle de l'utilisateur.</p>
+                    
+                    <div class="note">
+                        <strong>Note:</strong> Les statistiques varient selon le rôle :
+                        <ul>
+                            <li><strong>Assureur:</strong> Statistiques globales</li>
+                            <li><strong>Médecin:</strong> Statistiques personnelles</li>
+                            <li><strong>Membre:</strong> Statistiques personnelles</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e0e0e0; text-align: center; color: #7f8c8d;">
+                <p>Documentation générée le {% now "j F Y" %}</p>
+                <p>Pour toute question : <a href="mailto:support@mutuelle.com">support@mutuelle.com</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
