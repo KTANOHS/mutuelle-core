@@ -1,0 +1,8 @@
+# railway.toml
+[variables]
+DEBUG = "false"
+CSRF_TRUSTED_ORIGINS = "https://web-production-abe5.up.railway.app,https://*.railway.app"
+SECRET_KEY = "*!o)@vu!+hh5!-r@v&762wlvf2h*sqr!+gkg15q23g^hkxm)v(p"
+CSRF_COOKIE_SECURE = "true"
+SESSION_COOKIE_SECURE = "true"
+SECURE_SSL_REDIRECT = "true"
