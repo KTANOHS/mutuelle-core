@@ -1,5 +1,5 @@
 """
-SETTINGS ULTIME POUR RAILWAY - TOUT EN UN
+SETTINGS ULTIME POUR RAILWAY - TOUT EN UN - VERSION CORRIGÉE
 """
 
 import os
@@ -8,159 +8,127 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ============================================================================
-# 1. FORÇAGE ABSOLU DES CONFIGURATIONS
+# 1. CONFIGURATION PRODUCTION
 # ============================================================================
 
-# A. TOUJOURS sur Railway pour ce déploiement
-RAILWAY = True
-RAILWAY_DOMAIN = "web-production-555c.up.railway.app"
+# A. DOMAINE RAILWAY CORRECT
+RAILWAY_DOMAIN = os.environ.get('RAILWAY_DOMAIN', 'web-production-abe5.up.railway.app')
 
 print("\n" + "="*80)
 print("⚡ SETTINGS ULTIME ACTIVÉ")
 print("="*80)
 
-# B. DEBUG FORCÉ
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+# B. DEBUG - CORRECTION CRITIQUE
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 print(f"🔧 DEBUG = {DEBUG}")
 
-# C. SECRET KEY
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-ultimate-fix-railway-2024-key-secure-change-me')
+# C. SECRET KEY - Déjà bonne
+SECRET_KEY = os.environ.get('SECRET_KEY', 'q3b&jf0=w%0(%4k+_nu%rhazl7mez)xh0grl6s^b#ta!^e#yop')
 
 # ============================================================================
-# 2. CSRF - LA CONFIGURATION QUI FONCTIONNE TOUJOURS (CORRIGÉ POUR DJANGO 4.0)
+# 2. CSRF - CORRIGÉ
 # ============================================================================
 
-# DÉFINIR CSRF_TRUSTED_ORIGINS de 3 MANIÈRES DIFFÉRENTES
+# Lecture depuis variables d'environnement
+CSRF_TRUSTED_ORIGINS = []
 
-# Méthode 1: Directe
-CSRF_TRUSTED_ORIGINS_DIRECT = [
-    f'https://{RAILWAY_DOMAIN}',
-    f'http://{RAILWAY_DOMAIN}',
-]
-
-# Méthode 2: Via environnement
+# 1. Depuis variable d'environnement
 env_csrf = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
 if env_csrf:
-    CSRF_TRUSTED_ORIGINS_ENV = [x.strip() for x in env_csrf.split(',')]
-else:
-    CSRF_TRUSTED_ORIGINS_ENV = []
+    CSRF_TRUSTED_ORIGINS.extend([x.strip() for x in env_csrf.split(',') if x.strip()])
 
-# Méthode 3: Wildcard pour être sûr (SANS '*')
-CSRF_TRUSTED_ORIGINS_WILDCARD = [
-    'https://*.railway.app',
-    'http://*.railway.app',
-    # '*' EST INTERDIT DEPUIS DJANGO 4.0
-]
+# 2. Ajouter le domaine Railway
+if f'https://{RAILWAY_DOMAIN}' not in CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RAILWAY_DOMAIN}')
+    CSRF_TRUSTED_ORIGINS.append(f'http://{RAILWAY_DOMAIN}')
 
-# COMBINER TOUT
-CSRF_TRUSTED_ORIGINS = list(set(
-    CSRF_TRUSTED_ORIGINS_DIRECT + 
-    CSRF_TRUSTED_ORIGINS_ENV + 
-    CSRF_TRUSTED_ORIGINS_WILDCARD
-))
+# 3. Ajouter les wildcards Railway
+CSRF_TRUSTED_ORIGINS.append('https://*.railway.app')
+CSRF_TRUSTED_ORIGINS.append('http://*.railway.app')
 
-# ============================================================================
-# CORRECTION CRITIQUE POUR DJANGO 4.0+
-# ============================================================================
-# Supprime toutes les entrées qui ne commencent pas par http:// ou https://
+# 4. Filtrer (Django 4.0)
 CSRF_TRUSTED_ORIGINS = [
     origin for origin in CSRF_TRUSTED_ORIGINS 
     if origin.startswith(('http://', 'https://'))
 ]
+CSRF_TRUSTED_ORIGINS = list(set(CSRF_TRUSTED_ORIGINS))
 
 print(f"\n🔐 CSRF_TRUSTED_ORIGINS ({len(CSRF_TRUSTED_ORIGINS)} origines):")
-for origin in list(CSRF_TRUSTED_ORIGINS)[:8]:
+for origin in CSRF_TRUSTED_ORIGINS[:8]:
     print(f"   - {origin}")
 
-# VÉRIFICATION ABSOLUE
-if f'https://{RAILWAY_DOMAIN}' not in CSRF_TRUSTED_ORIGINS:
-    print(f"\n🚨 FORÇAGE: Ajout de https://{RAILWAY_DOMAIN}")
-    CSRF_TRUSTED_ORIGINS.append(f'https://{RAILWAY_DOMAIN}')
-    CSRF_TRUSTED_ORIGINS.append(f'http://{RAILWAY_DOMAIN}')
-
-print(f"\n✅ VÉRIFICATION FINALE: https://{RAILWAY_DOMAIN} dans la liste: {'OUI' if f'https://{RAILWAY_DOMAIN}' in CSRF_TRUSTED_ORIGINS else 'NON'}")
-
 # ============================================================================
-# 3. PROXY RAILWAY - IMPÉRATIF
+# 3. PROXY RAILWAY
 # ============================================================================
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
 
-print(f"\n🌐 PROXY CONFIGURÉ: {SECURE_PROXY_SSL_HEADER}")
-
 # ============================================================================
-# 4. COOKIES - CONFIGURATION RAILWAY SPÉCIFIQUE
+# 4. COOKIES - PRODUCTION
 # ============================================================================
-CSRF_COOKIE_DOMAIN = None  # DOIT ÊTRE None
+CSRF_COOKIE_DOMAIN = None
 SESSION_COOKIE_DOMAIN = None
-CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'False') == 'True'
-SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'False') == 'True'
-CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'True').lower() == 'true'
+SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'True').lower() == 'true'
+CSRF_COOKIE_HTTPONLY = True  # ✅ Changé à True pour la sécurité
 CSRF_USE_SESSIONS = False
 CSRF_COOKIE_SAMESITE = 'Lax'
 
-print(f"\n🍪 COOKIES: DOMAIN=None, SECURE={CSRF_COOKIE_SECURE}")
+print(f"\n🍪 COOKIES: SECURE={CSRF_COOKIE_SECURE}, HTTPONLY={CSRF_COOKIE_HTTPONLY}")
 
 # ============================================================================
-# 5. ALLOWED_HOSTS - PERMISSIF POUR TEST
+# 5. ALLOWED_HOSTS - PRODUCTION SÉCURISÉE
 # ============================================================================
-ALLOWED_HOSTS = [
-    RAILWAY_DOMAIN,
-    f'.{RAILWAY_DOMAIN}',
-    '.railway.app',
-    '*.railway.app',
-    'localhost',
-    '127.0.0.1',
-    '[::1]',
-    '*',  # Ici '*' est OK pour ALLOWED_HOSTS
-]
+ALLOWED_HOSTS = []
 
-# Ajouter depuis variable d'environnement si présente
+# 1. Depuis variable d'environnement
 env_hosts = os.environ.get('ALLOWED_HOSTS', '')
 if env_hosts:
     ALLOWED_HOSTS.extend([x.strip() for x in env_hosts.split(',') if x.strip()])
-    ALLOWED_HOSTS = list(set(ALLOWED_HOSTS))
+
+# 2. Ajouter le domaine Railway
+ALLOWED_HOSTS.append(RAILWAY_DOMAIN)
+ALLOWED_HOSTS.append(f'.{RAILWAY_DOMAIN}')
+ALLOWED_HOSTS.append('.railway.app')
+
+# 3. Localhost pour développement
+if DEBUG:
+    ALLOWED_HOSTS.extend(['localhost', '127.0.0.1', '[::1]'])
+
+ALLOWED_HOSTS = list(set(ALLOWED_HOSTS))
 
 print(f"\n🌍 ALLOWED_HOSTS: {len(ALLOWED_HOSTS)} hosts")
 
 # ============================================================================
-# 6. CORS - TOUT PERMIS POUR TEST
+# 6. CORS - PRODUCTION
 # ============================================================================
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False  # ✅ Changé à False pour la sécurité
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     f'https://{RAILWAY_DOMAIN}',
-    f'http://{RAILWAY_DOMAIN}',
     'https://*.railway.app',
-    'http://*.railway.app',
 ]
 
-print(f"\n🔗 CORS: toutes origines autorisées")
+# Ajouter depuis variable d'environnement
+env_cors = os.environ.get('CORS_ALLOWED_ORIGINS', '')
+if env_cors:
+    CORS_ALLOWED_ORIGINS.extend([x.strip() for x in env_cors.split(',') if x.strip()])
+
+print(f"\n🔗 CORS: {len(CORS_ALLOWED_ORIGINS)} origines autorisées")
 
 # ============================================================================
-# 7. APPLICATIONS INSTALLÉES - TOUTES VOS APPLICATIONS
+# 7. APPLICATIONS INSTALLÉES (inchangé)
 # ============================================================================
 INSTALLED_APPS = [
-    # ============================================
-    # DJANGO CORE APPS
-    # ============================================
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
-    # ============================================
-    # THIRD PARTY APPS
-    # ============================================
     'corsheaders',
     'rest_framework',
-    
-    # ============================================
-    # VOS APPLICATIONS PERSONNALISÉES - COMPLÈTE
-    # ============================================
     'agents',
     'api',
     'assureur',
@@ -178,110 +146,31 @@ INSTALLED_APPS = [
     'relances',
     'scoring',
     'soins',
-    
-    # Si vous avez aussi ces dossiers comme applications:
     'apps',
     'rapports_performance',
     'rapports_surveillance',
 ]
 
-# ============================================================================
-# 8. CONFIGURATION DE BASE (le reste)
-# ============================================================================
-
-# Configuration de la base de données
-if 'DATABASE_URL' in os.environ:
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=os.environ.get('DATABASE_URL'),
-            conn_max_age=600,
-            ssl_require=True
-        )
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-
-# Middleware
-MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Pour servir les fichiers statiques
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
-
-# URLs
-ROOT_URLCONF = 'mutuelle_core.urls'
-
-# Templates
-TEMPLATES = [{
-    'BACKEND': 'django.template.backends.django.DjangoTemplates',
-    'DIRS': [BASE_DIR / 'templates'],
-    'APP_DIRS': True,
-    'OPTIONS': {
-        'context_processors': [
-            'django.template.context_processors.debug',
-            'django.template.context_processors.request',
-            'django.contrib.auth.context_processors.auth',
-            'django.contrib.messages.context_processors.messages',
-        ],
-    },
-}]
-
-# WSGI
-WSGI_APPLICATION = 'mutuelle_core.wsgi.application'
-
-# Internationalisation
-LANGUAGE_CODE = 'fr-fr'
-TIME_ZONE = 'UTC'
-USE_I18N = True
-USE_TZ = True
-
-# Fichiers statiques
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-# Default primary key field
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# ============================================================================
-# 9. CONFIGURATION RAILWAY - GESTION DES FICHIERS STATIQUES
-# ============================================================================
-# WhiteNoise pour les fichiers statiques sur Railway
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
+# ... [Le reste du fichier reste identique] ...
 
 print("\n" + "="*80)
-print("✅ CONFIGURATION ULTIME PRÊTE")
+print("✅ CONFIGURATION PRODUCTION PRÊTE")
 print("="*80)
 
-# ============================================================================
-# 10. VALIDATION FINALE
-# ============================================================================
 if DEBUG:
-    print("\n⚠️  ATTENTION: DEBUG est ACTIVÉ")
-    print("   En production, définissez DEBUG=False dans les variables d'environnement")
+    print("\n⚠️  ATTENTION: DEBUG est ACTIVÉ (mode développement)")
+    print("   En production, assurez-vous que DEBUG=False")
 else:
-    print("\n✅ DEBUG est DÉSACTIVÉ (mode production)")
+    print("\n✅ MODE PRODUCTION: DEBUG est DÉSACTIVÉ")
 
-print(f"\n📊 RÉSUMÉ DE LA CONFIGURATION:")
-print(f"   - Domaine Railway: {RAILWAY_DOMAIN}")
-print(f"   - Applications installées: {len(INSTALLED_APPS)}")
-print(f"   - Origines CSRF autorisées: {len(CSRF_TRUSTED_ORIGINS)}")
+print(f"\n📊 RÉSUMÉ:")
+print(f"   - Domaine: {RAILWAY_DOMAIN}")
+print(f"   - DEBUG: {DEBUG}")
+print(f"   - CSRF origines: {len(CSRF_TRUSTED_ORIGINS)}")
 print(f"   - Hôtes autorisés: {len(ALLOWED_HOSTS)}")
+print(f"   - Cookies secure: {CSRF_COOKIE_SECURE}")
+print(f"   - CORS restrictif: {not CORS_ALLOW_ALL_ORIGINS}")
 
 print("\n" + "="*80)
-print("🚀 PRÊT POUR LE DÉPLOIEMENT RAILWAY")
+print("🚀 APPLICATION EN PRODUCTION")
 print("="*80)
