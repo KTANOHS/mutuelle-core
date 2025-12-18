@@ -12,4 +12,6 @@ application = get_wsgi_application()
 
 # Pour WhiteNoise (servir les fichiers statiques)
 from whitenoise import WhiteNoise
+if not os.path.exists('staticfiles'):
+    os.makedirs('staticfiles', exist_ok=True)
 application = WhiteNoise(application, root='staticfiles')

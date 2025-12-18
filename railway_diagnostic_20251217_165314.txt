@@ -1,0 +1,64 @@
+RAILWAY DIAGNOSTIC REPORT - 20251217_165314
+============================================================
+
+URL: https://web-production-abe5.up.railway.app
+Date: 2025-12-17 16:53:14.979995
+
+RÉSULTATS:
+✅ Système: Darwin 22.6.0
+✅ Python: 3.11.10 (main, Sep 18 2025, 08:11:13) [Clang 14.0.3 (clang-1403.0.22.14.1)]
+❌ DEBUG: NON DÉFINIE
+❌ SECRET_KEY: NON DÉFINIE
+❌ CSRF_TRUSTED_ORIGINS: NON DÉFINIE
+❌ DATABASE_URL: NON DÉFINIE
+❌ ALLOWED_HOSTS: NON DÉFINIE
+❌ RAILWAY_ENVIRONMENT: NON DÉFINIE
+✅ DEBUG=False
+✅ ALLOWED_HOSTS: 8 hôtes
+     - .up.railway.app
+     - *.up.railway.app
+     - [::1]
+     - localhost
+     - 127.0.0.1
+✅ CSRF_TRUSTED_ORIGINS: 6 origines
+✅   ✅ https://web-production-abe5.up.railway.app dans la liste
+✅ CSRF_COOKIE_SECURE: False
+✅ SESSION_COOKIE_SECURE: False
+✅ CSRF_COOKIE_DOMAIN: None
+⚠️ CSRF_COOKIE_SECURE=False (devrait être True en production)
+✅ Applications installées: 26
+✅ DNS résolu: web-production-abe5.up.railway.app → 66.33.22.222
+✅ API santé accessible: HTTP 200
+     Status: healthy
+     Database: connected
+✅ Admin redirige vers login: HTTP 302
+✅ HTTPS activé
+⚠️ HSTS: Manquant
+✅ Content type nosniff: nosniff
+✅ Frame protection: DENY
+⚠️ XSS protection: Manquant
+✅ Connexion BD: OK
+✅ Utilisateurs: 15
+✅ Superutilisateurs: 3
+✅ Superutilisateurs disponibles:
+     - matrix (ktanohsoualio@gmail.com)
+     - admin (admin@mutuelle.core)
+     - koffitanohsoualiho (ktanohsoualio@gmail.com)
+✅ STATIC_ROOT: /Users/koffitanohsoualiho/Documents/P FINALE AVANT SYNCHRO/p tres avancee /pf erreur/projet 21.49.30/staticfiles (1 fichiers)
+✅ Fichiers statiques servis
+ℹ️ ✅ Santé: HTTP 200 (OK)
+ℹ️ ✅ API racine: HTTP 200 (OK)
+ℹ️ ✅ Login admin: HTTP 200 (OK)
+
+ERREURS: 6
+• DEBUG: NON DÉFINIE
+• SECRET_KEY: NON DÉFINIE
+• CSRF_TRUSTED_ORIGINS: NON DÉFINIE
+• DATABASE_URL: NON DÉFINIE
+• ALLOWED_HOSTS: NON DÉFINIE
+• RAILWAY_ENVIRONMENT: NON DÉFINIE
+
+AVERTISSEMENTS: 3
+• CSRF_COOKIE_SECURE=False (devrait être True en production)
+• HSTS: Manquant
+• XSS protection: Manquant

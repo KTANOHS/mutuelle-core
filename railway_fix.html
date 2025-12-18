@@ -1,0 +1,70 @@
+<!-- railway_fix.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🚨 FIX CSRF Railway</title>
+    <style>
+        body { font-family: Arial; margin: 40px; background: #f0f0f0; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .btn { display: inline-block; background: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin: 10px 5px; }
+        .btn-danger { background: #dc3545; }
+        .btn-success { background: #28a745; }
+        .variable { background: #f8f9fa; padding: 15px; margin: 10px 0; border-left: 4px solid #007bff; font-family: monospace; }
+        code { background: #e9ecef; padding: 2px 5px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 CORRECTION URGENTE CSRF RAILWAY</h1>
+        <p>Votre application est déployée mais les variables critiques manquent.</p>
+        
+        <a href="https://railway.app/project/5e1edecb-8b7f-48be-8b84-b779d78fb4da/service/dcf822b1-2811-44bf-a3b5-a3bff249b3f7/variables" class="btn" target="_blank">
+            🔗 OUVIRIR RAILWAY VARIABLES
+        </a>
+        
+        <h2>📋 ÉTAPES :</h2>
+        <ol>
+            <li>Cliquez sur le bouton ci-dessus</li>
+            <li>Ajoutez ces 3 variables :</li>
+        </ol>
+        
+        <div class="variable">
+            <strong>DEBUG</strong><br>
+            <code>false</code>
+        </div>
+        
+        <div class="variable">
+            <strong>CSRF_TRUSTED_ORIGINS</strong><br>
+            <code>https://web-production-abe5.up.railway.app,https://*.railway.app</code>
+        </div>
+        
+        <div class="variable">
+            <strong>SECRET_KEY</strong><br>
+            <code>*ut#lmdlu*r&jr&%*6de=k_e1u9r)@exjifan1y%c9^jyd$br5</code>
+        </div>
+        
+        <h2>✅ APRÈS AVOIR AJOUTÉ :</h2>
+        
+        <a href="https://web-production-abe5.up.railway.app/admin/" class="btn btn-success" target="_blank">
+            🔐 TESTER L'ADMIN
+        </a>
+        
+        <h2>🔧 COMMANDES TERMINAL :</h2>
+        <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+# Après avoir ajouté les variables
+railway up
+
+# Tester
+curl https://web-production-abe5.up.railway.app/api/health/
+open https://web-production-abe5.up.railway.app/admin/
+        </pre>
+        
+        <h2>👤 VOS IDENTIFIANTS EXISTANTS :</h2>
+        <ul>
+            <li><code>matrix</code> - ktanohsoualio@gmail.com</li>
+            <li><code>admin</code> - admin@mutuelle.core</li>
+            <li><code>koffitanohsoualiho</code> - ktanohsoualio@gmail.com</li>
+        </ul>
+    </div>
+</body>
+</html>

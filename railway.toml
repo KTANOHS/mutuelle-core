@@ -1,8 +1,19 @@
 # railway.toml
+[build]
+builder = "nixpacks"
+buildCommand = "pip install -r requirements.txt && python manage.py collectstatic --noinput"
+
+[deploy]
+startCommand = "python manage.py migrate && gunicorn mutuelle_core.wsgi:application"
+healthcheckPath = "/api/health/"
+restartPolicyType = "ON_FAILURE"
+
 [variables]
 DEBUG = "false"
+SECRET_KEY = "*ut#lmdlu*r&jr&%*6de=k_e1u9r)@exjifan1y%c9^jyd$br5"
 CSRF_TRUSTED_ORIGINS = "https://web-production-abe5.up.railway.app,https://*.railway.app"
-SECRET_KEY = "*!o)@vu!+hh5!-r@v&762wlvf2h*sqr!+gkg15q23g^hkxm)v(p"
 CSRF_COOKIE_SECURE = "true"
 SESSION_COOKIE_SECURE = "true"
 SECURE_SSL_REDIRECT = "true"
+SECURE_HSTS_SECONDS = "31536000"
+ALLOWED_HOSTS = ".railway.app,localhost,127.0.0.1,web-production-abe5.up.railway.app"
