@@ -9,11 +9,29 @@ healthcheckPath = "/api/health/"
 restartPolicyType = "ON_FAILURE"
 
 [variables]
+# Django Core
 DEBUG = "false"
 SECRET_KEY = "*ut#lmdlu*r&jr&%*6de=k_e1u9r)@exjifan1y%c9^jyd$br5"
-CSRF_TRUSTED_ORIGINS = "https://web-production-abe5.up.railway.app,https://*.railway.app"
+ALLOWED_HOSTS = "*.railway.app,*.up.railway.app,.railway.app,.up.railway.app,localhost,127.0.0.1,web-production-abe5.up.railway.app"
+
+# Security & CSRF
+CSRF_TRUSTED_ORIGINS = "https://web-production-abe5.up.railway.app,https://*.railway.app,https://*.up.railway.app"
 CSRF_COOKIE_SECURE = "true"
 SESSION_COOKIE_SECURE = "true"
 SECURE_SSL_REDIRECT = "true"
 SECURE_HSTS_SECONDS = "31536000"
-ALLOWED_HOSTS = ".railway.app,localhost,127.0.0.1,web-production-abe5.up.railway.app"
+
+# CORS (important pour les API)
+CORS_ALLOWED_ORIGINS = "https://web-production-abe5.up.railway.app,https://*.railway.app,https://*.up.railway.app"
+CORS_ALLOW_CREDENTIALS = "true"
+
+# Railway detection
+RAILWAY_ENVIRONMENT = "production"
+RAILWAY = "true"
+
+# Database (important si vous n'avez pas DATABASE_URL configurée ailleurs)
+DATABASE_URL = "postgresql://postgres:password@postgres.railway.internal:5432/railway"
+
+# Static files
+STATIC_URL = "/static/"
+STATIC_ROOT = "/app/staticfiles"
