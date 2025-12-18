@@ -1,5 +1,5 @@
 """
-SETTINGS ULTIME POUR RAILWAY - VERSION FORCÉE CSRF
+SETTINGS ULTIME POUR RAILWAY - VERSION FORCÉE CSRF ET DATABASE
 """
 
 import os
@@ -278,29 +278,82 @@ MIDDLEWARE = [
 print("\n🔧 MIDDLEWARE: CsrfViewMiddleware positionné après SessionMiddleware")
 
 # ============================================================================
-# 9. DATABASE
+# 9. DATABASE - CONFIGURATION CORRIGÉE POUR RAILWAY
 # ============================================================================
 
-if 'DATABASE_URL' in os.environ:
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=os.environ.get('DATABASE_URL'),
-            conn_max_age=600,
-            ssl_require=True
-        )
-    }
-    db_engine = 'PostgreSQL'
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-    db_engine = 'SQLite'
+print("\n" + "="*80)
+print("🗄️  CONFIGURATION DE LA BASE DE DONNÉES")
+print("="*80)
 
-print(f"\n🗄️  Base de données: {db_engine}")
+# Configuration robuste pour Railway
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL:
+    # Correction du préfixe si nécessaire
+    if DATABASE_URL.startswith('postgres://'):
+        DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+        print(f"✅ DATABASE_URL corrigée: {DATABASE_URL[:50]}...")
+    
+    try:
+        import dj_database_url
+        DATABASES = {
+            'default': dj_database_url.config(
+                default=DATABASE_URL,
+                conn_max_age=600,
+                ssl_require=True
+            )
+        }
+        print(f"✅ Base de données configurée avec dj_database_url")
+        db_engine = 'PostgreSQL (Railway)'
+    except Exception as e:
+        print(f"⚠️  Erreur dj_database_url: {e}")
+        # Fallback à la configuration manuelle
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': os.environ.get('DB_NAME', 'railway'),
+                'USER': os.environ.get('DB_USER', 'postgres'),
+                'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+                'HOST': os.environ.get('DB_HOST', 'postgres.railway.internal'),
+                'PORT': os.environ.get('DB_PORT', '5432'),
+            }
+        }
+        print(f"✅ Base de données configurée manuellement")
+        db_engine = 'PostgreSQL (Fallback)'
+else:
+    # Configuration sans DATABASE_URL
+    if os.environ.get('DB_NAME'):
+        # Configuration avec variables individuelles
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': os.environ.get('DB_NAME', 'railway'),
+                'USER': os.environ.get('DB_USER', 'postgres'),
+                'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+                'HOST': os.environ.get('DB_HOST', 'postgres.railway.internal'),
+                'PORT': os.environ.get('DB_PORT', '5432'),
+            }
+        }
+        db_engine = 'PostgreSQL (Variables)'
+        print(f"✅ Base de données configurée avec variables DB_*")
+    else:
+        # Fallback SQLite pour développement
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
+        db_engine = 'SQLite (développement)'
+        print(f"⚠️  Base de données SQLite (mode développement)")
+
+# Vérification de la configuration
+print(f"\n📊 CONFIGURATION DATABASE:")
+print(f"   • Engine: {DATABASES['default']['ENGINE']}")
+print(f"   • Name: {DATABASES['default'].get('NAME', 'N/A')}")
+if DATABASES['default']['ENGINE'] == 'django.db.backends.postgresql':
+    print(f"   • Host: {DATABASES['default'].get('HOST', 'N/A')}")
+    print(f"   • User: {DATABASES['default'].get('USER', 'N/A')}")
 
 # ============================================================================
 # 10. TEMPLATES & URLS
@@ -437,10 +490,12 @@ print("="*80)
 CSRF_VERIFIED = f'https://{RAILWAY_DOMAIN}' in CSRF_TRUSTED_ORIGINS
 COOKIES_SECURE = CSRF_COOKIE_SECURE and SESSION_COOKIE_SECURE
 HTTPS_ENABLED = SECURE_SSL_REDIRECT
+DATABASE_CONFIGURED = 'DATABASES' in locals() and 'default' in DATABASES
 
 print(f"🔍 VÉRIFICATION CSRF: {'✅ OUI' if CSRF_VERIFIED else '❌ NON'}")
 print(f"🔍 Cookies Secure: {'✅ OUI' if COOKIES_SECURE else '❌ NON'}")
 print(f"🔍 HTTPS Redirection: {'✅ OUI' if HTTPS_ENABLED else '❌ NON'}")
+print(f"🔍 Base de données: {'✅ CONFIGURÉE' if DATABASE_CONFIGURED else '❌ NON CONFIGURÉE'}")
 
 if not CSRF_VERIFIED:
     print(f"\n🚨 CRITIQUE: Ajout FORCÉ de https://{RAILWAY_DOMAIN}")
@@ -452,6 +507,7 @@ print(f"   • DEBUG: {DEBUG} (FORCÉ: false)")
 print(f"   • CSRF origines: {len(CSRF_TRUSTED_ORIGINS)} (FORCÉES)")
 print(f"   • Cookies Secure: {CSRF_COOKIE_SECURE} (FORCÉ: True)")
 print(f"   • HTTPS: {SECURE_SSL_REDIRECT} (FORCÉ: True)")
+print(f"   • Base de données: {db_engine}")
 
 print("\n" + "="*80)
 print("🚀 CONFIGURATION ABSOLUMENT FORCÉE POUR RAILWAY")
